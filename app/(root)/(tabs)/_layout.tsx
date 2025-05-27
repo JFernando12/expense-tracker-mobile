@@ -15,6 +15,13 @@ const LayoutTabs = () => {
       }}
     >
       <Tabs.Screen
+        name="index"
+        options={{
+          title: "Home",
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
         name="statistics"
         options={{
           title: "Statistics",
@@ -25,13 +32,6 @@ const LayoutTabs = () => {
         name="wallet"
         options={{
           title: "Wallet",
-          headerShown: false,
-        }}
-      />
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
           headerShown: false,
         }}
       />

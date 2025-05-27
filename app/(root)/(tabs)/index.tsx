@@ -1,4 +1,5 @@
 import TransactionList from "@/components/TransactionList";
+import { router } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -42,10 +43,11 @@ export default function Index() {
         </Text>
         <TransactionList />
       </View>
-      <TouchableOpacity>
-        <View className="w-12 h-12 flex-col justify-center items-center bg-white rounded-full absolute bottom-5 right-5">
-          <Text className="text-3xl font-semibold">+</Text>
-        </View>
+      <TouchableOpacity
+        onPress={() => router.push("/(root)/(modals)/createTransaction")}
+        className="w-12 h-12 flex-col justify-center items-center bg-white rounded-full absolute bottom-5 right-5"
+      >
+        <Text className="text-3xl font-semibold">+</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
