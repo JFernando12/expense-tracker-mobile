@@ -1,12 +1,29 @@
-import React from 'react'
-import { Text, View } from 'react-native'
+import WalletList from "@/components/WalletList";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const wallet = () => {
   return (
-    <View>
-      <Text>wallet</Text>
-    </View>
-  )
-}
+    <SafeAreaView className="bg-black h-full -pb-safe-offset-20">
+      <View className="flex-col items-center justify-between py-16">
+        <Text className="text-white text-3xl font-extrabold">$9,000.00</Text>
+        <Text className="text-white">Balance total</Text>
+      </View>
+      <View className="flex-1 bg-gray-800 p-7 rounded-t-3xl">
+        <View className="flex-row items-center justify-between">
+          <Text className="text-white text-2xl font-bold">My Wallet</Text>
+          <TouchableOpacity>
+            <Text className="text-white">Crear</Text>
+          </TouchableOpacity>
+        </View>
+        {/* Wallets */}
+        <View className="flex-1">
+          <WalletList />
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+};
 
-export default wallet
+export default wallet;
