@@ -1,7 +1,14 @@
-import TransactionList from "@/components/TransactionList";
-import { router } from "expo-router";
-import { Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import TransactionList from '@/components/TransactionList';
+import icons from '@/constants/icons';
+import { router } from 'expo-router';
+import {
+  Image,
+  ImagePropsBase,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Index() {
   return (
@@ -12,9 +19,15 @@ export default function Index() {
           <Text className="text-white">Hello,</Text>
           <Text className="text-white">Fernando</Text>
         </View>
-        <View>
-          <Text className="text-white">Buscador</Text>
-        </View>
+        <TouchableOpacity
+          onPress={() => router.push('/(root)/(modals)/searchModal')}
+        >
+          <Image
+            source={icons.search as ImagePropsBase}
+            tintColor="white"
+            className="size-9"
+          />
+        </TouchableOpacity>
       </View>
       {/* Balance Section */}
       <View className="mt-5 bg-white p-6 rounded-3xl">
@@ -44,7 +57,7 @@ export default function Index() {
         <TransactionList />
       </View>
       <TouchableOpacity
-        onPress={() => router.push("/(root)/(modals)/createTransaction")}
+        onPress={() => router.push('/(root)/(modals)/transaction/create')}
         className="w-12 h-12 flex-col justify-center items-center bg-white rounded-full absolute bottom-5 right-5"
       >
         <Text className="text-3xl font-semibold">+</Text>

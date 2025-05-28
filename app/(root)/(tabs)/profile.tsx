@@ -1,5 +1,14 @@
+import icons from '@/constants/icons';
+import images from '@/constants/images';
+import { router } from 'expo-router';
 import React from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  ImagePropsBase,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SectionButton = ({
@@ -10,7 +19,7 @@ const SectionButton = ({
 }: {
   children: React.ReactNode;
   onPress: () => void;
-  icon?: React.ReactNode;
+  icon?: any;
   className?: string;
 }) => {
   return (
@@ -19,29 +28,38 @@ const SectionButton = ({
       className={`flex-row items-center justify-between ${className}`}
     >
       <View className="flex-row items-center">
-        {icon && <View className="mr-2">{icon}</View>}
-        <Text className="text-white text-lg">{children}</Text>
+        <Image source={icon} tintColor="white" className="size-9" />
+        <Text className="flex-1 ml-4 text-white text-lg">{children}</Text>
+        <Image
+          source={icons.rightArrow as ImagePropsBase}
+          tintColor="white"
+          className="size-6 ml-2"
+        />
       </View>
     </TouchableOpacity>
   );
-}
+};
 
 const sections = [
   {
     title: 'Edit Profile',
-    onPress: () => console.log('Edit Profile Pressed'),
+    onPress: () => router.push('/(root)/(modals)/profileModal'),
+    icon: icons.person,
   },
   {
     title: 'Settings',
     onPress: () => console.log('Settings Pressed'),
+    icon: icons.filter,
   },
   {
     title: 'Privacy Policy',
     onPress: () => console.log('Privacy Policy Pressed'),
+    icon: icons.info,
   },
   {
     title: 'Logout',
     onPress: () => console.log('Logout Pressed'),
+    icon: icons.logout,
   },
 ];
 
@@ -54,7 +72,7 @@ const Profile = () => {
       <View className="flex-col items-center justify-center mb-10">
         <View className="w-32 h-32 rounded-full bg-white flex items-center justify-center">
           <Image
-            source={require('../../../assets/images/react-logo.png')}
+            source={images.avatar as ImagePropsBase}
             resizeMode="contain"
             className="w-28 h-28 rounded-full"
           />
@@ -71,6 +89,7 @@ const Profile = () => {
           <SectionButton
             key={index}
             onPress={section.onPress}
+            icon={section.icon}
             className="bg-gray-800 p-3 rounded-lg mb-2"
           >
             {section.title}
