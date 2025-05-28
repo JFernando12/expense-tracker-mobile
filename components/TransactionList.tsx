@@ -1,6 +1,6 @@
-import { transactions } from "@/data/transactions";
-import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { transactions } from '@/constants/transactions';
+import React from 'react';
+import { ScrollView, Text, View } from 'react-native';
 
 const ItemTransaction = ({
   category,
@@ -22,7 +22,7 @@ const ItemTransaction = ({
         <Text className="text-gray-400">{description}</Text>
       </View>
       <View>
-        <Text className={isIncome ? "text-green-500" : "text-red-600"}>
+        <Text className={isIncome ? 'text-green-500' : 'text-red-600'}>
           {amount}
         </Text>
         <View className="flex-row items-center justify-end">

@@ -3,7 +3,7 @@ import React from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const register = () => {
+const Register = () => {
   return (
     <SafeAreaView className="bg-black h-full p-5">
       <View className="mt-20">
@@ -51,4 +51,4 @@ const register = () => {
   );
 };
 
-export default register;
+export default Register;

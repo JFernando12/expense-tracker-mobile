@@ -3,7 +3,7 @@ import {
   statisticsMonth,
   statisticsWeek,
   statisticsYear,
-} from "@/data/statistics";
+} from '@/constants/statistics';
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import React, { useState } from "react";
 import { Text, View } from "react-native";

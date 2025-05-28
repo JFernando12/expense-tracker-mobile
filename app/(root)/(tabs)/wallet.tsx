@@ -3,7 +3,7 @@ import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const wallet = () => {
+const Wallet = () => {
   return (
     <SafeAreaView className="bg-black h-full -pb-safe-offset-20">
       <View className="flex-col items-center justify-between py-16">
@@ -26,4 +26,4 @@ const wallet = () => {
   );
 };
 
-export default wallet;
+export default Wallet;

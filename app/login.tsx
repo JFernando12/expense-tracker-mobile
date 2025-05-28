@@ -3,7 +3,7 @@ import React from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const login = () => {
+const Login = () => {
   return (
     <SafeAreaView className="bg-black h-full p-5">
       <View className="mt-20">
@@ -29,20 +29,20 @@ const login = () => {
           />
         </View>
       </View>
-      <TouchableOpacity className='mt-3 flex-row justify-end'>
-        <Text className='text-white'>Forgot Password?</Text>
+      <TouchableOpacity className="mt-3 flex-row justify-end">
+        <Text className="text-white">Forgot Password?</Text>
       </TouchableOpacity>
-      <TouchableOpacity className='mt-10 bg-white flex-row justify-center items-center py-4 rounded-3xl'>
-        <Text className='text-2xl font-extrabold'>Login</Text>
+      <TouchableOpacity className="mt-10 bg-white flex-row justify-center items-center py-4 rounded-3xl">
+        <Text className="text-2xl font-extrabold">Login</Text>
       </TouchableOpacity>
-      <View className='mt-10 flex-row justify-center items-center gap-2'>
-        <Text className='text-white'>Don't have an account?</Text>
+      <View className="mt-10 flex-row justify-center items-center gap-2">
+        <Text className="text-white">Don't have an account?</Text>
         <TouchableOpacity onPress={() => router.push('/register')}>
-          <Text className='text-green-500 font-extrabold'>Register</Text>
+          <Text className="text-green-500 font-extrabold">Register</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 };
 
-export default login;
+export default Login;

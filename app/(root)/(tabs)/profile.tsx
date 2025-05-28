@@ -45,22 +45,24 @@ const sections = [
   },
 ];
 
-const profile = () => {
+const Profile = () => {
   return (
     <SafeAreaView className="p-5 bg-black h-full">
       <View className="flex-row items-center justify-center mb-5">
         <Text className="text-2xl font-bold text-white">Profile</Text>
       </View>
       <View className="flex-col items-center justify-center mb-10">
-        <View className='w-32 h-32 rounded-full bg-white flex items-center justify-center'>
-          <Image 
+        <View className="w-32 h-32 rounded-full bg-white flex items-center justify-center">
+          <Image
             source={require('../../../assets/images/react-logo.png')}
-            resizeMode='contain'
-            className='w-28 h-28 rounded-full'
+            resizeMode="contain"
+            className="w-28 h-28 rounded-full"
           />
         </View>
-        <View className='mt-5 flex-col items-center justify-center'>
-          <Text className="text-white text-2xl font-bold">Fernando Castrejon</Text>
+        <View className="mt-5 flex-col items-center justify-center">
+          <Text className="text-white text-2xl font-bold">
+            Fernando Castrejon
+          </Text>
           <Text className="text-gray-400">fernandocastrejonh@gmail.com</Text>
         </View>
       </View>
@@ -79,4 +81,4 @@ const profile = () => {
   );
 };
 
-export default profile;
+export default Profile;

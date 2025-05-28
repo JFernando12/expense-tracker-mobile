@@ -1,6 +1,6 @@
-import { wallets } from "@/data/wallets";
-import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { wallets } from '@/constants/wallets';
+import React from 'react';
+import { ScrollView, Text, View } from 'react-native';
 
 const ItemWallet = ({ name, amount }: { name: string; amount: string }) => {
   return (

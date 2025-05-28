@@ -108,7 +108,7 @@ const fields = [
   { label: "Descripcion", type: fieldTypes.TEXT, value: "" },
 ];
 
-const createTransaction = () => {
+const CreateTransaction = () => {
   return (
     <SafeAreaView className="bg-black h-full -pb-safe-offset-20 p-5">
       <View className="relative flex-row items-center justify-center">
@@ -143,4 +143,4 @@ const createTransaction = () => {
   );
 };
 
-export default createTransaction;
+export default CreateTransaction;
