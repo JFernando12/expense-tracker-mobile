@@ -10,7 +10,12 @@ const WalletList = () => {
       className="mt-5 rounded-lg"
     >
       {wallets.map((wallet, index) => (
-        <WalletItem key={index} name={wallet.name} amount={wallet.amount} />
+        <WalletItem
+          key={index}
+          walletId={wallet.id}
+          name={wallet.name}
+          amount={wallet.amount}
+        />
       ))}
     </ScrollView>
   );

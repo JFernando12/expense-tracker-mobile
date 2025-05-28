@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "expensetrackermobile",
+    "scheme": "com.jfernando.expensetracker",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

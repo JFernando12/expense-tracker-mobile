@@ -1,7 +1,8 @@
 import WalletList from "@/components/WalletList";
-import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from 'expo-router';
+import React from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Wallet = () => {
   return (
@@ -13,7 +14,9 @@ const Wallet = () => {
       <View className="flex-1 bg-gray-800 p-7 rounded-t-3xl">
         <View className="flex-row items-center justify-between">
           <Text className="text-white text-2xl font-bold">My Wallet</Text>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/(root)/(modals)/walletModal/create')}
+          >
             <Text className="text-white">Crear</Text>
           </TouchableOpacity>
         </View>

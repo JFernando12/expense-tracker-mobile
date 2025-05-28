@@ -1,8 +1,10 @@
 import icons from '@/constants/icons';
-import images from '@/constants/images';
+import { logout } from '@/lib/appwrite';
+import { useGlobalContext } from '@/lib/global-provider';
 import { router } from 'expo-router';
 import React from 'react';
 import {
+  Alert,
   Image,
   ImagePropsBase,
   Text,
@@ -40,48 +42,58 @@ const SectionButton = ({
   );
 };
 
-const sections = [
-  {
-    title: 'Edit Profile',
-    onPress: () => router.push('/(root)/(modals)/profileModal'),
-    icon: icons.person,
-  },
-  {
-    title: 'Settings',
-    onPress: () => console.log('Settings Pressed'),
-    icon: icons.filter,
-  },
-  {
-    title: 'Privacy Policy',
-    onPress: () => console.log('Privacy Policy Pressed'),
-    icon: icons.info,
-  },
-  {
-    title: 'Logout',
-    onPress: () => console.log('Logout Pressed'),
-    icon: icons.logout,
-  },
-];
-
 const Profile = () => {
+  const { user, refetch } = useGlobalContext();
+
+  const handleLogout = async () => {
+    const result = await logout();
+    if (!result) {
+      Alert.alert('Failed', 'Logout failed');
+      return;
+    }
+    Alert.alert('Success', 'Logout successful');
+    refetch();
+  };
+
+  const sections = [
+    {
+      title: 'Edit Profile',
+      onPress: () => router.push('/(root)/(modals)/profileModal'),
+      icon: icons.person,
+    },
+    {
+      title: 'Settings',
+      onPress: () => console.log('Settings Pressed'),
+      icon: icons.filter,
+    },
+    {
+      title: 'Privacy Policy',
+      onPress: () => console.log('Privacy Policy Pressed'),
+      icon: icons.info,
+    },
+    {
+      title: 'Logout',
+      onPress: handleLogout,
+      icon: icons.logout,
+    },
+  ];
+
   return (
     <SafeAreaView className="p-5 bg-black h-full">
       <View className="flex-row items-center justify-center mb-5">
         <Text className="text-2xl font-bold text-white">Profile</Text>
       </View>
       <View className="flex-col items-center justify-center mb-10">
-        <View className="w-32 h-32 rounded-full bg-white flex items-center justify-center">
-          <Image
-            source={images.avatar as ImagePropsBase}
-            resizeMode="contain"
-            className="w-28 h-28 rounded-full"
-          />
-        </View>
+        <Image
+          source={{ uri: user?.avatar }}
+          resizeMode="contain"
+          className="size-36 rounded-full"
+        />
         <View className="mt-5 flex-col items-center justify-center">
           <Text className="text-white text-2xl font-bold">
-            Fernando Castrejon
+            {user?.name || 'User Name'}
           </Text>
-          <Text className="text-gray-400">fernandocastrejonh@gmail.com</Text>
+          <Text className="text-gray-400">{user?.email}</Text>
         </View>
       </View>
       <View>

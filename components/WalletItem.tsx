@@ -1,19 +1,51 @@
-import { Text, View } from "react-native";
+import icons from '@/constants/icons';
+import { router } from 'expo-router';
+import {
+  Image,
+  ImagePropsBase,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-const WalletItem = ({ name, amount }: { name: string; amount: string }) => {
+const WalletItem = ({
+  walletId,
+  name,
+  amount,
+}: {
+  walletId: string;
+  name: string;
+  amount: string;
+}) => {
   return (
-    <View className="flex-row items-center justify-between bg-black p-4 rounded-lg mb-2">
+    <TouchableOpacity
+      onPress={() =>
+        router.push({
+          pathname: '/(root)/(modals)/walletModal/[id]',
+          params: { id: walletId },
+        })
+      }
+      className="flex-row items-center justify-between bg-black p-4 rounded-lg mb-2"
+    >
       <View>
-        <Text className="text-white">Imagen</Text>
+        <Image
+          source={icons.wallet as ImagePropsBase}
+          className="size-9"
+          tintColor="white"
+        />
       </View>
       <View className="flex-1 ml-4">
         <Text className="text-white">{name}</Text>
         <Text className="text-gray-400">{amount}</Text>
       </View>
       <View>
-        <Text className="text-white">Flecha</Text>
+        <Image
+          source={icons.rightArrow as ImagePropsBase}
+          tintColor="white"
+          className="size-9"
+        />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
