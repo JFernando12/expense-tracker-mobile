@@ -1,7 +1,7 @@
-import { router } from 'expo-router';
-import React from 'react';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from "expo-router";
+import React from "react";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Login = () => {
   return (
@@ -36,8 +36,8 @@ const Login = () => {
         <Text className="text-2xl font-extrabold">Login</Text>
       </TouchableOpacity>
       <View className="mt-10 flex-row justify-center items-center gap-2">
-        <Text className="text-white">Don't have an account?</Text>
-        <TouchableOpacity onPress={() => router.push('/register')}>
+        <Text className="text-white">Don&apos;t have an account?</Text>
+        <TouchableOpacity onPress={() => router.push("/register")}>
           <Text className="text-green-500 font-extrabold">Register</Text>
         </TouchableOpacity>
       </View>

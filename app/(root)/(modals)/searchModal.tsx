@@ -1,7 +1,7 @@
-import TransactionList from '@/components/TransactionList';
-import icons from '@/constants/icons';
-import { router } from 'expo-router';
-import React from 'react';
+import TransactionList from "@/components/TransactionList";
+import icons from "@/constants/icons";
+import { router } from "expo-router";
+import React from "react";
 import {
   Image,
   ImagePropsBase,
@@ -9,8 +9,8 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const SearchModal = () => {
   return (
@@ -18,7 +18,7 @@ const SearchModal = () => {
       <View className="relative flex-row items-center justify-center mb-5">
         <TouchableOpacity
           className="absolute left-0 p-2"
-          onPress={() => router.push('/')}
+          onPress={() => router.back()}
         >
           <Image
             source={icons.backArrow as ImagePropsBase}

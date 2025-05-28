@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { router } from "expo-router";
+import { Text, TouchableOpacity, View } from "react-native";
 
 const TransactionItem = ({
   transactionId,
@@ -20,7 +20,7 @@ const TransactionItem = ({
     <TouchableOpacity
       onPress={() =>
         router.push({
-          pathname: '/(root)/(modals)/transaction/[id]',
+          pathname: "/(root)/(modals)/transactionModal/[id]",
           params: { id: transactionId },
         })
       }
@@ -31,7 +31,7 @@ const TransactionItem = ({
         <Text className="text-gray-400">{description}</Text>
       </View>
       <View>
-        <Text className={isIncome ? 'text-green-500' : 'text-red-600'}>
+        <Text className={isIncome ? "text-green-500" : "text-red-600"}>
           {amount}
         </Text>
         <View className="flex-row items-center justify-end">

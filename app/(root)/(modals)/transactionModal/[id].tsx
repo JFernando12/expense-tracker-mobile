@@ -1,7 +1,7 @@
-import CustomField from '@/components/CustomField';
-import icons from '@/constants/icons';
-import { router } from 'expo-router';
-import React from 'react';
+import CustomField from "@/components/CustomField";
+import icons from "@/constants/icons";
+import { router } from "expo-router";
+import React from "react";
 import {
   Image,
   ImagePropsBase,
@@ -9,32 +9,32 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 enum fieldTypes {
-  TEXT = 'text',
-  NUMBER = 'number',
-  DATE = 'date',
-  SELECT = 'select',
+  TEXT = "text",
+  NUMBER = "number",
+  DATE = "date",
+  SELECT = "select",
 }
 
 const fields = [
-  { label: 'Ingreso/Gasto', type: fieldTypes.SELECT, value: '' },
-  { label: 'Cartera', type: fieldTypes.SELECT, value: '' },
-  { label: 'Categoria', type: fieldTypes.SELECT, value: '' },
-  { label: 'Fecha', type: fieldTypes.DATE, value: '' },
-  { label: 'Monto', type: fieldTypes.NUMBER, value: '' },
-  { label: 'Descripcion', type: fieldTypes.TEXT, value: '' },
+  { label: "Ingreso/Gasto", type: fieldTypes.SELECT, value: "" },
+  { label: "Cartera", type: fieldTypes.SELECT, value: "" },
+  { label: "Categoria", type: fieldTypes.SELECT, value: "" },
+  { label: "Fecha", type: fieldTypes.DATE, value: "" },
+  { label: "Monto", type: fieldTypes.NUMBER, value: "" },
+  { label: "Descripcion", type: fieldTypes.TEXT, value: "" },
 ];
 
-const TransactionCreate = ({ isEdit }: { isEdit: string }) => {
+const TransactionUpdate = ({ isEdit }: { isEdit: string }) => {
   return (
     <SafeAreaView className="bg-black h-full p-5">
       <View className="relative flex-row items-center justify-center mb-5">
         <TouchableOpacity
           className="absolute left-0 p-2"
-          onPress={() => router.push('/')}
+          onPress={() => router.back()}
         >
           <Image
             source={icons.backArrow as ImagePropsBase}
@@ -43,7 +43,7 @@ const TransactionCreate = ({ isEdit }: { isEdit: string }) => {
           />
         </TouchableOpacity>
         <Text className="text-white text-2xl font-bold">
-          {isEdit ? 'Editar' : 'Nueva'} Transaccion
+          {isEdit ? "Editar" : "Nueva"} Transaccion
         </Text>
       </View>
       <ScrollView className="flex-1">
@@ -71,4 +71,4 @@ const TransactionCreate = ({ isEdit }: { isEdit: string }) => {
   );
 };
 
-export default TransactionCreate;
+export default TransactionUpdate;
