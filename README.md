@@ -1,50 +1,75 @@
-# Welcome to your Expo app 👋
+# 📊 Expense Tracker Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<div align="center">
+  
+![Expo](https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white)
+![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-## Get started
+</div>
 
-1. Install dependencies
+## 📝 Project Description
 
-   ```bash
-   npm install
-   ```
+A mobile expense tracking application built with [Expo](https://expo.dev) and created using [`create-expo-app`](https://www.npmjs.com/package/create-expo-app). This app helps users track their expenses and income across multiple wallets, visualize spending patterns, and manage their finances on the go.
 
-2. Start the app
+## 🗄️ Data Models
 
-   ```bash
-   npx expo start
-   ```
+### Category
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Unique identifier |
+| userId | string | Owner of the category |
+| name | string | Category name |
+| type | enum | Either 'expense' or 'income' |
+| icon | string | Icon identifier |
 
-In the output, you'll find options to open the app in a
+### Wallet
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Unique identifier |
+| userId | string | Owner of the wallet |
+| name | string | Wallet name |
+| description | string | Description of the wallet |
+| initialBalance | number | Starting balance |
+| currentBalance | number | Current balance |
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Transaction
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Unique identifier |
+| userId | string | Owner of the transaction |
+| accountId | string | Associated wallet |
+| categoryId | string | Associated category |
+| amount | number | Transaction amount |
+| type | enum | Either 'expense' or 'income' |
+| description | string | Transaction description |
+| date | Date | Date of the transaction |
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🎨 Default Categories
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+### Expense Categories
+```json
+[
+  {"name": "Food & Dining", "type": "expense", "icon": "utensils", "color": "#f59e0b", "isDefault": true},
+  {"name": "Transportation", "type": "expense", "icon": "car", "color": "#3b82f6", "isDefault": true},
+  {"name": "Shopping", "type": "expense", "icon": "shopping-bag", "color": "#ec4899", "isDefault": true},
+  {"name": "Entertainment", "type": "expense", "icon": "film", "color": "#8b5cf6", "isDefault": true},
+  {"name": "Bills & Utilities", "type": "expense", "icon": "receipt", "color": "#ef4444", "isDefault": true},
+  {"name": "Healthcare", "type": "expense", "icon": "heart", "color": "#10b981", "isDefault": true},
+  {"name": "Personal Care", "type": "expense", "icon": "user", "color": "#84cc16", "isDefault": true},
+  {"name": "Other Expenses", "type": "expense", "icon": "more-horizontal", "color": "#94a3b8", "isDefault": true}
+]
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Income Categories
+```json
+[
+  {"name": "Salary", "type": "income", "icon": "briefcase", "color": "#10b981", "isDefault": true},
+  {"name": "Freelance", "type": "income", "icon": "laptop", "color": "#3b82f6", "isDefault": true},
+  {"name": "Investment", "type": "income", "icon": "trending-up", "color": "#8b5cf6", "isDefault": true},
+  {"name": "Business", "type": "income", "icon": "building", "color": "#f59e0b", "isDefault": true},
+  {"name": "Gift", "type": "income", "icon": "gift", "color": "#ec4899", "isDefault": true},
+  {"name": "Other Income", "type": "income", "icon": "plus", "color": "#6b7280", "isDefault": true}
+]
+```
