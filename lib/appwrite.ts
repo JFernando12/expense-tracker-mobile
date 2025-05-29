@@ -613,3 +613,49 @@ export const getTotalExpenses = async (): Promise<number> => {
     return 0;
   }
 };
+
+export const searchTransactions = async (searchQuery: string): Promise<Transaction[]> => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return [];
+
+    if (!searchQuery.trim()) {
+      return await getTransactions();
+    }
+
+    // Get all user's transactions first
+    const response = await databases.listDocuments(
+      config.databaseId!,
+      config.transactionCollectionId!,
+      [Query.equal("user_id", user.$id)]
+    );
+
+    // Filter transactions based on search query
+    const searchLower = searchQuery.toLowerCase();
+    const filteredTransactions = response?.documents?.filter((transaction) => {
+      const description = (transaction.description as string)?.toLowerCase() || "";
+      const category = (transaction.category?.name as string)?.toLowerCase() || "";
+      const amount = (transaction.amount as number)?.toString() || "";
+      
+      return (
+        description.includes(searchLower) ||
+        category.includes(searchLower) ||
+        amount.includes(searchLower)
+      );
+    }) || [];
+
+    return filteredTransactions.map((transaction) => ({
+      id: transaction.$id as string,
+      walletId: transaction.wallet.$id as string,
+      categoryId: transaction.category.$id as string,
+      category: transaction.category.name as string,
+      description: transaction.description as string,
+      amount: transaction.amount as number,
+      type: transaction.type as TransactionType,
+      date: new Date(transaction.date).toLocaleDateString(),
+    }));
+  } catch (error) {
+    console.error("Error searching transactions:", error);
+    return [];
+  }
+};
