@@ -1,9 +1,9 @@
-import icons from '@/constants/icons';
-import images from '@/constants/images';
-import { updateUser } from '@/lib/appwrite';
-import { useGlobalContext } from '@/lib/global-provider';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
+import icons from "@/constants/icons";
+import images from "@/constants/images";
+import { updateUser } from "@/lib/appwrite";
+import { useGlobalContext } from "@/lib/global-provider";
+import { router } from "expo-router";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,12 +13,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ProfileModal = () => {
-  const { user, refetch } = useGlobalContext();
-  const [name, setName] = useState(user?.name || '');
+  const { user, refetchUser } = useGlobalContext();
+  const [name, setName] = useState(user?.name || "");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUpdateName = async () => {
@@ -26,13 +26,14 @@ const ProfileModal = () => {
       setIsLoading(true);
       const result = await updateUser({ name });
       if (result) {
-        Alert.alert('Success', 'Profile updated successfully');
-        await refetch();
+        await refetchUser();
+        Alert.alert("Éxito", "Perfil editado correctamente");
       } else {
-        Alert.alert('Error', 'Failed to update profile');
+        Alert.alert("Error", "Failed to update profile");
       }
     } catch (error) {
-      Alert.alert('Error', 'An unexpected error occurred');
+      console.error("Error updating profile:", error);
+      Alert.alert("Error", "An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }

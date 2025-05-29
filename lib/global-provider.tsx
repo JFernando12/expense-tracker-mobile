@@ -1,7 +1,12 @@
-import { Category, TransactionType, Wallet } from '@/types/types';
-import { createContext, useContext } from 'react';
-import { getCategories, getCurrentUser, getWallets } from './appwrite';
-import { useAppwrite } from './useAppwrite';
+import { Category, Transaction, TransactionType, Wallet } from "@/types/types";
+import { createContext, useContext } from "react";
+import {
+  getCategories,
+  getCurrentUser,
+  getTransactions,
+  getWallets,
+} from "./appwrite";
+import { useAppwrite } from "./useAppwrite";
 
 interface User {
   $id: string;
@@ -14,15 +19,17 @@ interface GlobalContextType {
   isLoggedIn: boolean;
   user: User | null | undefined;
   loading: boolean;
-  refetch: (newParams?: Record<string, string | number>) => Promise<void>;
-  // Added data properties
+  refetchUser: (newParams?: Record<string, string | number>) => Promise<void>;
   expenseCategories: Category[] | null;
   incomeCategories: Category[] | null;
   wallets: Wallet[] | null;
+  transactions: Transaction[] | null;
   expenseCategoriesLoading: boolean;
   incomeCategoriesLoading: boolean;
   walletsLoading: boolean;
+  transactionsLoading: boolean;
   refetchResources: () => Promise<void>;
+  refetchTransactions: () => Promise<void>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -67,32 +74,50 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     params: {},
   });
 
+  const {
+    data: transactions,
+    loading: transactionsLoading,
+    refetch: refetchTransactions,
+  } = useAppwrite({
+    fn: getTransactions,
+    params: {},
+  });
+
   const isLoggedIn = !!user;
 
+  const refetchUser = async () => {
+    if (isLoggedIn) {
+      await refetch();
+    }
+  };
+  
   const refetchResources = async () => {
     if (isLoggedIn) {
       await Promise.all([
         refetchExpenseCategories(),
         refetchIncomeCategories(),
         refetchWallets(),
+        refetchTransactions(),
       ]);
     }
   };
-
   return (
     <GlobalContext.Provider
       value={{
         isLoggedIn,
         user,
         loading,
-        refetch,
+        refetchUser,
         expenseCategories,
         incomeCategories,
         wallets,
+        transactions,
         expenseCategoriesLoading,
         incomeCategoriesLoading,
         walletsLoading,
+        transactionsLoading,
         refetchResources,
+        refetchTransactions,
       }}
     >
       {children}
@@ -103,7 +128,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
 export const useGlobalContext = (): GlobalContextType => {
   const context = useContext(GlobalContext);
   if (!context)
-    throw new Error('useGlobalContext must be used within a GlobalProvider');
+    throw new Error("useGlobalContext must be used within a GlobalProvider");
   return context;
 };
 

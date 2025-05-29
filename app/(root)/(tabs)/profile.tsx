@@ -43,7 +43,7 @@ const SectionButton = ({
 };
 
 const Profile = () => {
-  const { user, refetch } = useGlobalContext();
+  const { user, refetchUser } = useGlobalContext();
 
   const handleLogout = async () => {
     const result = await logout();
@@ -51,8 +51,8 @@ const Profile = () => {
       Alert.alert('Failed', 'Logout failed');
       return;
     }
+    await refetchUser();
     Alert.alert('Success', 'Logout successful');
-    refetch();
   };
 
   const sections = [

@@ -1,8 +1,6 @@
 import TransactionList from "@/components/TransactionList";
 import icons from "@/constants/icons";
-import { getTransactions } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
-import { useAppwrite } from '@/lib/useAppwrite';
 import { router } from 'expo-router';
 import {
   Image,
@@ -14,11 +12,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Index() {
-  const { user } = useGlobalContext();
-  const { data: transactions, loading: transactionsLoading } = useAppwrite({
-    fn: getTransactions,
-    params: {},
-  });
+  const { user, transactions, transactionsLoading } = useGlobalContext();
+
+  if (transactionsLoading) {
+    return (
+      <SafeAreaView className="bg-black h-full p-5">
+        <Text className="text-white">Loading...</Text>
+      </SafeAreaView>
+    );
+  };
 
   return (
     <SafeAreaView className="bg-black h-full p-5 -pb-safe-offset-14">

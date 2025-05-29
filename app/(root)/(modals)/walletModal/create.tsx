@@ -1,8 +1,11 @@
 import CustomField from "@/components/CustomField";
 import icons from "@/constants/icons";
+import { createWallet } from "@/lib/appwrite";
+import { useGlobalContext } from "@/lib/global-provider";
 import { router } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
+  Alert,
   Image,
   ImagePropsBase,
   ScrollView,
@@ -19,16 +22,100 @@ enum fieldTypes {
   SELECT = "select",
 }
 
-const fields = [
-  { label: "Ingreso/Gasto", type: fieldTypes.SELECT, value: "" },
-  { label: "Cartera", type: fieldTypes.SELECT, value: "" },
-  { label: "Categoria", type: fieldTypes.SELECT, value: "" },
-  { label: "Fecha", type: fieldTypes.DATE, value: "" },
-  { label: "Monto", type: fieldTypes.NUMBER, value: "" },
-  { label: "Descripcion", type: fieldTypes.TEXT, value: "" },
-];
-
 const WalletCreate = () => {
+  const { refetchResources } = useGlobalContext();
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    initialBalance: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fields = [
+    {
+      label: "Nombre",
+      value: formData.name,
+      type: fieldTypes.TEXT,
+      key: "name",
+    },
+    {
+      label: "Descripción",
+      value: formData.description,
+      type: fieldTypes.TEXT,
+      key: "description",
+    },
+    {
+      label: "Saldo inicial",
+      value: formData.initialBalance,
+      type: fieldTypes.NUMBER,
+      key: "initialBalance",
+    },
+  ];
+
+  const handleFieldChange = (key: string, value: string) => {
+    console.log(`Field changed: ${key} = ${value}`);
+    setFormData((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleCreateWallet = async () => {
+    // Validate form
+    if (!formData.name.trim()) {
+      Alert.alert("Error", "El nombre de la cartera es requerido");
+      return;
+    }
+
+    if (!formData.initialBalance.trim()) {
+      Alert.alert("Error", "El saldo inicial es requerido");
+      return;
+    }
+
+    const initialBalance = parseFloat(formData.initialBalance);
+    if (isNaN(initialBalance) || initialBalance < 0) {
+      Alert.alert(
+        "Error",
+        "El saldo inicial debe ser un número válido mayor o igual a 0"
+      );
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const wallet = await createWallet({
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        initialBalance: initialBalance,
+      });
+
+      if (wallet) {
+        // Refetch resources to update the wallet list
+        await refetchResources();
+        Alert.alert("Éxito", "Cartera creada exitosamente", [
+          {
+            text: "OK",
+            onPress: () => router.back(),
+          },
+        ]);
+      } else {
+        Alert.alert(
+          "Error",
+          "No se pudo crear la cartera. Inténtalo de nuevo."
+        );
+      }
+    } catch (error) {
+      console.error("Error creating wallet:", error);
+      Alert.alert(
+        "Error",
+        "Ocurrió un error al crear la cartera. Inténtalo de nuevo."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView className="bg-black h-full p-5">
       <View className="relative flex-row items-center justify-center mb-5">
@@ -42,9 +129,7 @@ const WalletCreate = () => {
             tintColor="white"
           />
         </TouchableOpacity>
-        <Text className="text-white text-2xl font-bold">
-          Nueva Cartera
-        </Text>
+        <Text className="text-white text-2xl font-bold">Nueva Cartera</Text>
       </View>
       <ScrollView className="flex-1">
         <View className="mt-5">
@@ -55,16 +140,21 @@ const WalletCreate = () => {
               value={field.value}
               type={field.type}
               onChangeText={(text) => {
-                // Handle text change logic here
-                console.log(`${field.label} changed to: ${text}`);
+                handleFieldChange(field.key, text);
               }}
             />
           ))}
         </View>
       </ScrollView>
-      <TouchableOpacity className="bg-blue-600 rounded-xl py-3 mt-5">
+      <TouchableOpacity
+        className={`rounded-xl py-3 mt-5 ${
+          isLoading ? "bg-gray-600" : "bg-blue-600"
+        }`}
+        onPress={handleCreateWallet}
+        disabled={isLoading}
+      >
         <Text className="text-white text-center text-lg font-bold">
-          Guardar
+          {isLoading ? "Guardando..." : "Guardar"}
         </Text>
       </TouchableOpacity>
     </SafeAreaView>

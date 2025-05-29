@@ -1,16 +1,12 @@
 import WalletList from "@/components/WalletList";
-import { getWallets } from '@/lib/appwrite';
-import { useAppwrite } from '@/lib/useAppwrite';
+import { useGlobalContext } from "@/lib/global-provider";
 import { router } from 'expo-router';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Wallet = () => {
-  const { data: wallets, loading: walletsLoading } = useAppwrite({
-    fn: getWallets,
-    params: {},
-  });
+  const { wallets } = useGlobalContext();
 
   return (
     <SafeAreaView className="bg-black h-full -pb-safe-offset-20">

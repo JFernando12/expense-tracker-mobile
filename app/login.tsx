@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { login } from '../lib/appwrite';
 
 const Login = () => {
-  const { refetch, refetchResources, loading, isLoggedIn } = useGlobalContext();
+  const { refetchUser, refetchResources, loading, isLoggedIn } = useGlobalContext();
 
   if (!loading && isLoggedIn) return <Redirect href="/" />;
 
@@ -40,7 +40,7 @@ const Login = () => {
       const success = await login(email, password);
 
       if (success) {
-        await refetch();
+        await refetchUser();
         await refetchResources(); // Fetch all resources after login
       } else {
         Alert.alert(

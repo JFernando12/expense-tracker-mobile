@@ -4,8 +4,7 @@ import {
   statisticsWeek,
   statisticsYear,
 } from '@/constants/statistics';
-import { getTransactions } from '@/lib/appwrite';
-import { useAppwrite } from '@/lib/useAppwrite';
+import { useGlobalContext } from '@/lib/global-provider';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import React, { useState } from 'react';
 import { Text, View } from 'react-native';
@@ -37,10 +36,7 @@ const statisticsTypes = [
 ];
 
 const Statistics = () => {
-  const { data: transactions } = useAppwrite({
-    fn: getTransactions,
-    params: {},
-  });
+  const { transactions } = useGlobalContext();
 
   const [data, setData] = useState(statisticsTypes[0].data);
   const [maxValue, setMaxValue] = useState(statisticsTypes[0].maxValue);

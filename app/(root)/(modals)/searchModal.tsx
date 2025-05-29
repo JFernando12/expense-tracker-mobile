@@ -1,7 +1,6 @@
 import TransactionList from "@/components/TransactionList";
 import icons from "@/constants/icons";
-import { getTransactions } from '@/lib/appwrite';
-import { useAppwrite } from '@/lib/useAppwrite';
+import { useGlobalContext } from '@/lib/global-provider';
 import { router } from 'expo-router';
 import React from 'react';
 import {
@@ -15,10 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SearchModal = () => {
-  const { data: transactions, loading: transactionsLoading } = useAppwrite({
-    fn: getTransactions,
-    params: {},
-  });
+  const { transactions } = useGlobalContext();
 
   return (
     <SafeAreaView className="bg-black h-full p-5">
