@@ -35,7 +35,7 @@ const RootLayout = () => {
       <Stack.Screen
         name="(modals)/transactionModal/[id]"
         options={{
-          presentation: 'card',
+          presentation: 'modal',
         }}
       />
       <Stack.Screen
@@ -47,7 +47,7 @@ const RootLayout = () => {
       <Stack.Screen
         name="(modals)/walletModal/[id]"
         options={{
-          presentation: 'card',
+          presentation: 'modal',
         }}
       />
       <Stack.Screen
