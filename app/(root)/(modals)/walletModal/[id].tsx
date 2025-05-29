@@ -129,7 +129,7 @@ const WalletUpdate = () => {
       setIsLoading(false);
     }
   };
-  
+
   return (
     <SafeAreaView className="bg-black h-full p-5">
       <View className="relative flex-row items-center justify-center mb-5">
@@ -164,7 +164,8 @@ const WalletUpdate = () => {
                 />
               ))}
             </View>
-          </ScrollView>          <TouchableOpacity
+          </ScrollView>
+          <TouchableOpacity
             className={`${
               isLoading ? "bg-gray-600" : "bg-blue-600"
             } rounded-xl py-3 mt-5`}

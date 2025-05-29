@@ -61,6 +61,23 @@ const TransactionUpdate = () => {
   const transactionToEdit = transactions?.find(
     (transaction) => transaction.id === id
   );
+
+  // Helper function to parse date string
+  const parseDate = (dateString: string): Date => {
+    // Handle DD/M/YYYY or DD/MM/YYYY format
+    if (typeof dateString === "string" && dateString.includes("/")) {
+      const parts = dateString.split("/");
+      if (parts.length === 3) {
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+        const year = parseInt(parts[2], 10);
+        return new Date(year, month, day);
+      }
+    }
+    // Fallback to regular Date parsing
+    return new Date(dateString);
+  };
+
   useEffect(() => {
     if (transactionToEdit && wallets && expenseCategories && incomeCategories) {
       setFormData({
@@ -68,13 +85,14 @@ const TransactionUpdate = () => {
         categoryId: transactionToEdit.categoryId || "",
         description: transactionToEdit.description,
         amount: transactionToEdit.amount.toString(),
-        date: new Date(transactionToEdit.date),
+        date: parseDate(transactionToEdit.date),
       });
       setTransactionType(
         transactionToEdit.type === TransactionType.INCOME ? "income" : "expense"
       );
     }
   }, [transactionToEdit, wallets, expenseCategories, incomeCategories]);
+
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -184,7 +202,11 @@ const TransactionUpdate = () => {
       label: "date",
       title: "Fecha",
       type: fieldTypes.DATE,
-      value: formData.date.toLocaleDateString(),
+      value: formData.date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }),
     },
     {
       label: "amount",

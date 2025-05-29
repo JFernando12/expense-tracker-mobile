@@ -3,6 +3,9 @@ import { createContext, useContext } from "react";
 import {
   getCategories,
   getCurrentUser,
+  getTotalBalance,
+  getTotalExpenses,
+  getTotalIncomes,
   getTransactions,
   getWallets,
 } from "./appwrite";
@@ -30,6 +33,12 @@ interface GlobalContextType {
   transactionsLoading: boolean;
   refetchResources: () => Promise<void>;
   refetchTransactions: () => Promise<void>;
+  totalBalance: number | null;
+  totalBalanceLoading: boolean;
+  totalIncomes: number | null;
+  totalIncomesLoading: boolean;
+  totalExpenses: number | null;
+  totalExpensesLoading: boolean;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -83,6 +92,33 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     params: {},
   });
 
+  const {
+    data: totalBalance,
+    loading: totalBalanceLoading,
+    refetch: refetchTotalBalance,
+  } = useAppwrite({
+    fn: getTotalBalance,
+    params: {},
+  });
+
+  const {
+    data: totalIncomes,
+    loading: totalIncomesLoading,
+    refetch: refetchTotalIncomes,
+  } = useAppwrite({
+    fn: getTotalIncomes,
+    params: {},
+  });
+
+  const {
+    data: totalExpenses,
+    loading: totalExpensesLoading,
+    refetch: refetchTotalExpenses,
+  } = useAppwrite({
+    fn: getTotalExpenses,
+    params: {},
+  });
+
   const isLoggedIn = !!user;
 
   const refetchUser = async () => {
@@ -98,6 +134,9 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         refetchIncomeCategories(),
         refetchWallets(),
         refetchTransactions(),
+        refetchTotalBalance(),
+        refetchTotalIncomes(),
+        refetchTotalExpenses()
       ]);
     }
   };
@@ -109,15 +148,21 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         loading,
         refetchUser,
         expenseCategories,
-        incomeCategories,
-        wallets,
-        transactions,
         expenseCategoriesLoading,
+        incomeCategories,
         incomeCategoriesLoading,
+        wallets,
         walletsLoading,
+        transactions,
         transactionsLoading,
         refetchResources,
         refetchTransactions,
+        totalBalance,
+        totalBalanceLoading,
+        totalIncomes,
+        totalIncomesLoading,
+        totalExpenses,
+        totalExpensesLoading,
       }}
     >
       {children}

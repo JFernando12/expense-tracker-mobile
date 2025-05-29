@@ -1,26 +1,41 @@
 import TransactionList from "@/components/TransactionList";
 import icons from "@/constants/icons";
-import { useGlobalContext } from '@/lib/global-provider';
-import { router } from 'expo-router';
+import { useGlobalContext } from "@/lib/global-provider";
+import { router } from "expo-router";
 import {
   Image,
   ImagePropsBase,
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
-  const { user, transactions, transactionsLoading } = useGlobalContext();
+  const {
+    user,
+    transactions,
+    transactionsLoading,
+    totalBalance,
+    totalBalanceLoading,
+    totalIncomes,
+    totalIncomesLoading,
+    totalExpenses,
+    totalExpensesLoading,
+  } = useGlobalContext();
 
-  if (transactionsLoading) {
+  if (
+    transactionsLoading ||
+    totalBalanceLoading ||
+    totalIncomesLoading ||
+    totalExpensesLoading
+  ) {
     return (
       <SafeAreaView className="bg-black h-full p-5">
         <Text className="text-white">Loading...</Text>
       </SafeAreaView>
     );
-  };
+  }
 
   return (
     <SafeAreaView className="bg-black h-full p-5 -pb-safe-offset-14">
@@ -31,7 +46,7 @@ export default function Index() {
           <Text className="text-white">{user?.name}</Text>
         </View>
         <TouchableOpacity
-          onPress={() => router.push('/(root)/(modals)/searchModal')}
+          onPress={() => router.push("/(root)/(modals)/searchModal")}
         >
           <Image
             source={icons.search as ImagePropsBase}
@@ -47,16 +62,18 @@ export default function Index() {
           <Text>Opciones</Text>
         </View>
         <View className="mt-2">
-          <Text className="text-3xl font-extrabold">$9,900.00</Text>
+          <Text className="text-3xl font-extrabold">
+            ${totalBalance?.toFixed(2)}
+          </Text>
         </View>
         <View className="mt-5 flex-row items-center justify-between">
           <View>
             <Text className="text-xl font-bold">Ingresos</Text>
-            <Text className="text-green-500 font-bold">$10,000.00</Text>
+            <Text className="text-green-500 font-bold">${totalIncomes?.toFixed(2)}</Text>
           </View>
           <View>
             <Text className="text-xl font-bold">Gastos</Text>
-            <Text className="text-red-600 font-bold">$100.00</Text>
+            <Text className="text-red-600 font-bold">${totalExpenses?.toFixed(2)}</Text>
           </View>
         </View>
       </View>
@@ -68,7 +85,7 @@ export default function Index() {
         <TransactionList transactions={transactions || []} />
       </View>
       <TouchableOpacity
-        onPress={() => router.push('/(root)/(modals)/transactionModal/create')}
+        onPress={() => router.push("/(root)/(modals)/transactionModal/create")}
         className="w-12 h-12 flex-col justify-center items-center bg-white rounded-full absolute bottom-5 right-5"
       >
         <Text className="text-3xl font-semibold">+</Text>
