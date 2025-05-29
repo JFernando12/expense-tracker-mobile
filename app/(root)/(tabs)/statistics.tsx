@@ -4,37 +4,44 @@ import {
   statisticsWeek,
   statisticsYear,
 } from '@/constants/statistics';
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import React, { useState } from "react";
-import { Text, View } from "react-native";
-import { BarChart } from "react-native-gifted-charts";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { getTransactions } from '@/lib/appwrite';
+import { useAppwrite } from '@/lib/useAppwrite';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import React, { useState } from 'react';
+import { Text, View } from 'react-native';
+import { BarChart } from 'react-native-gifted-charts';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const statisticsTypes = [
   {
-    label: "Semanal",
+    label: 'Semanal',
     data: statisticsWeek,
     maxValue: 6000,
     stepValue: 1000,
-    yAxisLabelTexts: ["0", "1k", "2k", "3k", "4k", "5k", "6k"],
+    yAxisLabelTexts: ['0', '1k', '2k', '3k', '4k', '5k', '6k'],
   },
   {
-    label: "Mensual",
+    label: 'Mensual',
     data: statisticsMonth,
     maxValue: 20000,
     stepValue: 5000,
-    yAxisLabelTexts: ["0", "5k", "10k", "15k", "20k"],
+    yAxisLabelTexts: ['0', '5k', '10k', '15k', '20k'],
   },
   {
-    label: "Anual",
+    label: 'Anual',
     data: statisticsYear,
     maxValue: 100000,
     stepValue: 20000,
-    yAxisLabelTexts: ["0", "20k", "40k", "60k", "80k", "100k"],
+    yAxisLabelTexts: ['0', '20k', '40k', '60k', '80k', '100k'],
   },
 ];
 
 const Statistics = () => {
+  const { data: transactions } = useAppwrite({
+    fn: getTransactions,
+    params: {},
+  });
+
   const [data, setData] = useState(statisticsTypes[0].data);
   const [maxValue, setMaxValue] = useState(statisticsTypes[0].maxValue);
   const [stepValue, setStepValue] = useState(statisticsTypes[0].stepValue);
@@ -60,7 +67,7 @@ const Statistics = () => {
       <View className="mt-5">
         <View>
           <SegmentedControl
-            values={["Semanal", "Mensual", "Anual"]}
+            values={['Semanal', 'Mensual', 'Anual']}
             selectedIndex={0}
             onChange={(event) => handleSegmentChange(event.nativeEvent.value)}
           />
@@ -74,12 +81,12 @@ const Statistics = () => {
             barBorderRadius={4}
             hideRules
             showGradient
-            yAxisTextStyle={{ color: "lightgray" }}
+            yAxisTextStyle={{ color: 'lightgray' }}
             stepValue={stepValue}
             maxValue={maxValue}
             yAxisLabelTexts={yAxisLabelTexts}
             labelWidth={40}
-            xAxisLabelTextStyle={{ color: "lightgray", textAlign: "center" }}
+            xAxisLabelTextStyle={{ color: 'lightgray', textAlign: 'center' }}
           />
         </View>
       </View>
@@ -87,7 +94,7 @@ const Statistics = () => {
         <Text className="text-white text-xl font-bold mt-5">
           Recent Transactions
         </Text>
-        <TransactionList />
+        <TransactionList transactions={transactions || []} />
       </View>
     </SafeAreaView>
   );

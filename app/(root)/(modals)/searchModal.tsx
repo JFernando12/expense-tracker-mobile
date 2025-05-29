@@ -1,7 +1,9 @@
 import TransactionList from "@/components/TransactionList";
 import icons from "@/constants/icons";
-import { router } from "expo-router";
-import React from "react";
+import { getTransactions } from '@/lib/appwrite';
+import { useAppwrite } from '@/lib/useAppwrite';
+import { router } from 'expo-router';
+import React from 'react';
 import {
   Image,
   ImagePropsBase,
@@ -9,10 +11,15 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SearchModal = () => {
+  const { data: transactions, loading: transactionsLoading } = useAppwrite({
+    fn: getTransactions,
+    params: {},
+  });
+
   return (
     <SafeAreaView className="bg-black h-full p-5">
       <View className="relative flex-row items-center justify-center mb-5">
@@ -36,7 +43,7 @@ const SearchModal = () => {
         />
       </View>
       <View className="mt-5 flex-1">
-        <TransactionList />
+        <TransactionList transactions={transactions || []} />
       </View>
     </SafeAreaView>
   );

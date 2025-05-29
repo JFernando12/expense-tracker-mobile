@@ -1,26 +1,35 @@
 import TransactionList from "@/components/TransactionList";
 import icons from "@/constants/icons";
-import { router } from "expo-router";
+import { getTransactions } from '@/lib/appwrite';
+import { useGlobalContext } from '@/lib/global-provider';
+import { useAppwrite } from '@/lib/useAppwrite';
+import { router } from 'expo-router';
 import {
   Image,
   ImagePropsBase,
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Index() {
+  const { user } = useGlobalContext();
+  const { data: transactions, loading: transactionsLoading } = useAppwrite({
+    fn: getTransactions,
+    params: {},
+  });
+
   return (
     <SafeAreaView className="bg-black h-full p-5 -pb-safe-offset-14">
       {/* Header */}
       <View className="flex-row items-center justify-between">
         <View>
           <Text className="text-white">Hello,</Text>
-          <Text className="text-white">Fernando</Text>
+          <Text className="text-white">{user?.name}</Text>
         </View>
         <TouchableOpacity
-          onPress={() => router.push("/(root)/(modals)/searchModal")}
+          onPress={() => router.push('/(root)/(modals)/searchModal')}
         >
           <Image
             source={icons.search as ImagePropsBase}
@@ -54,10 +63,10 @@ export default function Index() {
         <Text className="text-white text-xl font-bold">
           Recent Transactions
         </Text>
-        <TransactionList />
+        <TransactionList transactions={transactions || []} />
       </View>
       <TouchableOpacity
-        onPress={() => router.push("/(root)/(modals)/transactionModal/create")}
+        onPress={() => router.push('/(root)/(modals)/transactionModal/create')}
         className="w-12 h-12 flex-col justify-center items-center bg-white rounded-full absolute bottom-5 right-5"
       >
         <Text className="text-3xl font-semibold">+</Text>

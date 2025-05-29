@@ -1,27 +1,21 @@
-import { router } from "expo-router";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Transaction, TransactionType } from '@/types/types';
+import { router } from 'expo-router';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 const TransactionItem = ({
-  transactionId,
+  id,
   category,
   description,
   amount,
-  isIncome,
+  type,
   date,
-}: {
-  transactionId: string;
-  category: string;
-  description: string;
-  amount: string;
-  isIncome: boolean;
-  date: string;
-}) => {
+}: Transaction) => {
   return (
     <TouchableOpacity
       onPress={() =>
         router.push({
-          pathname: "/(root)/(modals)/transactionModal/[id]",
-          params: { id: transactionId },
+          pathname: '/(root)/(modals)/transactionModal/[id]',
+          params: { id },
         })
       }
       className="flex-row items-center justify-between bg-gray-800 p-4 rounded-lg mb-2"
@@ -31,7 +25,11 @@ const TransactionItem = ({
         <Text className="text-gray-400">{description}</Text>
       </View>
       <View>
-        <Text className={isIncome ? "text-green-500" : "text-red-600"}>
+        <Text
+          className={
+            type === TransactionType.INCOME ? 'text-green-500' : 'text-red-600'
+          }
+        >
           {amount}
         </Text>
         <View className="flex-row items-center justify-end">

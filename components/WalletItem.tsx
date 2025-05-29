@@ -9,20 +9,20 @@ import {
 } from 'react-native';
 
 const WalletItem = ({
-  walletId,
+  id,
   name,
-  amount,
+  currentBalance,
 }: {
-  walletId: string;
+  id: string;
   name: string;
-  amount: string;
+  currentBalance: number;
 }) => {
   return (
     <TouchableOpacity
       onPress={() =>
         router.push({
           pathname: '/(root)/(modals)/walletModal/[id]',
-          params: { id: walletId },
+          params: { id },
         })
       }
       className="flex-row items-center justify-between bg-black p-4 rounded-lg mb-2"
@@ -36,7 +36,7 @@ const WalletItem = ({
       </View>
       <View className="flex-1 ml-4">
         <Text className="text-white">{name}</Text>
-        <Text className="text-gray-400">{amount}</Text>
+        <Text className="text-gray-400">{currentBalance}</Text>
       </View>
       <View>
         <Image

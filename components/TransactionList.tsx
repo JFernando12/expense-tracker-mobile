@@ -1,9 +1,9 @@
-import { transactions } from '@/constants/transactions';
+import { Transaction } from '@/types/types';
 import React from 'react';
 import { ScrollView } from 'react-native';
 import TransactionItem from './TransactionItem';
 
-const TransactionList = () => {
+const TransactionList = ({ transactions }: { transactions: Transaction[] }) => {
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -11,12 +11,12 @@ const TransactionList = () => {
     >
       {transactions.map((transaction, index) => (
         <TransactionItem
-          transactionId={transaction.id}
+          id={transaction.id}
           key={index}
           category={transaction.category}
           description={transaction.description}
           amount={transaction.amount}
-          isIncome={transaction.isIncome}
+          type={transaction.type}
           date={transaction.date}
         />
       ))}

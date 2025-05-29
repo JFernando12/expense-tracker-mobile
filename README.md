@@ -19,7 +19,6 @@ A mobile expense tracking application built with [Expo](https://expo.dev) and cr
 | Field | Type | Description |
 |-------|------|-------------|
 | id | string | Unique identifier |
-| user_id | string | Owner of the category |
 | name | string | Category name |
 | type | enum | Either 'expense' or 'income' |
 | icon | string | Icon identifier |

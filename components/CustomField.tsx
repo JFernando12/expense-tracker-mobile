@@ -21,13 +21,17 @@ export const transactionTypes = [
 
 const CustomField = ({
   label,
+  title,
   value,
   type,
+  options = [],
   onChangeText,
 }: {
   label: string;
+  title?: string;
   value: string;
   type: fieldTypes;
+  options?: { label: string; value: string }[];
   onChangeText: (text: string) => void;
 }) => {
   return (
@@ -78,7 +82,7 @@ const CustomField = ({
             iconStyle={{
               tintColor: '#9ca3af',
             }}
-            data={transactionTypes}
+            data={options}
             maxHeight={300}
             labelField="label"
             valueField="value"

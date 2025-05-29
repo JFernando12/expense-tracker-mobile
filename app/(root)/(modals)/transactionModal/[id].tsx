@@ -43,7 +43,7 @@ const TransactionUpdate = ({ isEdit }: { isEdit: string }) => {
           />
         </TouchableOpacity>
         <Text className="text-white text-2xl font-bold">
-          {isEdit ? "Editar" : "Nueva"} Transaccion
+          Editar Transaccion
         </Text>
       </View>
       <ScrollView className="flex-1">
