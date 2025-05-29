@@ -12,6 +12,7 @@ export interface Transaction {
   amount: number;
   type: TransactionType;
   date: string;
+  imageUrl?: string;
 }
 
 export interface Wallet {

@@ -1,12 +1,13 @@
-import CustomField from "@/components/CustomField";
-import icons from "@/constants/icons";
-import { updateTransaction } from "@/lib/appwrite";
-import { useGlobalContext } from "@/lib/global-provider";
-import { TransactionType } from "@/types/types";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import CustomField from '@/components/CustomField';
+import icons from '@/constants/icons';
+import { updateTransaction } from '@/lib/appwrite';
+import { useGlobalContext } from '@/lib/global-provider';
+import { TransactionType } from '@/types/types';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import * as ImagePicker from 'expo-image-picker';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -17,32 +18,33 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 enum fieldTypes {
-  TEXT = "text",
-  NUMBER = "number",
-  DATE = "date",
-  SELECT = "select",
+  TEXT = 'text',
+  NUMBER = 'number',
+  DATE = 'date',
+  SELECT = 'select',
 }
 
 const TransactionUpdate = () => {
   const { id } = useLocalSearchParams();
-  const [transactionType, setTransactionType] = useState<"expense" | "income">(
-    "expense"
+  const [transactionType, setTransactionType] = useState<'expense' | 'income'>(
+    'expense'
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
-
   // Form state
   const [formData, setFormData] = useState({
-    walletId: "",
-    categoryId: "",
-    description: "",
-    amount: "",
+    walletId: '',
+    categoryId: '',
+    description: '',
+    amount: '',
     date: new Date(),
   });
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
 
   const {
     expenseCategories,
@@ -65,8 +67,8 @@ const TransactionUpdate = () => {
   // Helper function to parse date string
   const parseDate = (dateString: string): Date => {
     // Handle DD/M/YYYY or DD/MM/YYYY format
-    if (typeof dateString === "string" && dateString.includes("/")) {
-      const parts = dateString.split("/");
+    if (typeof dateString === 'string' && dateString.includes('/')) {
+      const parts = dateString.split('/');
       if (parts.length === 3) {
         const day = parseInt(parts[0], 10);
         const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
@@ -81,15 +83,18 @@ const TransactionUpdate = () => {
   useEffect(() => {
     if (transactionToEdit && wallets && expenseCategories && incomeCategories) {
       setFormData({
-        walletId: transactionToEdit.walletId || "",
-        categoryId: transactionToEdit.categoryId || "",
+        walletId: transactionToEdit.walletId || '',
+        categoryId: transactionToEdit.categoryId || '',
         description: transactionToEdit.description,
         amount: transactionToEdit.amount.toString(),
         date: parseDate(transactionToEdit.date),
       });
       setTransactionType(
-        transactionToEdit.type === TransactionType.INCOME ? "income" : "expense"
+        transactionToEdit.type === TransactionType.INCOME ? 'income' : 'expense'
       );
+      // Set existing image
+      setOriginalImageUrl(transactionToEdit.imageUrl || null);
+      setSelectedImage(transactionToEdit.imageUrl || null);
     }
   }, [transactionToEdit, wallets, expenseCategories, incomeCategories]);
 
@@ -100,21 +105,89 @@ const TransactionUpdate = () => {
     }));
   };
 
+  const pickImage = async () => {
+    try {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permisos requeridos',
+          'Se necesitan permisos para acceder a la galería de fotos.'
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: 'images',
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setSelectedImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'No se pudo seleccionar la imagen');
+    }
+  };
+
+  const takePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permisos requeridos',
+          'Se necesitan permisos para acceder a la cámara.'
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setSelectedImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Error', 'No se pudo tomar la foto');
+    }
+  };
+
+  const showImagePicker = () => {
+    Alert.alert('Seleccionar imagen', 'Elige una opción', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Tomar foto', onPress: takePhoto },
+      { text: 'Galería', onPress: pickImage },
+    ]);
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+  };
+
   const validateForm = () => {
     if (!transactionToEdit) {
-      Alert.alert("Error", "Transacción no encontrada");
+      Alert.alert('Error', 'Transacción no encontrada');
       return false;
     }
     if (!formData.walletId) {
-      Alert.alert("Error", "Debe seleccionar una cartera");
+      Alert.alert('Error', 'Debe seleccionar una cartera');
       return false;
     }
     if (!formData.categoryId) {
-      Alert.alert("Error", "Debe seleccionar una categoría");
+      Alert.alert('Error', 'Debe seleccionar una categoría');
       return false;
     }
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      Alert.alert("Error", "Debe ingresar un monto válido mayor a 0");
+      Alert.alert('Error', 'Debe ingresar un monto válido mayor a 0');
       return false;
     }
     return true;
@@ -133,12 +206,14 @@ const TransactionUpdate = () => {
         amount: parseFloat(formData.amount),
         type: transactionType as TransactionType,
         date: formData.date,
+        imageUri: selectedImage || undefined,
+        removeImage: !selectedImage && !!originalImageUrl,
       });
 
       if (success) {
-        Alert.alert("Éxito", "Transacción actualizada exitosamente", [
+        Alert.alert('Éxito', 'Transacción actualizada exitosamente', [
           {
-            text: "OK",
+            text: 'OK',
             onPress: () => {
               refetchResources(); // Refresh wallets and categories
               refetchTransactions(); // Refresh transactions
@@ -147,18 +222,18 @@ const TransactionUpdate = () => {
           },
         ]);
       } else {
-        Alert.alert("Error", "No se pudo actualizar la transacción");
+        Alert.alert('Error', 'No se pudo actualizar la transacción');
       }
     } catch (error) {
-      console.error("Error updating transaction:", error);
-      Alert.alert("Error", "Ocurrió un error al actualizar la transacción");
+      console.error('Error updating transaction:', error);
+      Alert.alert('Error', 'Ocurrió un error al actualizar la transacción');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const onDateChange = (event: any, selectedDate?: Date) => {
-    const isIOS = Platform.OS === "ios";
+    const isIOS = Platform.OS === 'ios';
     setShowDatePicker(isIOS);
     if (selectedDate) {
       setFormData((prev) => ({
@@ -170,8 +245,8 @@ const TransactionUpdate = () => {
 
   const fields = [
     {
-      label: "walletId",
-      title: "Cartera",
+      label: 'walletId',
+      title: 'Cartera',
       type: fieldTypes.SELECT,
       value: formData.walletId,
       options:
@@ -181,12 +256,12 @@ const TransactionUpdate = () => {
         })) || [],
     },
     {
-      label: "categoryId",
-      title: "Categoria",
+      label: 'categoryId',
+      title: 'Categoria',
       type: fieldTypes.SELECT,
       value: formData.categoryId,
       options:
-        transactionType === "expense"
+        transactionType === 'expense'
           ? expenseCategories?.map(
               (category: { name: string; id: string }) => ({
                 label: category.name,
@@ -199,24 +274,24 @@ const TransactionUpdate = () => {
             })) || [],
     },
     {
-      label: "date",
-      title: "Fecha",
+      label: 'date',
+      title: 'Fecha',
       type: fieldTypes.DATE,
-      value: formData.date.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
+      value: formData.date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
       }),
     },
     {
-      label: "amount",
-      title: "Monto",
+      label: 'amount',
+      title: 'Monto',
       type: fieldTypes.NUMBER,
       value: formData.amount,
     },
     {
-      label: "description",
-      title: "Descripcion",
+      label: 'description',
+      title: 'Descripcion',
       type: fieldTypes.TEXT,
       value: formData.description,
     },
@@ -272,16 +347,16 @@ const TransactionUpdate = () => {
       </View>
       <View>
         <SegmentedControl
-          values={["Gasto", "Ingreso"]}
-          selectedIndex={transactionType === "expense" ? 0 : 1}
+          values={['Gasto', 'Ingreso']}
+          selectedIndex={transactionType === 'expense' ? 0 : 1}
           onChange={(event) => {
             const selectedValue = event.nativeEvent.value;
-            const newType = selectedValue === "Gasto" ? "expense" : "income";
+            const newType = selectedValue === 'Gasto' ? 'expense' : 'income';
             setTransactionType(newType);
             // Reset category when transaction type changes
             setFormData((prev) => ({
               ...prev,
-              categoryId: "",
+              categoryId: '',
             }));
           }}
         />
@@ -293,10 +368,10 @@ const TransactionUpdate = () => {
         </View>
       ) : (
         <ScrollView className="flex-1">
-          <View className="mt-5">
+          <View className="mt-2">
             {fields.map((field, index) => (
               <View key={index}>
-                {field.label === "date" ? (
+                {field.label === 'date' ? (
                   <View className="py-3 px-4">
                     <Text className="text-gray-400 text-sm mb-1">
                       {field.title}
@@ -322,12 +397,52 @@ const TransactionUpdate = () => {
                 )}
               </View>
             ))}
+            {/* Image picker section */}
+            <View className="py-3 px-4">
+              <Text className="text-gray-400 text-sm mb-1">
+                Ticket/Comprobante
+              </Text>
+              <TouchableOpacity
+                className="bg-gray-800 rounded-lg border border-gray-700 py-4 px-4 min-h-[120px] justify-center items-center"
+                onPress={showImagePicker}
+              >
+                {selectedImage ? (
+                  <View className="w-full items-center">
+                    <Image
+                      source={{ uri: selectedImage }}
+                      style={{
+                        maxWidth: 280,
+                        maxHeight: 200,
+                        width: '100%',
+                        height: undefined,
+                        aspectRatio: 1,
+                      }}
+                      className="rounded-lg"
+                      resizeMode="contain"
+                    />
+                    <TouchableOpacity
+                      className="absolute top-2 right-2 bg-red-600 rounded-full p-1"
+                      onPress={removeImage}
+                    >
+                      <Text className="text-white text-xs px-2">✕</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <View className="items-center">
+                    <Text className="text-gray-400 text-base mb-2">📷</Text>
+                    <Text className="text-gray-400 text-sm">
+                      Toca para agregar una imagen
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
           {showDatePicker && (
             <DateTimePicker
               value={formData.date}
               mode="date"
-              display={Platform.OS === "ios" ? "spinner" : "default"}
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
               onChange={onDateChange}
             />
           )}
@@ -335,7 +450,7 @@ const TransactionUpdate = () => {
       )}
       <TouchableOpacity
         className={`rounded-xl py-3 mt-5 ${
-          isSubmitting ? "bg-gray-600" : "bg-blue-600"
+          isSubmitting ? 'bg-gray-600' : 'bg-blue-600'
         }`}
         onPress={handleSubmit}
         disabled={isSubmitting}
