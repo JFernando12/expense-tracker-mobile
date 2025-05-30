@@ -1,4 +1,10 @@
-import TransactionList from '@/components/TransactionList';
+import {
+  CategoryDistribution,
+  SpendingTrends,
+  StatisticsChart,
+  SummaryCards,
+  WalletDistribution,
+} from '@/components/statistics';
 import {
   statisticsMonth,
   statisticsWeek,
@@ -6,9 +12,9 @@ import {
 } from '@/constants/statistics';
 import { useGlobalContext } from '@/lib/global-provider';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
-import { BarChart } from 'react-native-gifted-charts';
+import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const statisticsTypes = [
@@ -36,8 +42,7 @@ const statisticsTypes = [
 ];
 
 const Statistics = () => {
-  const { transactions, user } = useGlobalContext();
-  const router = require('expo-router').router;
+  const { user, totalIncomes, totalExpenses } = useGlobalContext();
 
   const [data, setData] = useState(statisticsTypes[0].data);
   const [maxValue, setMaxValue] = useState(statisticsTypes[0].maxValue);
@@ -55,6 +60,25 @@ const Statistics = () => {
       setYAxisLabelTexts(selectedType.yAxisLabelTexts);
     }
   };
+
+  // Sample category data based on expense categories from README
+  const categoryData = [
+    { value: 30, color: '#f59e0b', text: '30%', name: 'Food & Dining' },
+    { value: 20, color: '#3b82f6', text: '20%', name: 'Transportation' },
+    { value: 15, color: '#ec4899', text: '15%', name: 'Shopping' },
+    { value: 12, color: '#8b5cf6', text: '12%', name: 'Entertainment' },
+    { value: 10, color: '#ef4444', text: '10%', name: 'Bills & Utilities' },
+    { value: 8, color: '#10b981', text: '8%', name: 'Healthcare' },
+    { value: 5, color: '#84cc16', text: '5%', name: 'Personal Care' },
+  ];
+
+  // Sample wallet data
+  const walletData = [
+    { name: 'Efectivo', balance: 1250, color: '#f59e0b', percentage: '25%' },
+    { name: 'Banco', balance: 2500, color: '#3b82f6', percentage: '50%' },
+    { name: 'Ahorros', balance: 1250, color: '#ec4899', percentage: '25%' },
+  ];
+
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-14">
       {/* Header */}
@@ -67,41 +91,44 @@ const Statistics = () => {
           <Image source={{ uri: user?.avatar }} className="h-full w-full" />
         </TouchableOpacity>
       </View>
-      <View className="mt-8">
-        <View className="">
-          <SegmentedControl
-            values={['Semanal', 'Mensual', 'Anual']}
-            selectedIndex={0}
-            onChange={(event) => handleSegmentChange(event.nativeEvent.value)}
-            backgroundColor="#192A3A"
-            tintColor="#18C06A"
-            fontStyle={{ color: 'white' }}
+
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="mt-8">
+          <View>
+            <SegmentedControl
+              values={['Semanal', 'Mensual', 'Anual']}
+              selectedIndex={0}
+              onChange={(event) => handleSegmentChange(event.nativeEvent.value)}
+              backgroundColor="#192A3A"
+              tintColor="#18C06A"
+              fontStyle={{ color: 'white' }}
+            />
+          </View>
+
+          {/* Summary Cards */}
+          <SummaryCards
+            totalExpenses={totalExpenses}
+            totalIncomes={totalIncomes}
           />
-        </View>
-        <View className="mt-5">
-          <BarChart
+
+          {/* Bar Chart */}
+          <StatisticsChart
             data={data}
-            barWidth={12}
-            initialSpacing={0}
-            spacing={12}
-            barBorderRadius={4}
-            hideRules
-            showGradient
-            yAxisTextStyle={{ color: 'lightgray' }}
-            yAxisColor={'transparent'}
-            xAxisColor={'transparent'}
             stepValue={stepValue}
             maxValue={maxValue}
             yAxisLabelTexts={yAxisLabelTexts}
-            labelWidth={40}
-            xAxisLabelTextStyle={{ color: 'lightgray', textAlign: 'center' }}
           />
         </View>
-      </View>
-      <View className="flex-1">
-        <Text className="text-white text-2xl font-bold mb-3">Hoy</Text>
-        <TransactionList transactions={transactions || []} />
-      </View>
+
+        {/* Category Distribution */}
+        <CategoryDistribution categoryData={categoryData} />
+
+        {/* Spending Trends */}
+        <SpendingTrends />
+
+        {/* Wallet Distribution */}
+        <WalletDistribution walletData={walletData} />
+      </ScrollView>
     </SafeAreaView>
   );
 };
