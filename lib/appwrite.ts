@@ -350,18 +350,6 @@ export const updateTransaction = async ({
   imageUri?: string;
   removeImage?: boolean;
 }): Promise<boolean> => {
-  console.log('Updating transaction:', {
-    id,
-    walletId,
-    categoryId,
-    description,
-    amount,
-    type,
-    date,
-    imageUri,
-    removeImage,
-  });
-
   try {
     const user = await getCurrentUser();
     if (!user) return false;
@@ -549,18 +537,29 @@ export const getTransactions = async ({
       config.transactionCollectionId,
       queries
     );
-    return (
-      response?.documents?.map((transaction) => ({
-        id: transaction.$id as string,
-        walletId: transaction.wallet.$id as string,
-        categoryId: transaction.category.$id as string,
-        category: transaction.category.name as string,
-        description: transaction.description as string,
-        amount: transaction.amount as number,
-        type: transaction.type as TransactionType,
-        date: new Date(transaction.date).toLocaleDateString(),
-      })) || []
-    );
+
+    const transactions =
+      (response?.documents?.map((transaction) => {
+        const imageUrl = transaction.image
+          ? storage
+              .getFileView(config.storageBucketId, transaction.image as string)
+              .toString()
+          : null;
+
+        return {
+          id: transaction.$id as string,
+          walletId: transaction.wallet.$id as string,
+          categoryId: transaction.category.$id as string,
+          category: transaction.category.name as string,
+          description: transaction.description as string,
+          amount: transaction.amount as number,
+          type: transaction.type as TransactionType,
+          date: new Date(transaction.date).toLocaleDateString(),
+          imageUrl,
+        };
+      }) as Transaction[]) || [];
+
+    return transactions;
   } catch (error) {
     console.error('Error fetching transactions:', error);
     return [];

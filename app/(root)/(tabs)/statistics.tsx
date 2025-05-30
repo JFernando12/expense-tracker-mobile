@@ -7,7 +7,7 @@ import {
 import { useGlobalContext } from '@/lib/global-provider';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import React, { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -36,7 +36,8 @@ const statisticsTypes = [
 ];
 
 const Statistics = () => {
-  const { transactions } = useGlobalContext();
+  const { transactions, user } = useGlobalContext();
+  const router = require('expo-router').router;
 
   const [data, setData] = useState(statisticsTypes[0].data);
   const [maxValue, setMaxValue] = useState(statisticsTypes[0].maxValue);
@@ -54,30 +55,41 @@ const Statistics = () => {
       setYAxisLabelTexts(selectedType.yAxisLabelTexts);
     }
   };
-
   return (
-    <SafeAreaView className="bg-black h-full -pb-safe-offset-20 p-5">
-      <View className="flex-row items-center justify-center">
-        <Text className="text-white text-2xl font-bold">Estadisticas</Text>
+    <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-14">
+      {/* Header */}
+      <View className="flex-row items-center justify-between mb-6">
+        <Text className="text-white text-2xl font-bold">Statistics</Text>
+        <TouchableOpacity
+          onPress={() => router.push('/(root)/(modals)/profileModal')}
+          className="h-12 w-12 rounded-full overflow-hidden bg-accent-200"
+        >
+          <Image source={{ uri: user?.avatar }} className="h-full w-full" />
+        </TouchableOpacity>
       </View>
-      <View className="mt-5">
-        <View>
+      <View className="">
+        <View className="">
           <SegmentedControl
             values={['Semanal', 'Mensual', 'Anual']}
             selectedIndex={0}
             onChange={(event) => handleSegmentChange(event.nativeEvent.value)}
+            backgroundColor="#192A3A"
+            tintColor="#18C06A"
+            fontStyle={{ color: 'white' }}
           />
         </View>
         <View className="mt-5">
           <BarChart
             data={data}
-            barWidth={14}
-            initialSpacing={10}
-            spacing={14}
+            barWidth={12}
+            initialSpacing={0}
+            spacing={12}
             barBorderRadius={4}
             hideRules
             showGradient
             yAxisTextStyle={{ color: 'lightgray' }}
+            yAxisColor={'transparent'}
+            xAxisColor={'transparent'}
             stepValue={stepValue}
             maxValue={maxValue}
             yAxisLabelTexts={yAxisLabelTexts}
@@ -86,10 +98,8 @@ const Statistics = () => {
           />
         </View>
       </View>
-      <View className="flex-1 mb-5">
-        <Text className="text-white text-xl font-bold mt-5">
-          Recent Transactions
-        </Text>
+      <View className="flex-1">
+        <Text className="text-white text-2xl font-bold mb-3">Today</Text>
         <TransactionList transactions={transactions || []} />
       </View>
     </SafeAreaView>

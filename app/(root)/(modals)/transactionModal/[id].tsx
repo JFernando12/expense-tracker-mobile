@@ -45,6 +45,7 @@ const TransactionUpdate = () => {
   });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
 
   const {
     expenseCategories,
@@ -169,8 +170,9 @@ const TransactionUpdate = () => {
     ]);
   };
 
-  const removeImage = () => {
+  const handleRemoveImage = () => {
     setSelectedImage(null);
+    setRemoveImage(true);
   };
 
   const validateForm = () => {
@@ -207,7 +209,7 @@ const TransactionUpdate = () => {
         type: transactionType as TransactionType,
         date: formData.date,
         imageUri: selectedImage || undefined,
-        removeImage: !selectedImage && !!originalImageUrl,
+        removeImage: removeImage,
       });
 
       if (success) {
@@ -422,7 +424,7 @@ const TransactionUpdate = () => {
                     />
                     <TouchableOpacity
                       className="absolute top-2 right-2 bg-red-600 rounded-full p-1"
-                      onPress={removeImage}
+                      onPress={handleRemoveImage}
                     >
                       <Text className="text-white text-xs px-2">✕</Text>
                     </TouchableOpacity>

@@ -5,10 +5,7 @@ import WalletItem from './WalletItem';
 
 const WalletList = ({ wallets }: { wallets: Wallet[] }) => {
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      className="mt-5 rounded-lg"
-    >
+    <ScrollView showsVerticalScrollIndicator={false} className="mt-2">
       {wallets.map((wallet, index) => (
         <WalletItem
           key={index}

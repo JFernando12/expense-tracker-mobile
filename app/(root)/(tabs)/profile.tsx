@@ -1,46 +1,11 @@
+import SectionButton from '@/components/SectionButton';
 import icons from '@/constants/icons';
 import { logout } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
 import { router } from 'expo-router';
 import React from 'react';
-import {
-  Alert,
-  Image,
-  ImagePropsBase,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const SectionButton = ({
-  children,
-  onPress,
-  icon,
-  className = 'bg-gray-800 p-3 rounded-lg mb-2',
-}: {
-  children: React.ReactNode;
-  onPress: () => void;
-  icon?: any;
-  className?: string;
-}) => {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      className={`flex-row items-center justify-between ${className}`}
-    >
-      <View className="flex-row items-center">
-        <Image source={icon} tintColor="white" className="size-9" />
-        <Text className="flex-1 ml-4 text-white text-lg">{children}</Text>
-        <Image
-          source={icons.rightArrow as ImagePropsBase}
-          tintColor="white"
-          className="size-6 ml-2"
-        />
-      </View>
-    </TouchableOpacity>
-  );
-};
 
 const Profile = () => {
   const { user, refetchUser } = useGlobalContext();
@@ -54,55 +19,65 @@ const Profile = () => {
     await refetchUser();
     Alert.alert('Success', 'Logout successful');
   };
-
   const sections = [
     {
       title: 'Edit Profile',
       onPress: () => router.push('/(root)/(modals)/profileModal'),
       icon: icons.person,
+      iconBgColor: 'bg-accent-200',
     },
     {
       title: 'Settings',
       onPress: () => console.log('Settings Pressed'),
       icon: icons.filter,
+      iconBgColor: 'bg-accent-200',
     },
     {
-      title: 'Privacy Policy',
+      title: 'Privacy policy',
       onPress: () => console.log('Privacy Policy Pressed'),
-      icon: icons.info,
+      icon: icons.shield,
+      iconBgColor: 'bg-accent-200',
     },
     {
       title: 'Logout',
       onPress: handleLogout,
       icon: icons.logout,
+      iconBgColor: 'bg-accent-200',
     },
   ];
-
   return (
-    <SafeAreaView className="p-5 bg-black h-full">
-      <View className="flex-row items-center justify-center mb-5">
-        <Text className="text-2xl font-bold text-white">Profile</Text>
-      </View>
-      <View className="flex-col items-center justify-center mb-10">
-        <Image
-          source={{ uri: user?.avatar }}
-          resizeMode="contain"
-          className="size-36 rounded-full"
-        />
-        <View className="mt-5 flex-col items-center justify-center">
-          <Text className="text-white text-2xl font-bold">
-            {user?.name || 'User Name'}
-          </Text>
-          <Text className="text-gray-400">{user?.email}</Text>
+    <SafeAreaView className="bg-primary-100 h-full -pb-safe-offset-14">
+      {/* Profile Section */}
+      <View className="items-center pt-10 pb-6">
+        <View className="h-36 w-36 rounded-full overflow-hidden mb-6">
+          <Image source={{ uri: user?.avatar }} className="h-full w-full" />
         </View>
+        <Text className="text-white text-3xl font-bold mb-1">
+          {user?.name || 'Fernando'}
+        </Text>
+        <Text className="text-neutral-300 text-lg">
+          {user?.email || 'fer.castre@gmail.com'}
+        </Text>
+        {/* Edit Profile Button */}
+        <TouchableOpacity
+          onPress={() => router.push('/(root)/(modals)/profileModal')}
+          className="bg-accent-200 rounded-xl py-4 px-16 mt-8"
+        >
+          <Text className="text-primary-100 font-bold text-xl">
+            Edit Profile
+          </Text>
+        </TouchableOpacity>
       </View>
-      <View>
-        {sections.map((section, index) => (
+
+      {/* Section Buttons */}
+      <View className="rounded-t-3xl flex-1 -mb-5 px-5">
+        {sections.slice(1).map((section, index) => (
           <SectionButton
             key={index}
             onPress={section.onPress}
             icon={section.icon}
-            className="bg-gray-800 p-3 rounded-lg mb-2"
+            className="bg-secondary-100 p-5 rounded-xl mb-3"
+            iconBgColor={section.iconBgColor}
           >
             {section.title}
           </SectionButton>

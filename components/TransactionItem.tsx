@@ -1,6 +1,13 @@
+import icons from '@/constants/icons';
 import { Transaction, TransactionType } from '@/types/types';
 import { router } from 'expo-router';
-import { Text, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  ImagePropsBase,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 const TransactionItem = ({
   id,
@@ -10,6 +17,16 @@ const TransactionItem = ({
   type,
   date,
 }: Transaction) => {
+  // Format time to display like "5:08 PM" or "8:36 AM"
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
   return (
     <TouchableOpacity
       onPress={() =>
@@ -18,23 +35,46 @@ const TransactionItem = ({
           params: { id },
         })
       }
-      className="flex-row items-center justify-between bg-gray-800 p-4 rounded-lg mb-2"
+      className={`${
+        type === TransactionType.INCOME
+          ? 'bg-secondary-200'
+          : 'bg-secondary-100'
+      } flex-row items-center justify-between p-5 rounded-2xl mb-3 shadow-md`}
     >
-      <View>
-        <Text className="text-white">{category}</Text>
-        <Text className="text-gray-400">{description}</Text>
+      <View className="flex-row items-center">
+        <View
+          className={`h-12 w-12 ${
+            type === TransactionType.INCOME ? 'bg-accent-200' : 'bg-danger-100'
+          } rounded-full items-center justify-center mr-3`}
+        >
+          <Image
+            source={
+              type === TransactionType.INCOME
+                ? (icons.wallet as ImagePropsBase)
+                : (icons.cutlery as ImagePropsBase)
+            }
+            tintColor="white"
+            className="h-6 w-6"
+          />
+        </View>
+        <View>
+          <Text className="text-white text-lg font-bold">{category}</Text>
+          <Text className="text-neutral-200">{description}</Text>
+        </View>
       </View>
-      <View>
+
+      <View className="items-end">
         <Text
           className={
-            type === TransactionType.INCOME ? 'text-green-500' : 'text-red-600'
+            type === TransactionType.INCOME
+              ? 'text-accent-100 text-lg font-bold'
+              : 'text-danger text-lg font-bold'
           }
         >
-          {amount}
+          {type === TransactionType.INCOME ? '+' : '-'} $
+          {Number(amount).toFixed(2)}
         </Text>
-        <View className="flex-row items-center justify-end">
-          <Text className="text-gray-400">{date}</Text>
-        </View>
+        <Text className="text-neutral-200 mt-1">{formatTime(date)}</Text>
       </View>
     </TouchableOpacity>
   );
