@@ -233,10 +233,14 @@ const TransactionUpdate = () => {
       setIsSubmitting(false);
     }
   };
-
   const onDateChange = (event: any, selectedDate?: Date) => {
+    // For Android, date picker closes automatically after selection
+    // For iOS, we need to keep it open until user manually closes it
     const isIOS = Platform.OS === 'ios';
-    setShowDatePicker(isIOS);
+    if (!isIOS) {
+      setShowDatePicker(false);
+    }
+
     if (selectedDate) {
       setFormData((prev) => ({
         ...prev,
@@ -386,6 +390,14 @@ const TransactionUpdate = () => {
                         {field.value}
                       </Text>
                     </TouchableOpacity>
+                    {showDatePicker && field.label === 'date' && (
+                      <DateTimePicker
+                        value={formData.date}
+                        mode="date"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={onDateChange}
+                      />
+                    )}
                   </View>
                 ) : (
                   <CustomField
@@ -440,14 +452,6 @@ const TransactionUpdate = () => {
               </TouchableOpacity>
             </View>
           </View>
-          {showDatePicker && (
-            <DateTimePicker
-              value={formData.date}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={onDateChange}
-            />
-          )}
         </ScrollView>
       )}
       <TouchableOpacity

@@ -181,8 +181,13 @@ const TransactionCreate = () => {
     }
   };
   const onDateChange = (event: any, selectedDate?: Date) => {
+    // For Android, date picker closes automatically after selection
+    // For iOS, we need to keep it open until user manually closes it
     const isIOS = Platform.OS === 'ios';
-    setShowDatePicker(isIOS);
+    if (!isIOS) {
+      setShowDatePicker(false);
+    }
+
     if (selectedDate) {
       setFormData((prev) => ({
         ...prev,
@@ -302,6 +307,14 @@ const TransactionCreate = () => {
                         {field.value}
                       </Text>
                     </TouchableOpacity>
+                    {showDatePicker && field.label === 'date' && (
+                      <DateTimePicker
+                        value={formData.date}
+                        mode="date"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={onDateChange}
+                      />
+                    )}
                   </View>
                 ) : (
                   <CustomField
@@ -315,7 +328,6 @@ const TransactionCreate = () => {
                 )}
               </View>
             ))}
-
             {/* Image picker section */}
             <View className="py-3 px-0">
               <Text className="text-neutral-200 text-sm mb-1">
@@ -357,15 +369,6 @@ const TransactionCreate = () => {
               </TouchableOpacity>
             </View>
           </View>
-
-          {showDatePicker && (
-            <DateTimePicker
-              value={formData.date}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={onDateChange}
-            />
-          )}
         </ScrollView>
       )}
 

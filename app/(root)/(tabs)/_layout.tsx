@@ -15,7 +15,7 @@ const LayoutTabs = () => {
           alignItems: 'center',
         }}
       >
-        <View className="h-14 w-14 bg-accent-200 rounded-full items-center justify-center shadow-lg">
+        <View className="size-16 bg-accent-200 rounded-full items-center justify-center shadow-lg">
           <Image
             source={icons.edit as ImagePropsBase}
             className="h-6 w-6"
@@ -66,7 +66,7 @@ const LayoutTabs = () => {
       <Tabs.Screen
         name="statistics"
         options={{
-          title: 'Datos',
+          title: 'Reporte',
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Image

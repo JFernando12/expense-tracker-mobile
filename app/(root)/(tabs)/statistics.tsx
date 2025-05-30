@@ -58,16 +58,16 @@ const Statistics = () => {
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-14">
       {/* Header */}
-      <View className="flex-row items-center justify-between mb-6">
+      <View className="flex-row items-center justify-start">
         <Text className="text-white text-2xl font-bold">Estadísticas</Text>
         <TouchableOpacity
           onPress={() => router.push('/(root)/(modals)/profileModal')}
-          className="h-12 w-12 rounded-full overflow-hidden bg-accent-200"
+          className="absolute right-0 top-0 size-12 rounded-full overflow-hidden bg-accent-200"
         >
           <Image source={{ uri: user?.avatar }} className="h-full w-full" />
         </TouchableOpacity>
       </View>
-      <View className="">
+      <View className="mt-8">
         <View className="">
           <SegmentedControl
             values={['Semanal', 'Mensual', 'Anual']}

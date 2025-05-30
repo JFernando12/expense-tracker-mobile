@@ -90,15 +90,15 @@ const SearchModal = () => {
         {isSearching ? (
           <View className="flex-1 justify-center items-center bg-primary-300 p-6 rounded-3xl shadow-lg">
             <ActivityIndicator size="large" color="white" />
-            <Text className="text-white mt-2 font-bold">Searching...</Text>
+            <Text className="text-white mt-2 font-bold">Buscando...</Text>
           </View>
         ) : searchQuery.trim() && searchResults.length === 0 ? (
           <View className="flex-1 justify-center items-center bg-primary-300 p-6 rounded-3xl shadow-lg">
             <Text className="text-white text-lg font-bold">
-              No transactions found
+              No se encontraron resultados
             </Text>
             <Text className="text-neutral-200 text-sm mt-2 text-center">
-              Try searching with different keywords
+              Intenta con otra palabra clave o verifica la ortografía.
             </Text>
           </View>
         ) : (
