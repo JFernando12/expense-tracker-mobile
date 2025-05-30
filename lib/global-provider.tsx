@@ -122,9 +122,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   const isLoggedIn = !!user;
 
   const refetchUser = async () => {
-    if (isLoggedIn) {
-      await refetch();
-    }
+    await refetch();
   };
   
   const refetchResources = async () => {

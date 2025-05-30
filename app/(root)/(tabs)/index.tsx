@@ -32,7 +32,7 @@ export default function Index() {
   ) {
     return (
       <SafeAreaView className="bg-primary-100 h-full p-5">
-        <Text className="text-white">Loading...</Text>
+        <Text className="text-white">Cargando...</Text>
       </SafeAreaView>
     );
   }
@@ -42,7 +42,7 @@ export default function Index() {
       {/* Header */}
       <View className="flex-row items-center justify-between mb-6">
         <View>
-          <Text className="text-neutral-200 text-lg">Hello,</Text>
+          <Text className="text-neutral-200 text-lg">Hola,</Text>
           <Text className="text-white text-2xl font-bold">{user?.name}</Text>
         </View>
         <TouchableOpacity
@@ -54,7 +54,7 @@ export default function Index() {
       </View>
       {/* Balance Section */}
       <View className="bg-primary-300 p-6 rounded-3xl mb-6 shadow-lg">
-        <Text className="text-neutral-200 text-lg mb-1">Total Balance</Text>
+        <Text className="text-neutral-200 text-lg mb-1">Balance Total</Text>
         <Text className="text-white text-4xl font-bold mb-6">
           ${totalBalance?.toFixed(2)}
         </Text>
@@ -68,13 +68,12 @@ export default function Index() {
               />
             </View>
             <View>
-              <Text className="text-neutral-200">Income</Text>
+              <Text className="text-neutral-200">Ingresos</Text>
               <Text className="text-white text-lg font-bold">
                 ${totalIncomes?.toFixed(2)}
               </Text>
             </View>
           </View>
-
           <View className="flex-row items-center">
             <View className="h-9 w-9 bg-danger-100 rounded-full items-center justify-center mr-3">
               <Image
@@ -84,7 +83,7 @@ export default function Index() {
               />
             </View>
             <View>
-              <Text className="text-neutral-200">Expense</Text>
+              <Text className="text-neutral-200">Gastos</Text>
               <Text className="text-danger font-bold text-lg">
                 ${totalExpenses?.toFixed(2)}
               </Text>
@@ -94,7 +93,7 @@ export default function Index() {
       </View>
       {/* Today's Transactions Section */}
       <View className="flex-row items-center justify-between mb-3">
-        <Text className="text-white text-2xl font-bold">Today</Text>
+        <Text className="text-white text-2xl font-bold">Hoy</Text>
         <TouchableOpacity
           onPress={() => router.push('/(root)/(modals)/searchModal')}
           className="h-10 w-10 bg-primary-300 rounded-full items-center justify-center"

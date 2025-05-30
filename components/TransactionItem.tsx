@@ -17,13 +17,13 @@ const TransactionItem = ({
   type,
   date,
 }: Transaction) => {
-  // Format time to display like "5:08 PM" or "8:36 AM"
+  // Format time to display like "17:08" or "8:36"
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
+    return date.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: true,
+      hour12: false,
     });
   };
 

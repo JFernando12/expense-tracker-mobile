@@ -18,23 +18,22 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
   const handleRegister = async () => {
     // Basic validation
     if (!name.trim() || !email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please fill all fields');
+      Alert.alert('Error', 'Por favor completa todos los campos');
       return;
     }
 
     if (password.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters');
+      Alert.alert('Error', 'La contraseña debe tener al menos 8 caracteres');
       return;
     }
 
     // Email validation using regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      Alert.alert('Error', 'Please enter a valid email address');
+      Alert.alert('Error', 'Por favor ingresa una dirección de correo válida');
       return;
     }
 
@@ -48,56 +47,55 @@ const Register = () => {
         router.replace('/(root)/(tabs)');
       } else {
         Alert.alert(
-          'Registration Error',
-          'Failed to register. Please try again.'
+          'Error de Registro',
+          'No se pudo registrar. Por favor intenta de nuevo.'
         );
       }
     } catch (error) {
-      Alert.alert('Error', 'An unexpected error occurred.');
+      Alert.alert('Error', 'Ocurrió un error inesperado.');
       console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
-    <SafeAreaView className="bg-black h-full p-5">
+    <SafeAreaView className="bg-primary-100 h-full p-5">
       <View className="mt-20">
-        <Text className="text-4xl font-bold text-white">Let&apos;s</Text>
-        <Text className="text-4xl font-bold text-white">Get Started</Text>
+        <Text className="text-neutral-200 text-lg">Vamos a</Text>
+        <Text className="text-white text-2xl font-bold">Comenzar</Text>
       </View>
       <View className="mt-10">
-        <Text className="text-white">
-          Create an account to track your expenses
+        <Text className="text-neutral-200">
+          Crea una cuenta para controlar tus gastos
         </Text>
       </View>
       <View className="mt-5 flex-col gap-5">
-        <View className="border border-white rounded-xl py-4">
+        <View className="bg-primary-300 rounded-xl py-4 px-5">
           <TextInput
-            className="ml-5 text-white"
-            placeholder="Enter your name"
-            placeholderTextColor="gray"
+            className="text-white"
+            placeholder="Ingresa tu nombre"
+            placeholderTextColor="#9CA3AF"
             value={name}
             onChangeText={setName}
             autoCapitalize="words"
           />
         </View>
-        <View className="border border-white rounded-xl py-4">
+        <View className="bg-primary-300 rounded-xl py-4 px-5">
           <TextInput
-            className="ml-5 text-white"
-            placeholder="Enter your email"
-            placeholderTextColor="gray"
+            className="text-white"
+            placeholder="Ingresa tu correo electrónico"
+            placeholderTextColor="#9CA3AF"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
           />
         </View>
-        <View className="border border-white rounded-xl py-4">
+        <View className="bg-primary-300 rounded-xl py-4 px-5">
           <TextInput
-            className="ml-5 text-white"
-            placeholder="Enter your password"
-            placeholderTextColor="gray"
+            className="text-white"
+            placeholder="Ingresa tu contraseña"
+            placeholderTextColor="#9CA3AF"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -106,20 +104,20 @@ const Register = () => {
         </View>
       </View>
       <TouchableOpacity
-        className="mt-10 bg-white flex-row justify-center items-center py-4 rounded-3xl"
+        className="mt-10 bg-accent-200 flex-row justify-center items-center py-4 rounded-3xl"
         onPress={handleRegister}
         disabled={isLoading}
       >
         {isLoading ? (
-          <ActivityIndicator size="small" color="#000" />
+          <ActivityIndicator size="small" color="#fff" />
         ) : (
-          <Text className="text-2xl font-extrabold">Register</Text>
+          <Text className="text-white text-xl font-bold">Registrarse</Text>
         )}
       </TouchableOpacity>
       <View className="mt-10 flex-row justify-center items-center gap-2">
-        <Text className="text-white">Already have an account?</Text>
+        <Text className="text-neutral-200">¿Ya tienes una cuenta?</Text>
         <TouchableOpacity onPress={() => router.push('/login')}>
-          <Text className="text-green-500 font-extrabold">Login</Text>
+          <Text className="text-accent-200 font-bold">Iniciar Sesión</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

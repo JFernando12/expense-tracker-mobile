@@ -12,7 +12,7 @@ const Wallet = () => {
     <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-14">
       {/* Header */}
       <View className="flex-row items-center justify-between mb-6">
-        <Text className="text-white text-2xl font-bold">My Wallet</Text>
+        <Text className="text-white text-2xl font-bold">Mis Cuentas</Text>
         <TouchableOpacity
           onPress={() => router.push('/(root)/(modals)/profileModal')}
           className="h-12 w-12 rounded-full overflow-hidden bg-accent-200"
@@ -23,19 +23,21 @@ const Wallet = () => {
 
       {/* Balance Section */}
       <View className="flex-col items-center justify-between">
-        <Text className="text-neutral-200 text-lg">Total Balance</Text>
+        <Text className="text-neutral-200 text-lg">Balance Total</Text>
         <Text className="text-white text-4xl font-bold">
           ${totalBalance?.toFixed(2)}
         </Text>
       </View>
       <View className="flex-1 mt-5 rounded-t-3xl">
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-white text-xl font-bold">All Accounts</Text>
+          <Text className="text-white text-xl font-bold">
+            Todas las cuentas
+          </Text>
           <TouchableOpacity
             onPress={() => router.push('/(root)/(modals)/walletModal/create')}
             className="bg-accent-200 rounded-full px-4 py-2"
           >
-            <Text className="text-white font-medium">Add</Text>
+            <Text className="text-white font-medium">Crear</Text>
           </TouchableOpacity>
         </View>
         {/* Wallets */}

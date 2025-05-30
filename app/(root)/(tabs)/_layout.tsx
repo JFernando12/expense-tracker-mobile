@@ -52,7 +52,7 @@ const LayoutTabs = () => {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: 'Inicio',
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Image
@@ -62,11 +62,11 @@ const LayoutTabs = () => {
             />
           ),
         }}
-      />{' '}
+      />
       <Tabs.Screen
         name="statistics"
         options={{
-          title: 'Statistics',
+          title: 'Datos',
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Image
@@ -96,7 +96,7 @@ const LayoutTabs = () => {
       <Tabs.Screen
         name="wallet"
         options={{
-          title: 'Wallet',
+          title: 'Cartera',
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Image
@@ -110,7 +110,7 @@ const LayoutTabs = () => {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: 'Perfil',
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Image

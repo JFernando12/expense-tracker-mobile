@@ -9,42 +9,42 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Profile = () => {
   const { user, refetchUser } = useGlobalContext();
-
   const handleLogout = async () => {
     const result = await logout();
     if (!result) {
-      Alert.alert('Failed', 'Logout failed');
+      Alert.alert('Fallido', 'Cierre de sesión fallido');
       return;
     }
     await refetchUser();
-    Alert.alert('Success', 'Logout successful');
+    Alert.alert('Éxito', 'Cierre de sesión exitoso');
   };
   const sections = [
     {
-      title: 'Edit Profile',
+      title: 'Editar Perfil',
       onPress: () => router.push('/(root)/(modals)/profileModal'),
       icon: icons.person,
       iconBgColor: 'bg-accent-200',
     },
     {
-      title: 'Settings',
+      title: 'Configuración',
       onPress: () => console.log('Settings Pressed'),
       icon: icons.filter,
       iconBgColor: 'bg-accent-200',
     },
     {
-      title: 'Privacy policy',
+      title: 'Política de privacidad',
       onPress: () => console.log('Privacy Policy Pressed'),
       icon: icons.shield,
       iconBgColor: 'bg-accent-200',
     },
     {
-      title: 'Logout',
+      title: 'Cerrar sesión',
       onPress: handleLogout,
       icon: icons.logout,
       iconBgColor: 'bg-accent-200',
     },
   ];
+
   return (
     <SafeAreaView className="bg-primary-100 h-full -pb-safe-offset-14">
       {/* Profile Section */}
@@ -64,7 +64,7 @@ const Profile = () => {
           className="bg-accent-200 rounded-xl py-4 px-16 mt-8"
         >
           <Text className="text-primary-100 font-bold text-xl">
-            Edit Profile
+            Editar Perfil
           </Text>
         </TouchableOpacity>
       </View>

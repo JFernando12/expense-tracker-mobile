@@ -1,4 +1,4 @@
-import TransactionList from "@/components/TransactionList";
+import TransactionList from '@/components/TransactionList';
 import {
   statisticsMonth,
   statisticsWeek,
@@ -59,7 +59,7 @@ const Statistics = () => {
     <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-14">
       {/* Header */}
       <View className="flex-row items-center justify-between mb-6">
-        <Text className="text-white text-2xl font-bold">Statistics</Text>
+        <Text className="text-white text-2xl font-bold">Estadísticas</Text>
         <TouchableOpacity
           onPress={() => router.push('/(root)/(modals)/profileModal')}
           className="h-12 w-12 rounded-full overflow-hidden bg-accent-200"
@@ -99,7 +99,7 @@ const Statistics = () => {
         </View>
       </View>
       <View className="flex-1">
-        <Text className="text-white text-2xl font-bold mb-3">Today</Text>
+        <Text className="text-white text-2xl font-bold mb-3">Hoy</Text>
         <TransactionList transactions={transactions || []} />
       </View>
     </SafeAreaView>
