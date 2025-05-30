@@ -34,7 +34,6 @@ export default function Index() {
     return (
       <SafeAreaView className="bg-primary-100 h-full flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="white" />
-        <Text className="text-white mt-4">Cargando datos...</Text>
       </SafeAreaView>
     );
   }

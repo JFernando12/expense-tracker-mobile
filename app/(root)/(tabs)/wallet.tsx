@@ -9,7 +9,7 @@ const Wallet = () => {
   const { wallets, totalBalance, user } = useGlobalContext();
 
   return (
-    <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-14">
+    <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-20">
       {/* Header */}
       <View className="flex-row items-center justify-start mb-6">
         <Text className="text-white text-2xl font-bold">Mis Cuentas</Text>
@@ -29,7 +29,7 @@ const Wallet = () => {
         </Text>
       </View>
       <View className="flex-1 mt-5 rounded-t-3xl">
-        <View className="flex-row items-center justify-between mb-4">
+        <View className="flex-row items-center justify-between">
           <Text className="text-white text-xl font-bold">
             Todas las cuentas
           </Text>
@@ -40,8 +40,9 @@ const Wallet = () => {
             <Text className="text-white font-medium">Crear</Text>
           </TouchableOpacity>
         </View>
+
         {/* Wallets */}
-        <View className="flex-1">
+        <View className="flex-1 mt-4">
           <WalletList wallets={wallets || []} />
         </View>
       </View>

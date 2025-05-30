@@ -8,7 +8,7 @@ type SummaryCardsProps = {
 
 const SummaryCards = ({ totalExpenses, totalIncomes }: SummaryCardsProps) => {
   return (
-    <View className="flex-row justify-between mt-5">
+    <View className="flex-row justify-between">
       <View className="bg-primary-300 p-4 rounded-xl w-[48%]">
         <Text className="text-neutral-200 text-base">Gastos</Text>
         <Text className="text-danger font-bold text-xl">

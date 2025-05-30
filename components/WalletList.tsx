@@ -1,11 +1,11 @@
 import { Wallet } from '@/types/types';
 import React from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import WalletItem from './WalletItem';
 
 const WalletList = ({ wallets }: { wallets: Wallet[] }) => {
   return (
-    <ScrollView showsVerticalScrollIndicator={false} className="mt-2">
+    <ScrollView showsVerticalScrollIndicator={false} className="rounded-t-xl">
       {wallets.map((wallet, index) => (
         <WalletItem
           key={index}
@@ -14,6 +14,7 @@ const WalletList = ({ wallets }: { wallets: Wallet[] }) => {
           currentBalance={wallet.currentBalance}
         />
       ))}
+      <View className="pb-7" />
     </ScrollView>
   );
 };

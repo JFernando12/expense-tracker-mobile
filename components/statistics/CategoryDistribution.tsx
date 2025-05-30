@@ -15,29 +15,13 @@ type CategoryDistributionProps = {
 
 const CategoryDistribution = ({ categoryData }: CategoryDistributionProps) => {
   return (
-    <View className="mt-8">
-      <Text className="text-white text-2xl font-bold mb-4">
+    <View>
+      <Text className="text-white text-xl font-bold mb-4">
         Distribución por Categoría
       </Text>
       <View className="bg-primary-300 p-5 rounded-xl">
         <View className="items-center">
-          <PieChart
-            data={categoryData}
-            donut
-            radius={120}
-            innerRadius={85}
-            textSize={0}
-            showTextBackground={false}
-            showValuesAsLabels={false}
-            focusOnPress
-            labelsPosition="outward"
-            strokeWidth={0}
-            centerLabelComponent={() => (
-              <Text className="text-white text-base font-semibold">
-                Gastos
-              </Text>
-            )}
-          />
+          <PieChart data={categoryData} donut innerRadius={0} />
         </View>
 
         <View className="mt-5">

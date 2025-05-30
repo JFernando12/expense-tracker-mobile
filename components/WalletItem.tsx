@@ -25,13 +25,13 @@ const WalletItem = ({
           params: { id },
         })
       }
-      className="flex-row items-center justify-between bg-secondary-100 p-5 rounded-2xl mb-3"
+      className="flex-row items-center justify-between bg-secondary-100 p-5 rounded-2xl shadow-sm mb-3"
     >
       <View className="flex-row items-center">
         <View className="bg-secondary-300 size-12 rounded-full items-center justify-center mr-3">
           <Image
             source={icons.wallet as ImagePropsBase}
-            className="h-6 w-6"
+            className="size-6"
             tintColor="white"
           />
         </View>

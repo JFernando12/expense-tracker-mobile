@@ -19,6 +19,7 @@ const TransactionList = ({ transactions }: { transactions: Transaction[] }) => {
           />
         ))}
       </View>
+      <View className="pb-7" />
     </ScrollView>
   );
 };

@@ -39,7 +39,7 @@ const TransactionItem = ({
         type === TransactionType.INCOME
           ? 'bg-secondary-200'
           : 'bg-secondary-100'
-      } flex-row items-center justify-between p-5 rounded-2xl mb-3 shadow-md`}
+      } flex-row items-center justify-between p-5 rounded-2xl mb-3 shadow-sm`}
     >
       <View className="flex-row items-center">
         <View

@@ -1,65 +1,20 @@
 import {
   CategoryDistribution,
   SpendingTrends,
-  StatisticsChart,
   SummaryCards,
   WalletDistribution,
 } from '@/components/statistics';
-import {
-  statisticsMonth,
-  statisticsWeek,
-  statisticsYear,
-} from '@/constants/statistics';
 import { useGlobalContext } from '@/lib/global-provider';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const statisticsTypes = [
-  {
-    label: 'Semanal',
-    data: statisticsWeek,
-    maxValue: 6000,
-    stepValue: 1000,
-    yAxisLabelTexts: ['0', '1k', '2k', '3k', '4k', '5k', '6k'],
-  },
-  {
-    label: 'Mensual',
-    data: statisticsMonth,
-    maxValue: 20000,
-    stepValue: 5000,
-    yAxisLabelTexts: ['0', '5k', '10k', '15k', '20k'],
-  },
-  {
-    label: 'Anual',
-    data: statisticsYear,
-    maxValue: 100000,
-    stepValue: 20000,
-    yAxisLabelTexts: ['0', '20k', '40k', '60k', '80k', '100k'],
-  },
-];
 
 const Statistics = () => {
   const { user, totalIncomes, totalExpenses } = useGlobalContext();
 
-  const [data, setData] = useState(statisticsTypes[0].data);
-  const [maxValue, setMaxValue] = useState(statisticsTypes[0].maxValue);
-  const [stepValue, setStepValue] = useState(statisticsTypes[0].stepValue);
-  const [yAxisLabelTexts, setYAxisLabelTexts] = useState(
-    statisticsTypes[0].yAxisLabelTexts
-  );
-
-  const handleSegmentChange = (label: string) => {
-    const selectedType = statisticsTypes.find((type) => type.label === label);
-    if (selectedType) {
-      setData(selectedType.data);
-      setMaxValue(selectedType.maxValue);
-      setStepValue(selectedType.stepValue);
-      setYAxisLabelTexts(selectedType.yAxisLabelTexts);
-    }
-  };
+  const handleSegmentChange = (label: string) => {};
 
   // Sample category data based on expense categories from README
   const categoryData = [
@@ -80,7 +35,7 @@ const Statistics = () => {
   ];
 
   return (
-    <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-14">
+    <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-20">
       {/* Header */}
       <View className="flex-row items-center justify-start">
         <Text className="text-white text-2xl font-bold">Estadísticas</Text>
@@ -92,42 +47,50 @@ const Statistics = () => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="mt-8">
-          <View>
-            <SegmentedControl
-              values={['Semanal', 'Mensual', 'Anual']}
-              selectedIndex={0}
-              onChange={(event) => handleSegmentChange(event.nativeEvent.value)}
-              backgroundColor="#192A3A"
-              tintColor="#18C06A"
-              fontStyle={{ color: 'white' }}
-            />
-          </View>
-
-          {/* Summary Cards */}
+      {/* Segmented Control */}
+      <View className="mt-8">
+        <SegmentedControl
+          values={['Semanal', 'Mensual', 'Anual']}
+          selectedIndex={0}
+          onChange={(event) => handleSegmentChange(event.nativeEvent.value)}
+          tintColor="#18C06A"
+          fontStyle={{ color: 'white' }}
+        />
+      </View>
+      <ScrollView
+        className="flex-1 mt-4 rounded-t-xl"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Summary Cards */}
+        <View>
           <SummaryCards
             totalExpenses={totalExpenses}
             totalIncomes={totalIncomes}
           />
-
-          {/* Bar Chart */}
-          <StatisticsChart
-            data={data}
-            stepValue={stepValue}
-            maxValue={maxValue}
-            yAxisLabelTexts={yAxisLabelTexts}
-          />
         </View>
 
+        {/* Bar Chart */}
+        {/* <StatisticsChart
+          data={data}
+          stepValue={stepValue}
+          maxValue={maxValue}
+          yAxisLabelTexts={yAxisLabelTexts}
+        /> */}
+
         {/* Category Distribution */}
-        <CategoryDistribution categoryData={categoryData} />
+        <View className="mt-6">
+          <CategoryDistribution categoryData={categoryData} />
+        </View>
 
         {/* Spending Trends */}
-        <SpendingTrends />
+        <View className="mt-6">
+          <SpendingTrends />
+        </View>
 
         {/* Wallet Distribution */}
-        <WalletDistribution walletData={walletData} />
+        <View className="mt-6 mb-10">
+          <WalletDistribution walletData={walletData} />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

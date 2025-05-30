@@ -20,8 +20,8 @@ const WalletDistribution = ({ walletData }: WalletDistributionProps) => {
   );
 
   return (
-    <View className="mt-8 mb-5">
-      <Text className="text-white text-2xl font-bold mb-4">
+    <View>
+      <Text className="text-white text-xl font-bold mb-4">
         Distribución por Billetera
       </Text>
       <View className="bg-primary-300 p-4 rounded-xl">
@@ -46,7 +46,9 @@ const WalletDistribution = ({ walletData }: WalletDistributionProps) => {
         <View className="h-[1px] bg-primary-200 my-3" />
         <View className="flex-row justify-between items-center">
           <Text className="text-white font-bold">Total</Text>
-          <Text className="text-white font-bold">${totalBalance.toFixed(2)}</Text>
+          <Text className="text-white font-bold">
+            ${totalBalance.toFixed(2)}
+          </Text>
         </View>
       </View>
     </View>
