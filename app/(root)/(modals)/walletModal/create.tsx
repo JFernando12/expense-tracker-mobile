@@ -1,10 +1,11 @@
-import CustomField from "@/components/CustomField";
-import icons from "@/constants/icons";
-import { createWallet } from "@/lib/appwrite";
-import { useGlobalContext } from "@/lib/global-provider";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import CustomField from '@/components/CustomField';
+import icons from '@/constants/icons';
+import { createWallet } from '@/lib/appwrite';
+import { useGlobalContext } from '@/lib/global-provider';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Image,
   ImagePropsBase,
@@ -12,43 +13,45 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 enum fieldTypes {
-  TEXT = "text",
-  NUMBER = "number",
-  DATE = "date",
-  SELECT = "select",
+  TEXT = 'text',
+  NUMBER = 'number',
+  DATE = 'date',
+  SELECT = 'select',
 }
 
 const WalletCreate = () => {
   const { refetchResources } = useGlobalContext();
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    initialBalance: "",
+    name: '',
+    description: '',
+    initialBalance: '',
   });
   const [isLoading, setIsLoading] = useState(false);
-
   const fields = [
     {
-      label: "Nombre",
+      label: 'Nombre',
+      title: 'Nombre',
       value: formData.name,
       type: fieldTypes.TEXT,
-      key: "name",
+      key: 'name',
     },
     {
-      label: "Descripción",
+      label: 'Descripción',
+      title: 'Descripción',
       value: formData.description,
       type: fieldTypes.TEXT,
-      key: "description",
+      key: 'description',
     },
     {
-      label: "Saldo inicial",
+      label: 'Saldo inicial',
+      title: 'Saldo inicial',
       value: formData.initialBalance,
       type: fieldTypes.NUMBER,
-      key: "initialBalance",
+      key: 'initialBalance',
     },
   ];
 
@@ -63,20 +66,20 @@ const WalletCreate = () => {
   const handleCreateWallet = async () => {
     // Validate form
     if (!formData.name.trim()) {
-      Alert.alert("Error", "El nombre de la cartera es requerido");
+      Alert.alert('Error', 'El nombre de la cartera es requerido');
       return;
     }
 
     if (!formData.initialBalance.trim()) {
-      Alert.alert("Error", "El saldo inicial es requerido");
+      Alert.alert('Error', 'El saldo inicial es requerido');
       return;
     }
 
     const initialBalance = parseFloat(formData.initialBalance);
     if (isNaN(initialBalance) || initialBalance < 0) {
       Alert.alert(
-        "Error",
-        "El saldo inicial debe ser un número válido mayor o igual a 0"
+        'Error',
+        'El saldo inicial debe ser un número válido mayor o igual a 0'
       );
       return;
     }
@@ -93,31 +96,30 @@ const WalletCreate = () => {
       if (wallet) {
         // Refetch resources to update the wallet list
         await refetchResources();
-        Alert.alert("Éxito", "Cartera creada exitosamente", [
+        Alert.alert('Éxito', 'Cartera creada exitosamente', [
           {
-            text: "OK",
+            text: 'OK',
             onPress: () => router.back(),
           },
         ]);
       } else {
         Alert.alert(
-          "Error",
-          "No se pudo crear la cartera. Inténtalo de nuevo."
+          'Error',
+          'No se pudo crear la cartera. Inténtalo de nuevo.'
         );
       }
     } catch (error) {
-      console.error("Error creating wallet:", error);
+      console.error('Error creating wallet:', error);
       Alert.alert(
-        "Error",
-        "Ocurrió un error al crear la cartera. Inténtalo de nuevo."
+        'Error',
+        'Ocurrió un error al crear la cartera. Inténtalo de nuevo.'
       );
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
-    <SafeAreaView className="bg-black h-full p-5">
+    <SafeAreaView className="bg-primary-100 h-full p-5">
       <View className="relative flex-row items-center justify-center mb-5">
         <TouchableOpacity
           className="absolute left-0 p-2"
@@ -131,12 +133,13 @@ const WalletCreate = () => {
         </TouchableOpacity>
         <Text className="text-white text-2xl font-bold">Nueva Cartera</Text>
       </View>
-      <ScrollView className="flex-1">
-        <View className="mt-5">
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+        <View className="rounded-3xl mb-6 shadow-lg">
           {fields.map((field, index) => (
             <CustomField
               key={index}
               label={field.label}
+              title={field.title}
               value={field.value}
               type={field.type}
               onChangeText={(text) => {
@@ -148,14 +151,23 @@ const WalletCreate = () => {
       </ScrollView>
       <TouchableOpacity
         className={`rounded-xl py-3 mt-5 ${
-          isLoading ? "bg-gray-600" : "bg-blue-600"
+          isLoading ? 'bg-gray-600' : 'bg-accent-200'
         }`}
         onPress={handleCreateWallet}
         disabled={isLoading}
       >
-        <Text className="text-white text-center text-lg font-bold">
-          {isLoading ? "Guardando..." : "Guardar"}
-        </Text>
+        {isLoading ? (
+          <View className="flex-row justify-center items-center">
+            <ActivityIndicator size="small" color="white" />
+            <Text className="text-white text-center text-lg font-bold ml-2">
+              Guardando...
+            </Text>
+          </View>
+        ) : (
+          <Text className="text-white text-center text-lg font-bold">
+            Guardar
+          </Text>
+        )}
       </TouchableOpacity>
     </SafeAreaView>
   );

@@ -27,20 +27,20 @@ const ProfileModal = () => {
       const result = await updateUser({ name });
       if (result) {
         await refetchUser();
-        Alert.alert("Éxito", "Perfil editado correctamente");
+        Alert.alert('Éxito', 'Perfil editado correctamente');
       } else {
-        Alert.alert("Error", "Failed to update profile");
+        Alert.alert('Error', 'Failed to update profile');
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      Alert.alert("Error", "An unexpected error occurred");
+      console.error('Error updating profile:', error);
+      Alert.alert('Error', 'An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <SafeAreaView className="bg-black h-full p-5">
+    <SafeAreaView className="bg-primary-100 h-full p-5">
       <View className="relative flex-row items-center justify-center mb-5">
         <TouchableOpacity
           className="absolute left-0 p-2"
@@ -73,10 +73,10 @@ const ProfileModal = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <View className="mt-5">
-        <Text className="text-white">Name</Text>
+      <View className="mt-5 rounded-3xl shadow-lg">
+        <Text className="text-neutral-200 text-sm mb-1">Nombre</Text>
         <TextInput
-          className="mt-3 bg-gray-800 text-white p-3 rounded-lg mb-4"
+          className="bg-primary-200 text-white p-4 rounded-xl border border-primary-300 mb-4"
           placeholder="Enter your name"
           placeholderTextColor="gray"
           value={name}
@@ -85,14 +85,23 @@ const ProfileModal = () => {
       </View>
 
       <TouchableOpacity
-        className="mt-5 bg-blue-500 p-3 rounded-lg"
+        className={`rounded-xl py-3 mt-5 ${
+          isLoading ? 'bg-gray-600' : 'bg-accent-200'
+        }`}
         onPress={handleUpdateName}
         disabled={isLoading}
       >
         {isLoading ? (
-          <ActivityIndicator color="white" />
+          <View className="flex-row justify-center items-center">
+            <ActivityIndicator size="small" color="white" />
+            <Text className="text-white text-center text-lg font-bold ml-2">
+              Guardando...
+            </Text>
+          </View>
         ) : (
-          <Text className="text-white text-center font-bold">Save Changes</Text>
+          <Text className="text-white text-center text-lg font-bold">
+            Guardar
+          </Text>
         )}
       </TouchableOpacity>
     </SafeAreaView>

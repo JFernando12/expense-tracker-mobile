@@ -1,15 +1,15 @@
-import TransactionList from "@/components/TransactionList";
-import icons from "@/constants/icons";
-import { useGlobalContext } from "@/lib/global-provider";
-import { router } from "expo-router";
+import TransactionList from '@/components/TransactionList';
+import icons from '@/constants/icons';
+import { useGlobalContext } from '@/lib/global-provider';
+import { router } from 'expo-router';
 import {
   Image,
   ImagePropsBase,
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Index() {
   const {
@@ -92,9 +92,20 @@ export default function Index() {
           </View>
         </View>
       </View>
-
       {/* Today's Transactions Section */}
-      <Text className="text-white text-2xl font-bold mb-3">Today</Text>
+      <View className="flex-row items-center justify-between mb-3">
+        <Text className="text-white text-2xl font-bold">Today</Text>
+        <TouchableOpacity
+          onPress={() => router.push('/(root)/(modals)/searchModal')}
+          className="h-10 w-10 bg-primary-300 rounded-full items-center justify-center"
+        >
+          <Image
+            source={icons.search as ImagePropsBase}
+            tintColor="white"
+            className="h-5 w-5"
+          />
+        </TouchableOpacity>
+      </View>
       <View className="flex-1">
         <TransactionList transactions={transactions || []} />
       </View>

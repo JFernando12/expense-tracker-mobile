@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
 enum fieldTypes {
@@ -35,12 +30,12 @@ const CustomField = ({
   onChangeText: (text: string) => void;
 }) => {
   return (
-    <View className="py-3 px-4">
-      <Text className="text-gray-400 text-sm mb-1">{label}</Text>
-      <View className="bg-gray-800 rounded-lg border border-gray-700 py-4 px-2">
+    <View className="py-3">
+      <Text className="text-neutral-200 text-sm mb-1">{label}</Text>
+      <View className="bg-primary-200 rounded-xl border border-primary-300 py-4 px-4">
         {type === fieldTypes.TEXT && (
           <TextInput
-            className="text-white"
+            className="text-white text-base"
             value={value}
             onChangeText={onChangeText}
             placeholderTextColor="gray"
@@ -48,7 +43,7 @@ const CustomField = ({
         )}
         {type === fieldTypes.NUMBER && (
           <TextInput
-            className="text-white"
+            className="text-white text-base"
             value={value}
             onChangeText={onChangeText}
             keyboardType="numeric"
@@ -57,14 +52,16 @@ const CustomField = ({
         )}
         {type === fieldTypes.DATE && (
           <TouchableOpacity onPress={() => console.log('Open date picker')}>
-            <Text className="text-white">{value || 'Select date'}</Text>
+            <Text className="text-white text-base">
+              {value || 'Select date'}
+            </Text>
           </TouchableOpacity>
         )}
         {type === fieldTypes.SELECT && (
           <Dropdown
             style={{
               backgroundColor: 'transparent',
-              paddingVertical: 4,
+              paddingVertical: 0,
             }}
             activeColor={'#0061FF'}
             itemTextStyle={{
@@ -77,7 +74,7 @@ const CustomField = ({
               fontSize: 16,
             }}
             itemContainerStyle={{
-              backgroundColor: '#1f2937',
+              backgroundColor: '#2A2D3E',
             }}
             iconStyle={{
               tintColor: '#9ca3af',
@@ -93,8 +90,9 @@ const CustomField = ({
             placeholder="Select option"
             value={value}
             containerStyle={{
-              backgroundColor: '#1f2937',
+              backgroundColor: '#2A2D3E',
               marginTop: 4,
+              borderRadius: 8,
             }}
             onChange={(item) => {
               onChangeText(item.value);

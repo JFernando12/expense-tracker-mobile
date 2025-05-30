@@ -245,7 +245,7 @@ const TransactionCreate = () => {
     expenseCategoriesLoading || incomeCategoriesLoading || walletsLoading;
 
   return (
-    <SafeAreaView className="bg-black h-full p-5">
+    <SafeAreaView className="bg-primary-100 h-full p-5">
       <View className="relative flex-row items-center justify-center mb-5">
         <TouchableOpacity
           className="absolute left-0 p-2"
@@ -259,10 +259,13 @@ const TransactionCreate = () => {
         </TouchableOpacity>
         <Text className="text-white text-2xl font-bold">Nueva Transaccion</Text>
       </View>
-      <View>
+
+      <View className="mb-4">
         <SegmentedControl
           values={['Gasto', 'Ingreso']}
           selectedIndex={transactionType === 'expense' ? 0 : 1}
+          backgroundColor="#2A2D3E"
+          tintColor={transactionType === 'expense' ? '#EA4335' : '#34A853'}
           onChange={(event) => {
             const selectedValue = event.nativeEvent.value;
             const newType = selectedValue === 'Gasto' ? 'expense' : 'income';
@@ -275,23 +278,24 @@ const TransactionCreate = () => {
           }}
         />
       </View>
+
       {isLoading ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="white" />
           <Text className="text-white mt-4">Cargando datos...</Text>
         </View>
       ) : (
-        <ScrollView className="flex-1">
-          <View className="mt-2">
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+          <View className="rounded-3xl mb-6 shadow-lg">
             {fields.map((field, index) => (
               <View key={index}>
                 {field.label === 'date' ? (
-                  <View className="py-3 px-4">
-                    <Text className="text-gray-400 text-sm mb-1">
+                  <View className="py-3 px-0">
+                    <Text className="text-neutral-200 text-sm mb-1">
                       {field.title}
                     </Text>
                     <TouchableOpacity
-                      className="bg-gray-800 rounded-lg border border-gray-700 py-4 px-4"
+                      className="bg-primary-200 rounded-xl border border-primary-300 py-4 px-4"
                       onPress={() => setShowDatePicker(true)}
                     >
                       <Text className="text-white text-base">
@@ -311,13 +315,14 @@ const TransactionCreate = () => {
                 )}
               </View>
             ))}
+
             {/* Image picker section */}
-            <View className="py-3 px-4">
-              <Text className="text-gray-400 text-sm mb-1">
+            <View className="py-3 px-0">
+              <Text className="text-neutral-200 text-sm mb-1">
                 Ticket/Comprobante
               </Text>
               <TouchableOpacity
-                className="bg-gray-800 rounded-lg border border-gray-700 py-4 px-4 min-h-[120px] justify-center items-center"
+                className="bg-primary-200 rounded-xl border border-primary-300 py-4 px-4 min-h-[120px] justify-center items-center"
                 onPress={showImagePicker}
               >
                 {selectedImage ? (
@@ -343,8 +348,8 @@ const TransactionCreate = () => {
                   </View>
                 ) : (
                   <View className="items-center">
-                    <Text className="text-gray-400 text-base mb-2">📷</Text>
-                    <Text className="text-gray-400 text-sm">
+                    <Text className="text-neutral-200 text-base mb-2">📷</Text>
+                    <Text className="text-neutral-200 text-sm">
                       Toca para agregar una imagen
                     </Text>
                   </View>
@@ -352,6 +357,7 @@ const TransactionCreate = () => {
               </TouchableOpacity>
             </View>
           </View>
+
           {showDatePicker && (
             <DateTimePicker
               value={formData.date}
@@ -362,9 +368,10 @@ const TransactionCreate = () => {
           )}
         </ScrollView>
       )}
+
       <TouchableOpacity
         className={`rounded-xl py-3 mt-5 ${
-          isSubmitting ? 'bg-gray-600' : 'bg-blue-600'
+          isSubmitting ? 'bg-gray-600' : 'bg-accent-200'
         }`}
         onPress={handleSubmit}
         disabled={isSubmitting}
