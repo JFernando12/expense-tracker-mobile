@@ -125,6 +125,54 @@ export const getWallets = async (): Promise<Wallet[]> => {
   }
 };
 
+export const deleteWallet = async (id: string): Promise<boolean> => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return false;
+
+    // Get the wallet to delete
+    const wallet = await databases.getDocument(
+      config.databaseId,
+      config.walletCollectionId,
+      id
+    );
+
+    if (!wallet) {
+      console.error('Wallet not found');
+      return false;
+    }
+
+    if (wallet.user_id !== user.$id) {
+      console.error('Unauthorized access to wallet');
+      return false;
+    }
+
+    // Check if wallet has any transactions
+    const transactions = await databases.listDocuments(
+      config.databaseId,
+      config.transactionCollectionId,
+      [Query.equal('wallet', id)]
+    );
+
+    if (transactions.documents.length > 0) {
+      console.error('Cannot delete wallet with existing transactions');
+      return false;
+    }
+
+    // Delete the wallet document
+    await databases.deleteDocument(
+      config.databaseId,
+      config.walletCollectionId,
+      id
+    );
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting wallet:', error);
+    return false;
+  }
+};
+
 export const getTotalBalance = async (): Promise<number> => {
   try {
     const user = await getCurrentUser();

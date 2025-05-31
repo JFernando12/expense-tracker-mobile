@@ -1,8 +1,8 @@
-import { Transaction, TransactionType } from '@/types/types';
-import { ID, Query } from 'react-native-appwrite';
-import { getCurrentUser } from './auth';
-import { config, databases, storage } from './client';
-import { deleteImage, uploadImage } from './storage';
+import { Transaction, TransactionType } from "@/types/types";
+import { ID, Query } from "react-native-appwrite";
+import { getCurrentUser } from "./auth";
+import { config, databases, storage } from "./client";
+import { deleteImage, uploadImage } from "./storage";
 
 export const createTransaction = async ({
   walletId,
@@ -39,12 +39,12 @@ export const createTransaction = async ({
     );
 
     if (!wallet) {
-      console.error('Wallet not found');
+      console.error("Wallet not found");
       return false;
     }
 
     if (wallet.user_id !== user.$id) {
-      console.error('Unauthorized access to wallet');
+      console.error("Unauthorized access to wallet");
       return false;
     }
 
@@ -57,8 +57,8 @@ export const createTransaction = async ({
       type,
       date: date.toISOString(),
       user_id: user.$id,
-    }; 
-    
+    };
+
     // Add image URL if available
     if (imageId) {
       transactionData.image = imageId;
@@ -76,7 +76,7 @@ export const createTransaction = async ({
     // Update wallet balance
     const currentBalance = wallet.current_balance as number;
     const newBalance =
-      type === 'income' ? currentBalance + amount : currentBalance - amount;
+      type === "income" ? currentBalance + amount : currentBalance - amount;
 
     await databases.updateDocument(
       config.databaseId,
@@ -89,7 +89,7 @@ export const createTransaction = async ({
 
     return true;
   } catch (error) {
-    console.error('Error creating transaction:', error);
+    console.error("Error creating transaction:", error);
     return false;
   }
 };
@@ -127,12 +127,12 @@ export const updateTransaction = async ({
     );
 
     if (!transaction) {
-      console.error('Transaction not found');
+      console.error("Transaction not found");
       return false;
     }
 
     if (transaction.user_id !== user.$id) {
-      console.error('Unauthorized access to transaction');
+      console.error("Unauthorized access to transaction");
       return false;
     }
 
@@ -170,12 +170,12 @@ export const updateTransaction = async ({
     );
 
     if (!oldWallet) {
-      console.error('Old wallet not found');
+      console.error("Old wallet not found");
       return false;
     }
 
     if (oldWallet.user_id !== user.$id) {
-      console.error('Unauthorized access to old wallet');
+      console.error("Unauthorized access to old wallet");
       return false;
     }
 
@@ -187,12 +187,12 @@ export const updateTransaction = async ({
     );
 
     if (!newWallet) {
-      console.error('New wallet not found');
+      console.error("New wallet not found");
       return false;
     }
 
     if (newWallet.user_id !== user.$id) {
-      console.error('Unauthorized access to new wallet');
+      console.error("Unauthorized access to new wallet");
       return false;
     }
 
@@ -224,13 +224,13 @@ export const updateTransaction = async ({
 
       // Revert old transaction effect
       const balanceAfterRevert =
-        oldType === 'income'
+        oldType === "income"
           ? currentBalance - oldAmount
           : currentBalance + oldAmount;
 
       // Apply new transaction effect
       const newBalance =
-        type === 'income'
+        type === "income"
           ? balanceAfterRevert + amount
           : balanceAfterRevert - amount;
 
@@ -248,7 +248,7 @@ export const updateTransaction = async ({
       // Revert the old transaction from the old wallet
       const oldWalletBalance = oldWallet.current_balance as number;
       const oldWalletNewBalance =
-        oldType === 'income'
+        oldType === "income"
           ? oldWalletBalance - oldAmount
           : oldWalletBalance + oldAmount;
 
@@ -264,7 +264,7 @@ export const updateTransaction = async ({
       // Apply the new transaction to the new wallet
       const newWalletBalance = newWallet.current_balance as number;
       const newWalletNewBalance =
-        type === 'income'
+        type === "income"
           ? newWalletBalance + amount
           : newWalletBalance - amount;
 
@@ -280,7 +280,83 @@ export const updateTransaction = async ({
 
     return true;
   } catch (error) {
-    console.error('Error updating transaction:', error);
+    console.error("Error updating transaction:", error);
+    return false;
+  }
+};
+
+export const deleteTransaction = async (id: string): Promise<boolean> => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return false;
+
+    // Get the transaction to delete
+    const transaction = await databases.getDocument(
+      config.databaseId,
+      config.transactionCollectionId,
+      id
+    );
+
+    if (!transaction) {
+      console.error("Transaction not found");
+      return false;
+    }
+
+    if (transaction.user_id !== user.$id) {
+      console.error("Unauthorized access to transaction");
+      return false;
+    }
+
+    // Get the wallet to update its balance
+    const walletId = transaction.wallet.$id as string;
+    const wallet = await databases.getDocument(
+      config.databaseId,
+      config.walletCollectionId,
+      walletId
+    );
+
+    if (!wallet) {
+      console.error("Wallet not found");
+      return false;
+    }
+
+    if (wallet.user_id !== user.$id) {
+      console.error("Unauthorized access to wallet");
+      return false;
+    }
+
+    // Delete the image if it exists
+    if (transaction.image) {
+      await deleteImage(transaction.image as string);
+    }
+
+    // Delete the transaction document
+    await databases.deleteDocument(
+      config.databaseId,
+      config.transactionCollectionId,
+      id
+    );
+
+    // Update wallet balance (revert the transaction)
+    const currentBalance = wallet.current_balance as number;
+    const amount = transaction.amount as number;
+    const type = transaction.type as TransactionType;
+
+    const newBalance =
+      type === "income" ? currentBalance - amount : currentBalance + amount;
+
+    await databases.updateDocument(
+      config.databaseId,
+      config.walletCollectionId,
+      walletId,
+      {
+        current_balance: newBalance,
+      }
+    );
+
+    return true;
+  } catch (error) {
+    console.error("Error deleting transaction:", error);
     return false;
   }
 };
@@ -291,11 +367,13 @@ export const getTransactions = async ({
   try {
     const user = await getCurrentUser();
     if (!user) return [];
-
-    const queries = [Query.equal('user_id', user.$id)];
+    
+    const queries = [Query.equal("user_id", user.$id)];
     if (type) {
-      queries.push(Query.equal('type', type));
+      queries.push(Query.equal("type", type));
     }
+    queries.push(Query.orderDesc("date"));
+    queries.push(Query.orderDesc("$createdAt"));
 
     const response = await databases.listDocuments(
       config.databaseId,
@@ -326,7 +404,7 @@ export const getTransactions = async ({
 
     return transactions;
   } catch (error) {
-    console.error('Error fetching transactions:', error);
+    console.error("Error fetching transactions:", error);
     return [];
   }
 };
@@ -348,7 +426,7 @@ export const getTransaction = async (
 
     // Check if user owns this transaction
     if (transaction.user_id !== user.$id) {
-      console.error('Unauthorized access to transaction');
+      console.error("Unauthorized access to transaction");
       return null;
     }
 
@@ -369,7 +447,7 @@ export const getTransaction = async (
       imageUrl: imageUrl.toString(),
     };
   } catch (error) {
-    console.error('Error fetching transaction:', error);
+    console.error("Error fetching transaction:", error);
     return null;
   }
 };
@@ -389,7 +467,7 @@ export const getTotalIncomes = async (): Promise<number> => {
 
     return totalIncome;
   } catch (error) {
-    console.error('Error fetching total income:', error);
+    console.error("Error fetching total income:", error);
     return 0;
   }
 };
@@ -409,7 +487,7 @@ export const getTotalExpenses = async (): Promise<number> => {
 
     return totalExpenses;
   } catch (error) {
-    console.error('Error fetching total expenses:', error);
+    console.error("Error fetching total expenses:", error);
     return 0;
   }
 };
@@ -429,7 +507,7 @@ export const searchTransactions = async (
     const response = await databases.listDocuments(
       config.databaseId,
       config.transactionCollectionId,
-      [Query.equal('user_id', user.$id)]
+      [Query.equal("user_id", user.$id)]
     );
 
     // Filter transactions based on search query
@@ -437,10 +515,10 @@ export const searchTransactions = async (
     const filteredTransactions =
       response?.documents?.filter((transaction) => {
         const description =
-          (transaction.description as string)?.toLowerCase() || '';
+          (transaction.description as string)?.toLowerCase() || "";
         const category =
-          (transaction.category?.name as string)?.toLowerCase() || '';
-        const amount = (transaction.amount as number)?.toString() || '';
+          (transaction.category?.name as string)?.toLowerCase() || "";
+        const amount = (transaction.amount as number)?.toString() || "";
 
         return (
           description.includes(searchLower) ||
@@ -460,7 +538,7 @@ export const searchTransactions = async (
       imageUrl: transaction.image as string,
     }));
   } catch (error) {
-    console.error('Error searching transactions:', error);
+    console.error("Error searching transactions:", error);
     return [];
   }
 };

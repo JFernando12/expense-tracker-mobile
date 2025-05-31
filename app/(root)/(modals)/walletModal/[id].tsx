@@ -1,9 +1,9 @@
-import CustomField from '@/components/CustomField';
-import icons from '@/constants/icons';
-import { updateWallet } from '@/lib/appwrite';
-import { useGlobalContext } from '@/lib/global-provider';
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import CustomField from "@/components/CustomField";
+import icons from "@/constants/icons";
+import { deleteWallet, updateWallet } from "@/lib/appwrite";
+import { useGlobalContext } from "@/lib/global-provider";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,25 +13,26 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 enum fieldTypes {
-  TEXT = 'text',
-  NUMBER = 'number',
-  DATE = 'date',
-  SELECT = 'select',
+  TEXT = "text",
+  NUMBER = "number",
+  DATE = "date",
+  SELECT = "select",
 }
 
 const WalletUpdate = () => {
   const { id } = useLocalSearchParams();
   const { refetchResources, wallets } = useGlobalContext();
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    initialBalance: '',
+    name: "",
+    description: "",
+    initialBalance: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   // Find the wallet to edit
   const walletToEdit = wallets?.find((wallet) => wallet.id === id);
 
@@ -46,25 +47,25 @@ const WalletUpdate = () => {
   }, [walletToEdit]);
   const fields = [
     {
-      label: 'Nombre',
-      title: 'Nombre',
+      label: "Nombre",
+      title: "Nombre",
       value: formData.name,
       type: fieldTypes.TEXT,
-      key: 'name',
+      key: "name",
     },
     {
-      label: 'Descripción',
-      title: 'Descripción',
+      label: "Descripción",
+      title: "Descripción",
       value: formData.description,
       type: fieldTypes.TEXT,
-      key: 'description',
+      key: "description",
     },
     {
-      label: 'Saldo inicial',
-      title: 'Saldo inicial',
+      label: "Saldo inicial",
+      title: "Saldo inicial",
       value: formData.initialBalance,
       type: fieldTypes.NUMBER,
-      key: 'initialBalance',
+      key: "initialBalance",
     },
   ];
 
@@ -78,26 +79,26 @@ const WalletUpdate = () => {
 
   const handleUpdateWallet = async () => {
     if (!walletToEdit) {
-      Alert.alert('Error', 'Cartera no encontrada');
+      Alert.alert("Algo salio mal", "Cartera no encontrada");
       return;
     }
 
     // Validate form
     if (!formData.name.trim()) {
-      Alert.alert('Error', 'El nombre de la cartera es requerido');
+      Alert.alert("Completo los campos", "El nombre de la cartera es requerido");
       return;
     }
 
     if (!formData.initialBalance.trim()) {
-      Alert.alert('Error', 'El saldo inicial es requerido');
+      Alert.alert("Completa los campos", "El saldo inicial es requerido");
       return;
     }
 
     const initialBalance = parseFloat(formData.initialBalance);
     if (isNaN(initialBalance) || initialBalance < 0) {
       Alert.alert(
-        'Error',
-        'El saldo inicial debe ser un número válido mayor o igual a 0'
+        "Completa los campos",
+        "El saldo inicial debe ser mayor o igual a 0"
       );
       return;
     }
@@ -115,22 +116,70 @@ const WalletUpdate = () => {
       if (updatedWallet) {
         // Refetch resources to update the wallet list
         await refetchResources();
-        Alert.alert('Éxito', 'Cartera actualizada exitosamente', [
+        Alert.alert("Éxito", "Cartera actualizada exitosamente", [
           {
-            text: 'OK',
+            text: "OK",
             onPress: () => router.back(),
           },
         ]);
       } else {
-        Alert.alert('Error', 'No se pudo actualizar la cartera');
+        Alert.alert("Algo salio mal", "No se pudo actualizar la cartera");
       }
     } catch (error) {
-      console.error('Error updating wallet:', error);
-      Alert.alert('Error', 'Ocurrió un error al actualizar la cartera');
+      console.error("Error updating wallet:", error);
+      Alert.alert("Algo salio mal", "Ocurrió un error al actualizar la cartera");
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleDelete = async () => {
+    if (!walletToEdit) return;
+
+    Alert.alert(
+      "Eliminar Cartera",
+      "¿Estás seguro de que quieres eliminar esta cartera? Esta acción no se puede deshacer. La cartera no se puede eliminar si tiene transacciones.",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            setIsDeleting(true);
+            try {
+              const success = await deleteWallet(walletToEdit.id);
+
+              if (success) {
+                Alert.alert("Éxito", "Cartera eliminada exitosamente", [
+                  {
+                    text: "OK",
+                    onPress: () => {
+                      refetchResources();
+                      router.back();
+                    },
+                  },
+                ]);
+              } else {
+                Alert.alert(
+                  "Algo salio mal",
+                  "No se pudo eliminar la cartera. Asegúrate de que no tenga transacciones."
+                );
+              }
+            } catch (error) {
+              console.error("Error deleting wallet:", error);
+              Alert.alert("Algo salio mal", "Ocurrió un error al eliminar la cartera");
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5">
       <View className="relative flex-row items-center justify-center mb-5">
@@ -169,10 +218,10 @@ const WalletUpdate = () => {
           </ScrollView>
           <TouchableOpacity
             className={`rounded-xl py-3 mt-5 ${
-              isLoading ? 'bg-gray-600' : 'bg-accent-200'
+              isLoading || isDeleting ? "bg-gray-600" : "bg-accent-200"
             }`}
             onPress={handleUpdateWallet}
-            disabled={isLoading}
+            disabled={isLoading || isDeleting}
           >
             {isLoading ? (
               <View className="flex-row justify-center items-center">
@@ -184,6 +233,27 @@ const WalletUpdate = () => {
             ) : (
               <Text className="text-white text-center text-lg font-bold">
                 Guardar
+              </Text>
+            )}
+          </TouchableOpacity>
+          {/* Delete button */}
+          <TouchableOpacity
+            className={`rounded-xl py-3 mt-3 ${
+              isDeleting || isLoading ? "bg-gray-600" : "bg-red-600"
+            }`}
+            onPress={handleDelete}
+            disabled={isDeleting || isLoading}
+          >
+            {isDeleting ? (
+              <View className="flex-row justify-center items-center">
+                <ActivityIndicator size="small" color="white" />
+                <Text className="text-white text-center text-lg font-bold ml-2">
+                  Eliminando...
+                </Text>
+              </View>
+            ) : (
+              <Text className="text-white text-center text-lg font-bold">
+                Eliminar
               </Text>
             )}
           </TouchableOpacity>
