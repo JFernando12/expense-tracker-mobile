@@ -66,20 +66,20 @@ const WalletCreate = () => {
   const handleCreateWallet = async () => {
     // Validate form
     if (!formData.name.trim()) {
-      Alert.alert('Error', 'El nombre de la cartera es requerido');
+      Alert.alert('Completa los campos', 'El nombre de la cartera es requerido');
       return;
     }
 
     if (!formData.initialBalance.trim()) {
-      Alert.alert('Error', 'El saldo inicial es requerido');
+      Alert.alert('Completa los campos', 'El saldo inicial es requerido');
       return;
     }
 
     const initialBalance = parseFloat(formData.initialBalance);
     if (isNaN(initialBalance) || initialBalance < 0) {
       Alert.alert(
-        'Error',
-        'El saldo inicial debe ser un número válido mayor o igual a 0'
+        'Completa los campos',
+        'El saldo inicial debe ser mayor o igual a 0'
       );
       return;
     }

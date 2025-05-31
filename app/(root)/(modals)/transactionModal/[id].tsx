@@ -44,7 +44,6 @@ const TransactionUpdate = () => {
     date: new Date(),
   });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
 
   const {
@@ -94,7 +93,6 @@ const TransactionUpdate = () => {
         transactionToEdit.type === TransactionType.INCOME ? 'income' : 'expense'
       );
       // Set existing image
-      setOriginalImageUrl(transactionToEdit.imageUrl || null);
       setSelectedImage(transactionToEdit.imageUrl || null);
     }
   }, [transactionToEdit, wallets, expenseCategories, incomeCategories]);
@@ -384,7 +382,7 @@ const TransactionUpdate = () => {
                     </Text>
                     <TouchableOpacity
                       className="bg-primary-200 rounded-xl border border-primary-300 py-4 px-4"
-                      onPress={() => setShowDatePicker(true)}
+                      onPress={() => setShowDatePicker(showDatePicker ? false : true)}
                     >
                       <Text className="text-white text-base">
                         {field.value}

@@ -63,15 +63,15 @@ const TransactionCreate = () => {
 
   const validateForm = () => {
     if (!formData.walletId) {
-      Alert.alert('Error', 'Debe seleccionar una cartera');
+      Alert.alert('Completa los campos', 'Debe seleccionar una cartera');
       return false;
     }
     if (!formData.categoryId) {
-      Alert.alert('Error', 'Debe seleccionar una categoría');
+      Alert.alert('Completa los campos', 'Debe seleccionar una categoría');
       return false;
     }
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      Alert.alert('Error', 'Debe ingresar un monto válido mayor a 0');
+      Alert.alert('Completa los campos', 'Debe ingresar un monto mayor a 0');
       return false;
     }
     return true;
@@ -102,7 +102,7 @@ const TransactionCreate = () => {
       }
     } catch (error) {
       console.error('Error picking image:', error);
-      Alert.alert('Error', 'No se pudo seleccionar la imagen');
+      Alert.alert('Algo salio mal', 'No se pudo seleccionar la imagen');
     }
   };
 
@@ -129,7 +129,7 @@ const TransactionCreate = () => {
       }
     } catch (error) {
       console.error('Error taking photo:', error);
-      Alert.alert('Error', 'No se pudo tomar la foto');
+      Alert.alert('Algo salio mal', 'No se pudo tomar la foto');
     }
   };
 
@@ -160,24 +160,18 @@ const TransactionCreate = () => {
         imageUri: selectedImage || undefined,
       });
       if (success) {
-        Alert.alert('Éxito', 'Transacción creada exitosamente', [
-          {
-            text: 'OK',
-            onPress: () => {
-              refetchResources(); // Refresh wallets and categories
-              refetchTransactions(); // Refresh transactions
-              router.back();
-            },
-          },
-        ]);
+        await refetchResources();
+        await refetchTransactions();
+        setIsSubmitting(false);
+        router.back();
       } else {
-        Alert.alert('Error', 'No se pudo crear la transacción');
+        setIsSubmitting(false);
+        Alert.alert('Algo salio mal', 'No se pudo crear la transacción');
       }
     } catch (error) {
       console.error('Error creating transaction:', error);
-      Alert.alert('Error', 'Ocurrió un error al crear la transacción');
-    } finally {
       setIsSubmitting(false);
+      Alert.alert('Algo salio mal', 'Ocurrió un error al crear la transacción');
     }
   };
   const onDateChange = (event: any, selectedDate?: Date) => {
@@ -284,7 +278,7 @@ const TransactionCreate = () => {
         />
       </View>
 
-      {isLoading ? (
+      {(isLoading && !isSubmitting) ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="white" />
           <Text className="text-white mt-4">Cargando datos...</Text>
@@ -301,7 +295,7 @@ const TransactionCreate = () => {
                     </Text>
                     <TouchableOpacity
                       className="bg-primary-200 rounded-xl border border-primary-300 py-4 px-4"
-                      onPress={() => setShowDatePicker(true)}
+                      onPress={() => setShowDatePicker(showDatePicker ? false : true)}
                     >
                       <Text className="text-white text-base">
                         {field.value}
