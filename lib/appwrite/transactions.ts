@@ -542,3 +542,226 @@ export const searchTransactions = async (
     return [];
   }
 };
+
+export interface CategoryExpenseData {
+  categoryId: string;
+  categoryName: string;
+  totalAmount: number;
+  percentage: number;
+  color: string;
+}
+
+export const getExpensesByCategory = async (): Promise<CategoryExpenseData[]> => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return [];
+
+    // Get all expense transactions for the user
+    const response = await databases.listDocuments(
+      config.databaseId,
+      config.transactionCollectionId,
+      [
+        Query.equal("user_id", user.$id),
+        Query.equal("type", TransactionType.EXPENSE),
+        Query.orderDesc("date"),
+      ]
+    );
+
+    if (!response?.documents?.length) return [];
+
+    // Group transactions by category and calculate totals
+    const categoryTotals = new Map<string, {
+      name: string;
+      total: number;
+      color: string;
+    }>();
+
+    let totalExpenses = 0;    response.documents.forEach((transaction: any) => {
+      const categoryId = transaction.category.$id as string;
+      const categoryName = transaction.category.name as string;
+      const amount = transaction.amount as number;
+      
+      // Try to get color from category, fallback to default colors
+      let categoryColor = transaction.category.color as string;
+      
+      // Default colors for categories if color is not available
+      const defaultColors = [
+        "#f59e0b", "#3b82f6", "#ec4899", "#8b5cf6", "#ef4444", 
+        "#10b981", "#84cc16", "#94a3b8", "#f97316", "#06b6d4"
+      ];
+      
+      // If no color is set, use default color based on category name or index
+      if (!categoryColor) {
+        const colorIndex = categoryTotals.size % defaultColors.length;
+        categoryColor = defaultColors[colorIndex];
+      }
+      
+      totalExpenses += amount;
+
+      if (categoryTotals.has(categoryId)) {
+        const existing = categoryTotals.get(categoryId)!;
+        existing.total += amount;
+      } else {
+        categoryTotals.set(categoryId, {
+          name: categoryName,
+          total: amount,
+          color: categoryColor,
+        });
+      }
+    });
+
+    // Convert to array and calculate percentages
+    const categoryData: CategoryExpenseData[] = Array.from(categoryTotals.entries()).map(
+      ([categoryId, data]) => ({
+        categoryId,
+        categoryName: data.name,
+        totalAmount: data.total,
+        percentage: totalExpenses > 0 ? (data.total / totalExpenses) * 100 : 0,
+        color: data.color,
+      })
+    );
+
+    // Sort by total amount (highest first)
+    categoryData.sort((a, b) => b.totalAmount - a.totalAmount);
+
+    return categoryData;
+  } catch (error) {
+    console.error("Error fetching expenses by category:", error);
+    return [];
+  }
+};
+
+export interface TimeFilterOptions {
+  period: 'weekly' | 'monthly' | 'annual';
+  date?: Date;
+}
+
+export const getExpensesByCategoryWithTimeFilter = async (
+  timeFilter?: TimeFilterOptions
+): Promise<CategoryExpenseData[]> => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return [];
+
+    // Build queries based on time filter
+    const queries = [
+      Query.equal("user_id", user.$id),
+      Query.equal("type", TransactionType.EXPENSE),
+    ];
+
+    if (timeFilter) {
+      const now = timeFilter.date || new Date();
+      let startDate: Date;
+      let endDate: Date;
+
+      switch (timeFilter.period) {
+        case 'weekly':
+          // Get current week (Monday to Sunday)
+          const currentDay = now.getDay();
+          const diff = now.getDate() - currentDay + (currentDay === 0 ? -6 : 1); // adjust when day is Sunday
+          startDate = new Date(now.setDate(diff));
+          startDate.setHours(0, 0, 0, 0);
+          endDate = new Date(startDate);
+          endDate.setDate(startDate.getDate() + 6);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
+        case 'monthly':
+          // Get current month
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
+        case 'annual':
+          // Get current year
+          startDate = new Date(now.getFullYear(), 0, 1);
+          endDate = new Date(now.getFullYear(), 11, 31);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
+        default:
+          // No time filter, get all transactions
+          break;
+      }
+
+      if (startDate! && endDate!) {
+        queries.push(Query.greaterThanEqual("date", startDate.toISOString()));
+        queries.push(Query.lessThanEqual("date", endDate.toISOString()));
+      }
+    }
+
+    queries.push(Query.orderDesc("date"));
+
+    // Get filtered transactions
+    const response = await databases.listDocuments(
+      config.databaseId,
+      config.transactionCollectionId,
+      queries
+    );
+
+    if (!response?.documents?.length) return [];
+
+    // Group transactions by category and calculate totals
+    const categoryTotals = new Map<string, {
+      name: string;
+      total: number;
+      color: string;
+    }>();
+
+    let totalExpenses = 0;
+
+    response.documents.forEach((transaction: any) => {
+      const categoryId = transaction.category.$id as string;
+      const categoryName = transaction.category.name as string;
+      const amount = transaction.amount as number;
+      
+      // Try to get color from category, fallback to default colors
+      let categoryColor = transaction.category.color as string;
+      
+      // Default colors for categories if color is not available
+      const defaultColors = [
+        "#f59e0b", "#3b82f6", "#ec4899", "#8b5cf6", "#ef4444", 
+        "#10b981", "#84cc16", "#94a3b8", "#f97316", "#06b6d4"
+      ];
+      
+      // If no color is set, use default color based on category name or index
+      if (!categoryColor) {
+        const colorIndex = categoryTotals.size % defaultColors.length;
+        categoryColor = defaultColors[colorIndex];
+      }
+      
+      totalExpenses += amount;
+
+      if (categoryTotals.has(categoryId)) {
+        const existing = categoryTotals.get(categoryId)!;
+        existing.total += amount;
+      } else {
+        categoryTotals.set(categoryId, {
+          name: categoryName,
+          total: amount,
+          color: categoryColor,
+        });
+      }
+    });
+
+    // Convert to array and calculate percentages
+    const categoryData: CategoryExpenseData[] = Array.from(categoryTotals.entries()).map(
+      ([categoryId, data]) => ({
+        categoryId,
+        categoryName: data.name,
+        totalAmount: data.total,
+        percentage: totalExpenses > 0 ? (data.total / totalExpenses) * 100 : 0,
+        color: data.color,
+      })
+    );
+
+    // Sort by total amount (highest first)
+    categoryData.sort((a, b) => b.totalAmount - a.totalAmount);
+
+    return categoryData;
+  } catch (error) {
+    console.error("Error fetching expenses by category with time filter:", error);
+    return [];
+  }
+};
