@@ -26,12 +26,6 @@ const Profile = () => {
       iconBgColor: 'bg-accent-200',
     },
     {
-      title: 'Configuración',
-      onPress: () => console.log('Settings Pressed'),
-      icon: icons.filter,
-      iconBgColor: 'bg-accent-200',
-    },
-    {
       title: 'Política de privacidad',
       onPress: () => console.log('Privacy Policy Pressed'),
       icon: icons.shield,
@@ -41,7 +35,7 @@ const Profile = () => {
       title: 'Cerrar sesión',
       onPress: handleLogout,
       icon: icons.logout,
-      iconBgColor: 'bg-accent-200',
+      iconBgColor: 'bg-red-500',
     },
   ];
 
@@ -49,14 +43,14 @@ const Profile = () => {
     <SafeAreaView className="bg-primary-100 h-full -pb-safe-offset-14">
       {/* Profile Section */}
       <View className="items-center pt-10 pb-6">
-        <View className="h-36 w-36 rounded-full overflow-hidden mb-6">
+        <View className="size-36 rounded-full overflow-hidden mb-6">
           <Image source={{ uri: user?.avatar }} className="h-full w-full" />
         </View>
         <Text className="text-white text-3xl font-bold mb-1">
-          {user?.name || 'Fernando'}
+          {user?.name}
         </Text>
         <Text className="text-neutral-300 text-lg">
-          {user?.email || 'fer.castre@gmail.com'}
+          {user?.email}
         </Text>
         {/* Edit Profile Button */}
         <TouchableOpacity

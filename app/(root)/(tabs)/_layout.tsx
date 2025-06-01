@@ -15,10 +15,10 @@ const LayoutTabs = () => {
           alignItems: 'center',
         }}
       >
-        <View className="size-16 bg-accent-200 rounded-full items-center justify-center shadow-lg">
+        <View className="size-16 bg-accent-200 text-white rounded-full items-center justify-center shadow-lg">
           <Image
-            source={icons.edit as ImagePropsBase}
-            className="h-6 w-6"
+            source={icons.plus as ImagePropsBase}
+            className="size-8"
             tintColor="white"
           />
         </View>
@@ -57,7 +57,7 @@ const LayoutTabs = () => {
           tabBarIcon: ({ color }) => (
             <Image
               source={icons.home as ImagePropsBase}
-              className="h-6 w-6"
+              className="size-6"
               tintColor={color}
             />
           ),
@@ -70,8 +70,8 @@ const LayoutTabs = () => {
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Image
-              source={icons.filter as ImagePropsBase}
-              className="h-6 w-6"
+              source={icons.report as ImagePropsBase}
+              className="size-6"
               tintColor={color}
             />
           ),
@@ -101,7 +101,7 @@ const LayoutTabs = () => {
           tabBarIcon: ({ color }) => (
             <Image
               source={icons.wallet as ImagePropsBase}
-              className="h-6 w-6"
+              className="size-6"
               tintColor={color}
             />
           ),
@@ -115,7 +115,7 @@ const LayoutTabs = () => {
           tabBarIcon: ({ color }) => (
             <Image
               source={icons.person as ImagePropsBase}
-              className="h-6 w-6"
+              className="size-6"
               tintColor={color}
             />
           ),

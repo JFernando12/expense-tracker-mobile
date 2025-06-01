@@ -62,11 +62,11 @@ export default function Index() {
         </Text>
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
-            <View className="h-9 w-9 bg-accent-200 rounded-full items-center justify-center mr-3">
+            <View className="size-8 rounded-full border-accent-200 border-2 items-center justify-center mr-3">
               <Image
-                source={icons.wallet as ImagePropsBase}
-                tintColor="white"
-                className="h-5 w-5"
+                source={icons.upArrow as ImagePropsBase}
+                tintColor="#18C06A"
+                className="size-5"
               />
             </View>
             <View>
@@ -77,11 +77,11 @@ export default function Index() {
             </View>
           </View>
           <View className="flex-row items-center">
-            <View className="h-9 w-9 bg-danger-100 rounded-full items-center justify-center mr-3">
+            <View className="size-8 rounded-full border-danger border-2 items-center justify-center mr-3">
               <Image
-                source={icons.calendar as ImagePropsBase}
-                tintColor="white"
-                className="h-5 w-5"
+                source={icons.downArrow as ImagePropsBase}
+                tintColor="#F75555"
+                className="size-5"
               />
             </View>
             <View>

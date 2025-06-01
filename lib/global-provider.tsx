@@ -43,24 +43,20 @@ interface GlobalContextType {
   totalExpenses: number | null;
   totalExpensesLoading: boolean;
   // Weekly totals
-  totalIncomesWeek: number | null;
-  totalIncomesWeekLoading: boolean;
-  totalExpensesWeek: number | null;
-  totalExpensesWeekLoading: boolean;
+  totalIncomesSevenDays: number | null;
+  totalIncomesSevenDaysLoading: boolean;
+  totalExpensesSevenDays: number | null;
+  totalExpensesSevenDaysLoading: boolean;
   // Monthly totals
-  totalIncomesMonth: number | null;
-  totalIncomesMonthLoading: boolean;
-  totalExpensesMonth: number | null;
-  totalExpensesMonthLoading: boolean;
+  totalIncomesThirtyDays: number | null;
+  totalIncomesThirtyDaysLoading: boolean;
+  totalExpensesThirtyDays: number | null;
+  totalExpensesThirtyDaysLoading: boolean;
   // Annual totals
-  totalIncomesYear: number | null;
-  totalIncomesYearLoading: boolean;
-  totalExpensesYear: number | null;
-  totalExpensesYearLoading: boolean;
-  categoryExpensesWeek: CategoryExpenseData[] | null;
-  categoryExpensesWeekLoading: boolean;
-  categoryExpensesMonth: CategoryExpenseData[] | null;
-  categoryExpensesMonthLoading: boolean;
+  categoryExpensesSevenDays: CategoryExpenseData[] | null;
+  categoryExpensesSevenDaysLoading: boolean;
+  categoryExpensesThirtyDays: CategoryExpenseData[] | null;
+  categoryExpensesThirtyDaysLoading: boolean;
   categoryExpensesYear: CategoryExpenseData[] | null;
   categoryExpensesYearLoading: boolean;
 }
@@ -144,75 +140,57 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   });
 
   const {
-    data: totalIncomesWeek,
-    loading: totalIncomesWeekLoading,
-    refetch: refetchTotalIncomesWeek,
+    data: totalIncomesSevenDays,
+    loading: totalIncomesSevenDaysLoading,
+    refetch: refetchTotalIncomesSevenDays,
   } = useAppwrite({
     fn: getTotalIncomes,
-    params: { period: PeriodTypes.WEEKLY },
+    params: { period: PeriodTypes.SEVEN_DAYS },
   });
 
   const {
-    data: totalExpensesWeek,
-    loading: totalExpensesWeekLoading,
-    refetch: refetchTotalExpensesWeek,
+    data: totalExpensesSevenDays,
+    loading: totalExpensesSevenDaysLoading,
+    refetch: refetchTotalExpensesSevenDays,
   } = useAppwrite({
     fn: getTotalExpenses,
-    params: { period: PeriodTypes.WEEKLY },
+    params: { period: PeriodTypes.SEVEN_DAYS },
   });
 
   const {
-    data: totalIncomesMonth,
-    loading: totalIncomesMonthLoading,
-    refetch: refetchTotalIncomesMonth,
+    data: totalIncomesThirtyDays,
+    loading: totalIncomesThirtyDaysLoading,
+    refetch: refetchTotalIncomesThirtyDays,
   } = useAppwrite({
     fn: getTotalIncomes,
-    params: { period: PeriodTypes.MONTHLY },
+    params: { period: PeriodTypes.THIRTY_DAYS },
   });
 
   const {
-    data: totalExpensesMonth,
-    loading: totalExpensesMonthLoading,
-    refetch: refetchTotalExpensesMonth,
+    data: totalExpensesThirtyDays,
+    loading: totalExpensesThirtyDaysLoading,
+    refetch: refetchTotalExpensesThirtyDays,
   } = useAppwrite({
     fn: getTotalExpenses,
-    params: { period: PeriodTypes.MONTHLY },
+    params: { period: PeriodTypes.THIRTY_DAYS },
   });
 
   const {
-    data: totalIncomesYear,
-    loading: totalIncomesYearLoading,
-    refetch: refetchTotalIncomesYear,
-  } = useAppwrite({
-    fn: getTotalIncomes,
-    params: { period: PeriodTypes.ANNUAL },
-  });
-
-  const {
-    data: totalExpensesYear,
-    loading: totalExpensesYearLoading,
-    refetch: refetchTotalExpensesYear,
-  } = useAppwrite({
-    fn: getTotalExpenses,
-    params: { period: PeriodTypes.ANNUAL },
-  });
-
-  const {
-    data: categoryExpensesWeek,
-    loading: categoryExpensesWeekLoading,
-    refetch: refetchCategoryExpensesWeek,
+    data: categoryExpensesSevenDays,
+    loading: categoryExpensesSevenDaysLoading,
+    refetch: refetchCategoryExpensesSevenDays,
   } = useAppwrite({
     fn: getExpensesByCategoryWithTimeFilter,
-    params: { period: PeriodTypes.WEEKLY },
+    params: { period: PeriodTypes.SEVEN_DAYS },
   });
 
   const {
-    data: categoryExpensesMonth,
-    loading: categoryExpensesMonthLoading,
-    refetch: refetchCategoryExpensesMonth,
+    data: categoryExpensesThirtyDays,
+    loading: categoryExpensesThirtyDaysLoading,
+    refetch: refetchCategoryExpensesThirtyDays,
   } = useAppwrite({
     fn: getExpensesByCategoryWithTimeFilter,
-    params: { period: PeriodTypes.MONTHLY },
+    params: { period: PeriodTypes.THIRTY_DAYS },
   });
 
   const {
@@ -221,7 +199,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     refetch: refetchCategoryExpensesYear,
   } = useAppwrite({
     fn: getExpensesByCategoryWithTimeFilter,
-    params: { period: PeriodTypes.ANNUAL },
+    params: { period: PeriodTypes.ALL_TIME },
   });
 
   const isLoggedIn = !!user;
@@ -240,14 +218,12 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         refetchTotalBalance(),
         refetchTotalIncomes(),
         refetchTotalExpenses(),
-        refetchTotalIncomesWeek(),
-        refetchTotalExpensesWeek(),
-        refetchTotalIncomesMonth(),
-        refetchTotalExpensesMonth(),
-        refetchTotalIncomesYear(),
-        refetchTotalExpensesYear(),
-        refetchCategoryExpensesWeek(),
-        refetchCategoryExpensesMonth(),
+        refetchTotalIncomesSevenDays(),
+        refetchTotalExpensesSevenDays(),
+        refetchTotalIncomesThirtyDays(),
+        refetchTotalExpensesThirtyDays(),
+        refetchCategoryExpensesSevenDays(),
+        refetchCategoryExpensesThirtyDays(),
         refetchCategoryExpensesYear(),
       ]);
     }
@@ -275,22 +251,18 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         totalIncomesLoading,
         totalExpenses,
         totalExpensesLoading,
-        totalIncomesWeek,
-        totalIncomesWeekLoading,
-        totalExpensesWeek,
-        totalExpensesWeekLoading,
-        totalIncomesMonth,
-        totalIncomesMonthLoading,
-        totalExpensesMonth,
-        totalExpensesMonthLoading,
-        totalIncomesYear,
-        totalIncomesYearLoading,
-        totalExpensesYear,
-        totalExpensesYearLoading,
-        categoryExpensesWeek,
-        categoryExpensesWeekLoading,
-        categoryExpensesMonth,
-        categoryExpensesMonthLoading,
+        totalIncomesSevenDays,
+        totalIncomesSevenDaysLoading,
+        totalExpensesSevenDays,
+        totalExpensesSevenDaysLoading,
+        totalIncomesThirtyDays,
+        totalIncomesThirtyDaysLoading,
+        totalExpensesThirtyDays,
+        totalExpensesThirtyDaysLoading,
+        categoryExpensesSevenDays,
+        categoryExpensesSevenDaysLoading,
+        categoryExpensesThirtyDays,
+        categoryExpensesThirtyDaysLoading,
         categoryExpensesYear,
         categoryExpensesYearLoading,
       }}

@@ -17,24 +17,24 @@ interface ExtendedCategoryData extends CategoryExpenseData {
 const Statistics = () => {
   const {
     user,
-    totalIncomesWeek,
-    totalExpensesWeek,
-    totalIncomesMonth,
-    totalExpensesMonth,
-    totalIncomesYear,
-    totalExpensesYear,
-    categoryExpensesWeek,
-    categoryExpensesMonth,
+    totalIncomesSevenDays,
+    totalExpensesSevenDays,
+    totalIncomesThirtyDays,
+    totalExpensesThirtyDays,
+    totalIncomes,
+    totalExpenses,
+    categoryExpensesSevenDays,
+    categoryExpensesThirtyDays,
     categoryExpensesYear,
-    categoryExpensesWeekLoading,
-    categoryExpensesMonthLoading,
+    categoryExpensesSevenDaysLoading,
+    categoryExpensesThirtyDaysLoading,
     categoryExpensesYearLoading,
   } = useGlobalContext();
   const [categoryData, setCategoryData] = useState<ExtendedCategoryData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<
-    'weekly' | 'monthly' | 'annual'
-  >('weekly');
+    '7days' | '30days' | 'total'
+  >('7days');
   const [currentTotalIncomes, setCurrentTotalIncomes] = useState<number | null>(
     null
   );
@@ -52,7 +52,8 @@ const Statistics = () => {
       text: `${item.percentage.toFixed(1)}%`,
       name: item.categoryName,
     }));
-  }; // Update category data when period or data changes
+  };
+
   useEffect(() => {
     let currentData: CategoryExpenseData[] = [];
     let currentLoading = false;
@@ -60,23 +61,23 @@ const Statistics = () => {
     let expenses: number | null = null;
 
     switch (selectedPeriod) {
-      case 'weekly':
-        currentData = categoryExpensesWeek || [];
-        currentLoading = categoryExpensesWeekLoading;
-        incomes = totalIncomesWeek;
-        expenses = totalExpensesWeek;
+      case '7days':
+        currentData = categoryExpensesSevenDays || [];
+        currentLoading = categoryExpensesSevenDaysLoading;
+        incomes = totalIncomesSevenDays;
+        expenses = totalExpensesSevenDays;
         break;
-      case 'monthly':
-        currentData = categoryExpensesMonth || [];
-        currentLoading = categoryExpensesMonthLoading;
-        incomes = totalIncomesMonth;
-        expenses = totalExpensesMonth;
+      case '30days':
+        currentData = categoryExpensesThirtyDays || [];
+        currentLoading = categoryExpensesThirtyDaysLoading;
+        incomes = totalIncomesThirtyDays;
+        expenses = totalExpensesThirtyDays;
         break;
-      case 'annual':
+      case 'total':
         currentData = categoryExpensesYear || [];
         currentLoading = categoryExpensesYearLoading;
-        incomes = totalIncomesYear;
-        expenses = totalExpensesYear;
+        incomes = totalIncomes;
+        expenses = totalExpenses;
         break;
     }
 
@@ -86,34 +87,34 @@ const Statistics = () => {
     setCurrentTotalExpenses(expenses);
   }, [
     selectedPeriod,
-    categoryExpensesWeek,
-    categoryExpensesMonth,
+    categoryExpensesSevenDays,
+    categoryExpensesThirtyDays,
     categoryExpensesYear,
-    categoryExpensesWeekLoading,
-    categoryExpensesMonthLoading,
+    categoryExpensesSevenDaysLoading,
+    categoryExpensesThirtyDaysLoading,
     categoryExpensesYearLoading,
-    totalIncomesWeek,
-    totalExpensesWeek,
-    totalIncomesMonth,
-    totalExpensesMonth,
-    totalIncomesYear,
-    totalExpensesYear,
+    totalIncomesSevenDays,
+    totalExpensesSevenDays,
+    totalIncomesThirtyDays,
+    totalExpensesThirtyDays,
+    totalIncomes,
+    totalExpenses,
   ]);
 
   const handleSegmentChange = (label: string) => {
-    let period: 'weekly' | 'monthly' | 'annual';
+    let period: '7days' | '30days' | 'total';
     switch (label) {
-      case 'Semanal':
-        period = 'weekly';
+      case '7 Dias':
+        period = '7days';
         break;
-      case 'Mensual':
-        period = 'monthly';
+      case '30 Dias':
+        period = '30days';
         break;
-      case 'Anual':
-        period = 'annual';
+      case 'Total':
+        period = 'total';
         break;
       default:
-        period = 'monthly';
+        period = '7days';
     }
     setSelectedPeriod(period);
   };
@@ -133,11 +134,11 @@ const Statistics = () => {
       {/* Segmented Control */}
       <View className="mt-8">
         <SegmentedControl
-          values={['Semanal', 'Mensual', 'Anual']}
+          values={['7 Dias', '30 Dias', 'Total']}
           selectedIndex={
-            selectedPeriod === 'weekly'
+            selectedPeriod === '7days'
               ? 0
-              : selectedPeriod === 'monthly'
+              : selectedPeriod === '30days'
               ? 1
               : 2
           }

@@ -367,7 +367,7 @@ export const getTransactions = async ({
   try {
     const user = await getCurrentUser();
     if (!user) return [];
-    
+
     const queries = [Query.equal("user_id", user.$id)];
     if (type) {
       queries.push(Query.equal("type", type));
@@ -460,11 +460,11 @@ export const getTotalIncomes = async ({
     if (!user) return 0;
 
     const queries = [
-      Query.equal('user_id', user.$id),
-      Query.equal('type', TransactionType.INCOME),
+      Query.equal("user_id", user.$id),
+      Query.equal("type", TransactionType.INCOME),
     ];
 
-    if (period) {
+    if (period !== PeriodTypes.ALL_TIME) {
       const now = new Date();
       let startDate: Date;
       let endDate: Date;
@@ -495,14 +495,32 @@ export const getTotalIncomes = async ({
           endDate.setHours(23, 59, 59, 999);
           break;
 
+        case PeriodTypes.SEVEN_DAYS:
+          // Get last 7 days
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() - 6);
+          startDate.setHours(0, 0, 0, 0);
+          endDate = new Date(now);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
+        case PeriodTypes.THIRTY_DAYS:
+          // Get last 30 days
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() - 29);
+          startDate.setHours(0, 0, 0, 0);
+          endDate = new Date(now);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
         default:
-          // No time filter, get all transactions
+          // No time filter for unknown period types
           break;
       }
 
       if (startDate! && endDate!) {
-        queries.push(Query.greaterThanEqual('date', startDate.toISOString()));
-        queries.push(Query.lessThanEqual('date', endDate.toISOString()));
+        queries.push(Query.greaterThanEqual("date", startDate.toISOString()));
+        queries.push(Query.lessThanEqual("date", endDate.toISOString()));
       }
     }
 
@@ -519,7 +537,7 @@ export const getTotalIncomes = async ({
 
     return totalIncome;
   } catch (error) {
-    console.error('Error fetching total income:', error);
+    console.error("Error fetching total income:", error);
     return 0;
   }
 };
@@ -532,11 +550,11 @@ export const getTotalExpenses = async ({
     if (!user) return 0;
 
     const queries = [
-      Query.equal('user_id', user.$id),
-      Query.equal('type', TransactionType.EXPENSE),
+      Query.equal("user_id", user.$id),
+      Query.equal("type", TransactionType.EXPENSE),
     ];
 
-    if (period) {
+    if (period !== PeriodTypes.ALL_TIME) {
       const now = new Date();
       let startDate: Date;
       let endDate: Date;
@@ -567,14 +585,32 @@ export const getTotalExpenses = async ({
           endDate.setHours(23, 59, 59, 999);
           break;
 
+        case PeriodTypes.SEVEN_DAYS:
+          // Get last 7 days
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() - 6);
+          startDate.setHours(0, 0, 0, 0);
+          endDate = new Date(now);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
+        case PeriodTypes.THIRTY_DAYS:
+          // Get last 30 days
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() - 29);
+          startDate.setHours(0, 0, 0, 0);
+          endDate = new Date(now);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
         default:
-          // No time filter, get all transactions
+          // No time filter for unknown period types
           break;
       }
 
       if (startDate! && endDate!) {
-        queries.push(Query.greaterThanEqual('date', startDate.toISOString()));
-        queries.push(Query.lessThanEqual('date', endDate.toISOString()));
+        queries.push(Query.greaterThanEqual("date", startDate.toISOString()));
+        queries.push(Query.lessThanEqual("date", endDate.toISOString()));
       }
     }
 
@@ -591,7 +627,7 @@ export const getTotalExpenses = async ({
 
     return totalExpenses;
   } catch (error) {
-    console.error('Error fetching total expenses:', error);
+    console.error("Error fetching total expenses:", error);
     return 0;
   }
 };
@@ -655,7 +691,9 @@ export interface CategoryExpenseData {
   color: string;
 }
 
-export const getExpensesByCategory = async (): Promise<CategoryExpenseData[]> => {
+export const getExpensesByCategory = async (): Promise<
+  CategoryExpenseData[]
+> => {
   try {
     const user = await getCurrentUser();
     if (!user) return [];
@@ -674,32 +712,44 @@ export const getExpensesByCategory = async (): Promise<CategoryExpenseData[]> =>
     if (!response?.documents?.length) return [];
 
     // Group transactions by category and calculate totals
-    const categoryTotals = new Map<string, {
-      name: string;
-      total: number;
-      color: string;
-    }>();
+    const categoryTotals = new Map<
+      string,
+      {
+        name: string;
+        total: number;
+        color: string;
+      }
+    >();
 
-    let totalExpenses = 0;    response.documents.forEach((transaction: any) => {
+    let totalExpenses = 0;
+    response.documents.forEach((transaction: any) => {
       const categoryId = transaction.category.$id as string;
       const categoryName = transaction.category.name as string;
       const amount = transaction.amount as number;
-      
+
       // Try to get color from category, fallback to default colors
       let categoryColor = transaction.category.color as string;
-      
+
       // Default colors for categories if color is not available
       const defaultColors = [
-        "#f59e0b", "#3b82f6", "#ec4899", "#8b5cf6", "#ef4444", 
-        "#10b981", "#84cc16", "#94a3b8", "#f97316", "#06b6d4"
+        "#f59e0b",
+        "#3b82f6",
+        "#ec4899",
+        "#8b5cf6",
+        "#ef4444",
+        "#10b981",
+        "#84cc16",
+        "#94a3b8",
+        "#f97316",
+        "#06b6d4",
       ];
-      
+
       // If no color is set, use default color based on category name or index
       if (!categoryColor) {
         const colorIndex = categoryTotals.size % defaultColors.length;
         categoryColor = defaultColors[colorIndex];
       }
-      
+
       totalExpenses += amount;
 
       if (categoryTotals.has(categoryId)) {
@@ -715,15 +765,15 @@ export const getExpensesByCategory = async (): Promise<CategoryExpenseData[]> =>
     });
 
     // Convert to array and calculate percentages
-    const categoryData: CategoryExpenseData[] = Array.from(categoryTotals.entries()).map(
-      ([categoryId, data]) => ({
-        categoryId,
-        categoryName: data.name,
-        totalAmount: data.total,
-        percentage: totalExpenses > 0 ? (data.total / totalExpenses) * 100 : 0,
-        color: data.color,
-      })
-    );
+    const categoryData: CategoryExpenseData[] = Array.from(
+      categoryTotals.entries()
+    ).map(([categoryId, data]) => ({
+      categoryId,
+      categoryName: data.name,
+      totalAmount: data.total,
+      percentage: totalExpenses > 0 ? (data.total / totalExpenses) * 100 : 0,
+      color: data.color,
+    }));
 
     // Sort by total amount (highest first)
     categoryData.sort((a, b) => b.totalAmount - a.totalAmount);
@@ -736,9 +786,12 @@ export const getExpensesByCategory = async (): Promise<CategoryExpenseData[]> =>
 };
 
 export enum PeriodTypes {
-  WEEKLY = 'weekly',
-  MONTHLY = 'monthly',
-  ANNUAL = 'annual',
+  WEEKLY = "weekly",
+  MONTHLY = "monthly",
+  ANNUAL = "annual",
+  SEVEN_DAYS = "7days",
+  THIRTY_DAYS = "30days",
+  ALL_TIME = "all_time",
 }
 
 export const getExpensesByCategoryWithTimeFilter = async ({
@@ -752,17 +805,16 @@ export const getExpensesByCategoryWithTimeFilter = async ({
 
     // Build queries based on time filter
     const queries = [
-      Query.equal('user_id', user.$id),
-      Query.equal('type', TransactionType.EXPENSE),
+      Query.equal("user_id", user.$id),
+      Query.equal("type", TransactionType.EXPENSE),
     ];
-
-    if (period) {
+    if (period !== PeriodTypes.ALL_TIME) {
       const now = new Date();
       let startDate: Date;
       let endDate: Date;
 
       switch (period) {
-        case 'weekly':
+        case PeriodTypes.WEEKLY:
           // Get current week (Monday to Sunday)
           const currentDay = now.getDay();
           const diff = now.getDate() - currentDay + (currentDay === 0 ? -6 : 1); // adjust when day is Sunday
@@ -773,32 +825,50 @@ export const getExpensesByCategoryWithTimeFilter = async ({
           endDate.setHours(23, 59, 59, 999);
           break;
 
-        case 'monthly':
+        case PeriodTypes.MONTHLY:
           // Get current month
           startDate = new Date(now.getFullYear(), now.getMonth(), 1);
           endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
           endDate.setHours(23, 59, 59, 999);
           break;
 
-        case 'annual':
+        case PeriodTypes.ANNUAL:
           // Get current year
           startDate = new Date(now.getFullYear(), 0, 1);
           endDate = new Date(now.getFullYear(), 11, 31);
           endDate.setHours(23, 59, 59, 999);
           break;
 
+        case PeriodTypes.SEVEN_DAYS:
+          // Get last 7 days
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() - 6);
+          startDate.setHours(0, 0, 0, 0);
+          endDate = new Date(now);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
+        case PeriodTypes.THIRTY_DAYS:
+          // Get last 30 days
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() - 29);
+          startDate.setHours(0, 0, 0, 0);
+          endDate = new Date(now);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
         default:
-          // No time filter, get all transactions
+          // No time filter for unknown period types
           break;
       }
 
       if (startDate! && endDate!) {
-        queries.push(Query.greaterThanEqual('date', startDate.toISOString()));
-        queries.push(Query.lessThanEqual('date', endDate.toISOString()));
+        queries.push(Query.greaterThanEqual("date", startDate.toISOString()));
+        queries.push(Query.lessThanEqual("date", endDate.toISOString()));
       }
     }
 
-    queries.push(Query.orderDesc('date'));
+    queries.push(Query.orderDesc("date"));
 
     // Get filtered transactions
     const response = await databases.listDocuments(
@@ -831,16 +901,16 @@ export const getExpensesByCategoryWithTimeFilter = async ({
 
       // Default colors for categories if color is not available
       const defaultColors = [
-        '#f59e0b',
-        '#3b82f6',
-        '#ec4899',
-        '#8b5cf6',
-        '#ef4444',
-        '#10b981',
-        '#84cc16',
-        '#94a3b8',
-        '#f97316',
-        '#06b6d4',
+        "#f59e0b",
+        "#3b82f6",
+        "#ec4899",
+        "#8b5cf6",
+        "#ef4444",
+        "#10b981",
+        "#84cc16",
+        "#94a3b8",
+        "#f97316",
+        "#06b6d4",
       ];
 
       // If no color is set, use default color based on category name or index
@@ -880,7 +950,7 @@ export const getExpensesByCategoryWithTimeFilter = async ({
     return categoryData;
   } catch (error) {
     console.error(
-      'Error fetching expenses by category with time filter:',
+      "Error fetching expenses by category with time filter:",
       error
     );
     return [];

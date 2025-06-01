@@ -542,7 +542,7 @@ const TransactionUpdate = () => {
           )}
         </TouchableOpacity>
         <TouchableOpacity
-          className={`flex-1 rounded-xl py-3 ${
+          className={`rounded-xl flex justify-center items-center px-3 ${
             (isDeleting || isSubmitting) ? "bg-gray-600" : "bg-red-600"
           }`}
           onPress={handleDelete}
@@ -553,9 +553,11 @@ const TransactionUpdate = () => {
               <ActivityIndicator size="small" color="white" />
             </View>
           ) : (
-            <Text className="text-white text-center text-lg font-bold">
-              Eliminar
-            </Text>
+            <Image
+              source={icons.trashCan as ImagePropsBase}
+              className="size-8"
+              tintColor="white"
+              />
           )}
         </TouchableOpacity>
       </View>
