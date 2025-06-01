@@ -42,6 +42,21 @@ interface GlobalContextType {
   totalIncomesLoading: boolean;
   totalExpenses: number | null;
   totalExpensesLoading: boolean;
+  // Weekly totals
+  totalIncomesWeek: number | null;
+  totalIncomesWeekLoading: boolean;
+  totalExpensesWeek: number | null;
+  totalExpensesWeekLoading: boolean;
+  // Monthly totals
+  totalIncomesMonth: number | null;
+  totalIncomesMonthLoading: boolean;
+  totalExpensesMonth: number | null;
+  totalExpensesMonthLoading: boolean;
+  // Annual totals
+  totalIncomesYear: number | null;
+  totalIncomesYearLoading: boolean;
+  totalExpensesYear: number | null;
+  totalExpensesYearLoading: boolean;
   categoryExpensesWeek: CategoryExpenseData[] | null;
   categoryExpensesWeekLoading: boolean;
   categoryExpensesMonth: CategoryExpenseData[] | null;
@@ -129,6 +144,60 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   });
 
   const {
+    data: totalIncomesWeek,
+    loading: totalIncomesWeekLoading,
+    refetch: refetchTotalIncomesWeek,
+  } = useAppwrite({
+    fn: getTotalIncomes,
+    params: { period: PeriodTypes.WEEKLY },
+  });
+
+  const {
+    data: totalExpensesWeek,
+    loading: totalExpensesWeekLoading,
+    refetch: refetchTotalExpensesWeek,
+  } = useAppwrite({
+    fn: getTotalExpenses,
+    params: { period: PeriodTypes.WEEKLY },
+  });
+
+  const {
+    data: totalIncomesMonth,
+    loading: totalIncomesMonthLoading,
+    refetch: refetchTotalIncomesMonth,
+  } = useAppwrite({
+    fn: getTotalIncomes,
+    params: { period: PeriodTypes.MONTHLY },
+  });
+
+  const {
+    data: totalExpensesMonth,
+    loading: totalExpensesMonthLoading,
+    refetch: refetchTotalExpensesMonth,
+  } = useAppwrite({
+    fn: getTotalExpenses,
+    params: { period: PeriodTypes.MONTHLY },
+  });
+
+  const {
+    data: totalIncomesYear,
+    loading: totalIncomesYearLoading,
+    refetch: refetchTotalIncomesYear,
+  } = useAppwrite({
+    fn: getTotalIncomes,
+    params: { period: PeriodTypes.ANNUAL },
+  });
+
+  const {
+    data: totalExpensesYear,
+    loading: totalExpensesYearLoading,
+    refetch: refetchTotalExpensesYear,
+  } = useAppwrite({
+    fn: getTotalExpenses,
+    params: { period: PeriodTypes.ANNUAL },
+  });
+
+  const {
     data: categoryExpensesWeek,
     loading: categoryExpensesWeekLoading,
     refetch: refetchCategoryExpensesWeek,
@@ -171,6 +240,12 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         refetchTotalBalance(),
         refetchTotalIncomes(),
         refetchTotalExpenses(),
+        refetchTotalIncomesWeek(),
+        refetchTotalExpensesWeek(),
+        refetchTotalIncomesMonth(),
+        refetchTotalExpensesMonth(),
+        refetchTotalIncomesYear(),
+        refetchTotalExpensesYear(),
         refetchCategoryExpensesWeek(),
         refetchCategoryExpensesMonth(),
         refetchCategoryExpensesYear(),
@@ -200,6 +275,18 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         totalIncomesLoading,
         totalExpenses,
         totalExpensesLoading,
+        totalIncomesWeek,
+        totalIncomesWeekLoading,
+        totalExpensesWeek,
+        totalExpensesWeekLoading,
+        totalIncomesMonth,
+        totalIncomesMonthLoading,
+        totalExpensesMonth,
+        totalExpensesMonthLoading,
+        totalIncomesYear,
+        totalIncomesYearLoading,
+        totalExpensesYear,
+        totalExpensesYearLoading,
         categoryExpensesWeek,
         categoryExpensesWeekLoading,
         categoryExpensesMonth,

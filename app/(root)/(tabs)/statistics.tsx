@@ -21,8 +21,12 @@ interface ExtendedCategoryData extends CategoryExpenseData {
 const Statistics = () => {
   const {
     user,
-    totalIncomes,
-    totalExpenses,
+    totalIncomesWeek,
+    totalExpensesWeek,
+    totalIncomesMonth,
+    totalExpensesMonth,
+    totalIncomesYear,
+    totalExpensesYear,
     categoryExpensesWeek,
     categoryExpensesMonth,
     categoryExpensesYear,
@@ -30,12 +34,17 @@ const Statistics = () => {
     categoryExpensesMonthLoading,
     categoryExpensesYearLoading,
   } = useGlobalContext();
-
   const [categoryData, setCategoryData] = useState<ExtendedCategoryData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<
     'weekly' | 'monthly' | 'annual'
   >('weekly');
+  const [currentTotalIncomes, setCurrentTotalIncomes] = useState<number | null>(
+    null
+  );
+  const [currentTotalExpenses, setCurrentTotalExpenses] = useState<
+    number | null
+  >(null);
 
   // Transform CategoryExpenseData to ExtendedCategoryData
   const transformCategoryData = (
@@ -48,29 +57,38 @@ const Statistics = () => {
       name: item.categoryName,
     }));
   };
-
   // Update category data when period or data changes
   useEffect(() => {
     let currentData: CategoryExpenseData[] = [];
     let currentLoading = false;
+    let incomes: number | null = null;
+    let expenses: number | null = null;
 
     switch (selectedPeriod) {
       case 'weekly':
         currentData = categoryExpensesWeek || [];
         currentLoading = categoryExpensesWeekLoading;
+        incomes = totalIncomesWeek;
+        expenses = totalExpensesWeek;
         break;
       case 'monthly':
         currentData = categoryExpensesMonth || [];
         currentLoading = categoryExpensesMonthLoading;
+        incomes = totalIncomesMonth;
+        expenses = totalExpensesMonth;
         break;
       case 'annual':
         currentData = categoryExpensesYear || [];
         currentLoading = categoryExpensesYearLoading;
+        incomes = totalIncomesYear;
+        expenses = totalExpensesYear;
         break;
     }
 
     setLoading(currentLoading);
     setCategoryData(transformCategoryData(currentData));
+    setCurrentTotalIncomes(incomes);
+    setCurrentTotalExpenses(expenses);
   }, [
     selectedPeriod,
     categoryExpensesWeek,
@@ -79,6 +97,12 @@ const Statistics = () => {
     categoryExpensesWeekLoading,
     categoryExpensesMonthLoading,
     categoryExpensesYearLoading,
+    totalIncomesWeek,
+    totalExpensesWeek,
+    totalIncomesMonth,
+    totalExpensesMonth,
+    totalIncomesYear,
+    totalExpensesYear,
   ]);
 
   const handleSegmentChange = (label: string) => {
@@ -134,8 +158,9 @@ const Statistics = () => {
         {/* Summary Cards */}
         <View>
           <SummaryCards
-            totalExpenses={totalExpenses}
-            totalIncomes={totalIncomes}
+            totalExpenses={currentTotalExpenses}
+            totalIncomes={currentTotalIncomes}
+            period={selectedPeriod}
           />
         </View>
         {/* Expenses Category Distribution */}
@@ -147,6 +172,7 @@ const Statistics = () => {
         </View>
         {/* Spending Trends */}
         <View className="mt-6 mb-8">
+          <Text className="text-white text-xl font-bold mb-4">Tendencias</Text>
           <SpendingTrends />
         </View>
       </ScrollView>

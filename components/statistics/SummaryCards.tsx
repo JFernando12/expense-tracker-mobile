@@ -4,9 +4,27 @@ import { Text, View } from 'react-native';
 type SummaryCardsProps = {
   totalExpenses: number | undefined | null;
   totalIncomes: number | undefined | null;
+  period?: 'weekly' | 'monthly' | 'annual';
 };
 
-const SummaryCards = ({ totalExpenses, totalIncomes }: SummaryCardsProps) => {
+const SummaryCards = ({
+  totalExpenses,
+  totalIncomes,
+  period = 'monthly',
+}: SummaryCardsProps) => {
+  const getPeriodText = () => {
+    switch (period) {
+      case 'weekly':
+        return 'esta semana';
+      case 'monthly':
+        return 'este mes';
+      case 'annual':
+        return 'este año';
+      default:
+        return 'este período';
+    }
+  };
+
   return (
     <View className="flex-row justify-between">
       <View className="bg-primary-300 p-4 rounded-xl w-[48%]">
@@ -15,8 +33,7 @@ const SummaryCards = ({ totalExpenses, totalIncomes }: SummaryCardsProps) => {
           ${totalExpenses ? totalExpenses.toFixed(2) : '0.00'}
         </Text>
         <View className="flex-row items-center mt-1">
-          <Text className="text-danger text-xs">↑ 12%</Text>
-          <Text className="text-neutral-200 text-xs ml-1">vs anterior</Text>
+          <Text className="text-neutral-200 text-xs">{getPeriodText()}</Text>
         </View>
       </View>
       <View className="bg-primary-300 p-4 rounded-xl w-[48%]">
@@ -25,8 +42,7 @@ const SummaryCards = ({ totalExpenses, totalIncomes }: SummaryCardsProps) => {
           ${totalIncomes ? totalIncomes.toFixed(2) : '0.00'}
         </Text>
         <View className="flex-row items-center mt-1">
-          <Text className="text-accent-200 text-xs">↑ 8%</Text>
-          <Text className="text-neutral-200 text-xs ml-1">vs anterior</Text>
+          <Text className="text-neutral-200 text-xs">{getPeriodText()}</Text>
         </View>
       </View>
     </View>

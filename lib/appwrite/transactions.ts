@@ -452,42 +452,146 @@ export const getTransaction = async (
   }
 };
 
-export const getTotalIncomes = async (): Promise<number> => {
+export const getTotalIncomes = async ({
+  period,
+}: { period?: PeriodTypes } = {}): Promise<number> => {
   try {
     const user = await getCurrentUser();
     if (!user) return 0;
 
-    const transactions = await getTransactions({
-      type: TransactionType.INCOME,
-    });
-    const totalIncome = transactions.reduce(
-      (acc, transaction) => acc + transaction.amount,
+    const queries = [
+      Query.equal('user_id', user.$id),
+      Query.equal('type', TransactionType.INCOME),
+    ];
+
+    if (period) {
+      const now = new Date();
+      let startDate: Date;
+      let endDate: Date;
+
+      switch (period) {
+        case PeriodTypes.WEEKLY:
+          // Get current week (Monday to Sunday)
+          const currentDay = now.getDay();
+          const diff = now.getDate() - currentDay + (currentDay === 0 ? -6 : 1); // adjust when day is Sunday
+          startDate = new Date(now.setDate(diff));
+          startDate.setHours(0, 0, 0, 0);
+          endDate = new Date(startDate);
+          endDate.setDate(startDate.getDate() + 6);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
+        case PeriodTypes.MONTHLY:
+          // Get current month
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
+        case PeriodTypes.ANNUAL:
+          // Get current year
+          startDate = new Date(now.getFullYear(), 0, 1);
+          endDate = new Date(now.getFullYear(), 11, 31);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
+        default:
+          // No time filter, get all transactions
+          break;
+      }
+
+      if (startDate! && endDate!) {
+        queries.push(Query.greaterThanEqual('date', startDate.toISOString()));
+        queries.push(Query.lessThanEqual('date', endDate.toISOString()));
+      }
+    }
+
+    const response = await databases.listDocuments(
+      config.databaseId,
+      config.transactionCollectionId,
+      queries
+    );
+
+    const totalIncome = response.documents.reduce(
+      (acc, transaction: any) => acc + (transaction.amount as number),
       0
     );
 
     return totalIncome;
   } catch (error) {
-    console.error("Error fetching total income:", error);
+    console.error('Error fetching total income:', error);
     return 0;
   }
 };
 
-export const getTotalExpenses = async (): Promise<number> => {
+export const getTotalExpenses = async ({
+  period,
+}: { period?: PeriodTypes } = {}): Promise<number> => {
   try {
     const user = await getCurrentUser();
     if (!user) return 0;
 
-    const transactions = await getTransactions({
-      type: TransactionType.EXPENSE,
-    });
-    const totalExpenses = transactions.reduce(
-      (acc, transaction) => acc + transaction.amount,
+    const queries = [
+      Query.equal('user_id', user.$id),
+      Query.equal('type', TransactionType.EXPENSE),
+    ];
+
+    if (period) {
+      const now = new Date();
+      let startDate: Date;
+      let endDate: Date;
+
+      switch (period) {
+        case PeriodTypes.WEEKLY:
+          // Get current week (Monday to Sunday)
+          const currentDay = now.getDay();
+          const diff = now.getDate() - currentDay + (currentDay === 0 ? -6 : 1); // adjust when day is Sunday
+          startDate = new Date(now.setDate(diff));
+          startDate.setHours(0, 0, 0, 0);
+          endDate = new Date(startDate);
+          endDate.setDate(startDate.getDate() + 6);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
+        case PeriodTypes.MONTHLY:
+          // Get current month
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
+        case PeriodTypes.ANNUAL:
+          // Get current year
+          startDate = new Date(now.getFullYear(), 0, 1);
+          endDate = new Date(now.getFullYear(), 11, 31);
+          endDate.setHours(23, 59, 59, 999);
+          break;
+
+        default:
+          // No time filter, get all transactions
+          break;
+      }
+
+      if (startDate! && endDate!) {
+        queries.push(Query.greaterThanEqual('date', startDate.toISOString()));
+        queries.push(Query.lessThanEqual('date', endDate.toISOString()));
+      }
+    }
+
+    const response = await databases.listDocuments(
+      config.databaseId,
+      config.transactionCollectionId,
+      queries
+    );
+
+    const totalExpenses = response.documents.reduce(
+      (acc, transaction: any) => acc + (transaction.amount as number),
       0
     );
 
     return totalExpenses;
   } catch (error) {
-    console.error("Error fetching total expenses:", error);
+    console.error('Error fetching total expenses:', error);
     return 0;
   }
 };
