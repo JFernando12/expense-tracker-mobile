@@ -1,4 +1,5 @@
 import { ID } from 'react-native-appwrite';
+import { walletSyncService } from '../services/walletSyncService';
 import { account, avatar } from './client';
 
 export const login = async (email: string, password: string) => {
@@ -33,6 +34,8 @@ export const register = async (
 export const logout = async () => {
   try {
     await account.deleteSession('current');
+    // Clear local storage on logout
+    await walletSyncService.clearLocalData();
     return true;
   } catch (error) {
     console.error('Error logging out:', error);

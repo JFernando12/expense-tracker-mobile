@@ -1,7 +1,7 @@
 import { useGlobalContext } from '@/lib/global-provider';
 import { Redirect, Stack } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const RootLayout = () => {
@@ -14,49 +14,50 @@ const RootLayout = () => {
       </SafeAreaView>
     );
   }
-
   if (!isLoggedIn) return <Redirect href="/login" />;
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen
-        name="(modals)/searchModal"
-        options={{
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="(modals)/profileModal"
-        options={{
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="(modals)/transactionModal/[id]"
-        options={{
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="(modals)/transactionModal/create"
-        options={{
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="(modals)/walletModal/[id]"
-        options={{
-          presentation: 'modal',
-        }}
-      />
-      <Stack.Screen
-        name="(modals)/walletModal/create"
-        options={{
-          presentation: 'modal',
-        }}
-      />
-    </Stack>
+    <View style={{ flex: 1 }}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="(modals)/searchModal"
+          options={{
+            presentation: 'modal',
+          }}
+        />
+        <Stack.Screen
+          name="(modals)/profileModal"
+          options={{
+            presentation: 'modal',
+          }}
+        />
+        <Stack.Screen
+          name="(modals)/transactionModal/[id]"
+          options={{
+            presentation: 'modal',
+          }}
+        />
+        <Stack.Screen
+          name="(modals)/transactionModal/create"
+          options={{
+            presentation: 'modal',
+          }}
+        />
+        <Stack.Screen
+          name="(modals)/walletModal/[id]"
+          options={{
+            presentation: 'modal',
+          }}
+        />
+        <Stack.Screen
+          name="(modals)/walletModal/create"
+          options={{
+            presentation: 'modal',
+          }}
+        />
+      </Stack>
+    </View>
   );
 };
 

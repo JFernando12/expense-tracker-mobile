@@ -1,9 +1,9 @@
-import WalletList from '@/components/WalletList';
-import { useGlobalContext } from '@/lib/global-provider';
-import { router } from 'expo-router';
-import React from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import WalletList from "@/components/WalletList";
+import { useGlobalContext } from "@/lib/global-provider";
+import { router } from "expo-router";
+import React from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Wallet = () => {
   const { wallets, totalBalance, user } = useGlobalContext();
@@ -14,7 +14,7 @@ const Wallet = () => {
       <View className="flex-row items-center justify-start mb-6">
         <Text className="text-white text-2xl font-bold">Mis Cuentas</Text>
         <TouchableOpacity
-          onPress={() => router.push('/(root)/(modals)/profileModal')}
+          onPress={() => router.push("/(root)/(modals)/profileModal")}
           className="absolute right-0 top-0 size-12 rounded-full overflow-hidden bg-accent-200"
         >
           <Image source={{ uri: user?.avatar }} className="h-full w-full" />
@@ -34,7 +34,7 @@ const Wallet = () => {
             Todas las cuentas
           </Text>
           <TouchableOpacity
-            onPress={() => router.push('/(root)/(modals)/walletModal/create')}
+            onPress={() => router.push("/(root)/(modals)/walletModal/create")}
             className="bg-accent-200 rounded-full px-4 py-2"
           >
             <Text className="text-white font-medium">Crear</Text>

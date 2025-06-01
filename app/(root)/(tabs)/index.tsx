@@ -1,7 +1,7 @@
-import TransactionList from '@/components/TransactionList';
-import icons from '@/constants/icons';
-import { useGlobalContext } from '@/lib/global-provider';
-import { router } from 'expo-router';
+import TransactionList from "@/components/TransactionList";
+import icons from "@/constants/icons";
+import { useGlobalContext } from "@/lib/global-provider";
+import { router } from "expo-router";
 import {
   ActivityIndicator,
   Image,
@@ -9,8 +9,8 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   const {
@@ -23,7 +23,13 @@ export default function Index() {
     totalIncomesLoading,
     totalExpenses,
     totalExpensesLoading,
+    refetchResources,
   } = useGlobalContext();
+
+  const handleSyncComplete = () => {
+    // Refresh data after sync
+    refetchResources();
+  };
 
   if (
     transactionsLoading ||
@@ -47,7 +53,7 @@ export default function Index() {
           <Text className="text-white text-2xl font-bold">{user?.name}</Text>
         </View>
         <TouchableOpacity
-          onPress={() => router.push('/(root)/(modals)/profileModal')}
+          onPress={() => router.push("/(root)/(modals)/profileModal")}
           className="absolute right-0 top-0 size-12 rounded-full overflow-hidden bg-accent-200"
         >
           <Image source={{ uri: user?.avatar }} className="h-full w-full" />
@@ -98,7 +104,7 @@ export default function Index() {
       <View className="flex-row items-center justify-between">
         <Text className="text-white text-2xl font-bold">Recientes</Text>
         <TouchableOpacity
-          onPress={() => router.push('/(root)/(modals)/searchModal')}
+          onPress={() => router.push("/(root)/(modals)/searchModal")}
           className="h-10 w-10 bg-primary-300 rounded-full items-center justify-center"
         >
           <Image
