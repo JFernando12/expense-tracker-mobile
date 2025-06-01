@@ -1,15 +1,18 @@
 import { Category, Transaction, TransactionType, Wallet } from "@/types/types";
 import { createContext, useContext } from "react";
 import {
+  CategoryExpenseData,
   getCategories,
   getCurrentUser,
+  getExpensesByCategoryWithTimeFilter,
   getTotalBalance,
   getTotalExpenses,
   getTotalIncomes,
   getTransactions,
   getWallets,
-} from "./appwrite";
-import { useAppwrite } from "./useAppwrite";
+  PeriodTypes,
+} from './appwrite';
+import { useAppwrite } from './useAppwrite';
 
 interface User {
   $id: string;
@@ -21,7 +24,7 @@ interface User {
 interface GlobalContextType {
   isLoggedIn: boolean;
   user: User | null | undefined;
-  loading: boolean;
+  userLoading: boolean;
   refetchUser: (newParams?: Record<string, string | number>) => Promise<void>;
   expenseCategories: Category[] | null;
   incomeCategories: Category[] | null;
@@ -39,6 +42,12 @@ interface GlobalContextType {
   totalIncomesLoading: boolean;
   totalExpenses: number | null;
   totalExpensesLoading: boolean;
+  categoryExpensesWeek: CategoryExpenseData[] | null;
+  categoryExpensesWeekLoading: boolean;
+  categoryExpensesMonth: CategoryExpenseData[] | null;
+  categoryExpensesMonthLoading: boolean;
+  categoryExpensesYear: CategoryExpenseData[] | null;
+  categoryExpensesYearLoading: boolean;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -50,7 +59,7 @@ interface GlobalProviderProps {
 export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   const {
     data: user,
-    loading,
+    loading: userLoading,
     refetch,
   } = useAppwrite({
     fn: getCurrentUser,
@@ -119,12 +128,39 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     params: {},
   });
 
+  const {
+    data: categoryExpensesWeek,
+    loading: categoryExpensesWeekLoading,
+    refetch: refetchCategoryExpensesWeek,
+  } = useAppwrite({
+    fn: getExpensesByCategoryWithTimeFilter,
+    params: { period: PeriodTypes.WEEKLY },
+  });
+
+  const {
+    data: categoryExpensesMonth,
+    loading: categoryExpensesMonthLoading,
+    refetch: refetchCategoryExpensesMonth,
+  } = useAppwrite({
+    fn: getExpensesByCategoryWithTimeFilter,
+    params: { period: PeriodTypes.MONTHLY },
+  });
+
+  const {
+    data: categoryExpensesYear,
+    loading: categoryExpensesYearLoading,
+    refetch: refetchCategoryExpensesYear,
+  } = useAppwrite({
+    fn: getExpensesByCategoryWithTimeFilter,
+    params: { period: PeriodTypes.ANNUAL },
+  });
+
   const isLoggedIn = !!user;
 
   const refetchUser = async () => {
     await refetch();
   };
-  
+
   const refetchResources = async () => {
     if (isLoggedIn) {
       await Promise.all([
@@ -134,17 +170,22 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         refetchTransactions(),
         refetchTotalBalance(),
         refetchTotalIncomes(),
-        refetchTotalExpenses()
+        refetchTotalExpenses(),
+        refetchCategoryExpensesWeek(),
+        refetchCategoryExpensesMonth(),
+        refetchCategoryExpensesYear(),
       ]);
     }
   };
   return (
     <GlobalContext.Provider
       value={{
+        refetchUser,
+        refetchResources,
+        refetchTransactions,
         isLoggedIn,
         user,
-        loading,
-        refetchUser,
+        userLoading,
         expenseCategories,
         expenseCategoriesLoading,
         incomeCategories,
@@ -153,14 +194,18 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         walletsLoading,
         transactions,
         transactionsLoading,
-        refetchResources,
-        refetchTransactions,
         totalBalance,
         totalBalanceLoading,
         totalIncomes,
         totalIncomesLoading,
         totalExpenses,
         totalExpensesLoading,
+        categoryExpensesWeek,
+        categoryExpensesWeekLoading,
+        categoryExpensesMonth,
+        categoryExpensesMonthLoading,
+        categoryExpensesYear,
+        categoryExpensesYearLoading,
       }}
     >
       {children}

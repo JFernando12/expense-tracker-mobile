@@ -56,7 +56,6 @@ const WalletCreate = () => {
   ];
 
   const handleFieldChange = (key: string, value: string) => {
-    console.log(`Field changed: ${key} = ${value}`);
     setFormData((prev) => ({
       ...prev,
       [key]: value,
