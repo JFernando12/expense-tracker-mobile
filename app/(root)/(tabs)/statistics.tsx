@@ -1,8 +1,4 @@
-import {
-  CategoryDistribution,
-  SpendingTrends,
-  SummaryCards,
-} from '@/components/statistics';
+import { CategoryDistribution, SummaryCards } from '@/components/statistics';
 import { CategoryExpenseData } from '@/lib/appwrite/index';
 import { useGlobalContext } from '@/lib/global-provider';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
@@ -56,8 +52,7 @@ const Statistics = () => {
       text: `${item.percentage.toFixed(1)}%`,
       name: item.categoryName,
     }));
-  };
-  // Update category data when period or data changes
+  }; // Update category data when period or data changes
   useEffect(() => {
     let currentData: CategoryExpenseData[] = [];
     let currentLoading = false;
@@ -169,11 +164,6 @@ const Statistics = () => {
             Gastos por Categoría
           </Text>
           <CategoryDistribution categoryData={categoryData} loading={loading} />
-        </View>
-        {/* Spending Trends */}
-        <View className="mt-6 mb-8">
-          <Text className="text-white text-xl font-bold mb-4">Tendencias</Text>
-          <SpendingTrends />
         </View>
       </ScrollView>
     </SafeAreaView>

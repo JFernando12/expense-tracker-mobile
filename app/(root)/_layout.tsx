@@ -5,9 +5,9 @@ import { ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const RootLayout = () => {
-  const { loading, isLoggedIn } = useGlobalContext();
+  const { userLoading, isLoggedIn } = useGlobalContext();
 
-  if (loading) {
+  if (userLoading) {
     return (
       <SafeAreaView className="bg-white h-full flex justify-center items-center">
         <ActivityIndicator className="text-primary-300 " size="large" />

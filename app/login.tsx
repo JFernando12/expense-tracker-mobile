@@ -13,9 +13,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { login } from '../lib/appwrite';
 
 const Login = () => {
-  const { refetchUser, refetchResources, loading, isLoggedIn } = useGlobalContext();
+  const { refetchUser, refetchResources, userLoading, isLoggedIn } =
+    useGlobalContext();
 
-  if (!loading && isLoggedIn) return <Redirect href="/" />;
+  if (!userLoading && isLoggedIn) return <Redirect href="/" />;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
