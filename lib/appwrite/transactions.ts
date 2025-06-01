@@ -1,9 +1,8 @@
-import { CategoryExpenseData, PeriodTypes } from "@/constants/interfaces";
-import { Transaction, TransactionType } from "@/types/types";
-import { ID, Query } from "react-native-appwrite";
-import { getCurrentUser } from "./auth";
-import { config, databases, storage } from "./client";
-import { deleteImage, uploadImage } from "./storage";
+import { Transaction, TransactionType } from '@/types/types';
+import { ID, Query } from 'react-native-appwrite';
+import { getCurrentUser } from './auth';
+import { config, databases, storage } from './client';
+import { deleteImage, uploadImage } from './storage';
 
 export const createTransaction = async ({
   walletId,
@@ -40,12 +39,12 @@ export const createTransaction = async ({
     );
 
     if (!wallet) {
-      console.error("Wallet not found");
+      console.error('Wallet not found');
       return false;
     }
 
     if (wallet.user_id !== user.$id) {
-      console.error("Unauthorized access to wallet");
+      console.error('Unauthorized access to wallet');
       return false;
     }
 
@@ -77,7 +76,7 @@ export const createTransaction = async ({
     // Update wallet balance
     const currentBalance = wallet.current_balance as number;
     const newBalance =
-      type === "income" ? currentBalance + amount : currentBalance - amount;
+      type === 'income' ? currentBalance + amount : currentBalance - amount;
 
     await databases.updateDocument(
       config.databaseId,
@@ -90,7 +89,7 @@ export const createTransaction = async ({
 
     return true;
   } catch (error) {
-    console.error("Error creating transaction:", error);
+    console.error('Error creating transaction:', error);
     return false;
   }
 };
@@ -128,12 +127,12 @@ export const updateTransaction = async ({
     );
 
     if (!transaction) {
-      console.error("Transaction not found");
+      console.error('Transaction not found');
       return false;
     }
 
     if (transaction.user_id !== user.$id) {
-      console.error("Unauthorized access to transaction");
+      console.error('Unauthorized access to transaction');
       return false;
     }
 
@@ -171,12 +170,12 @@ export const updateTransaction = async ({
     );
 
     if (!oldWallet) {
-      console.error("Old wallet not found");
+      console.error('Old wallet not found');
       return false;
     }
 
     if (oldWallet.user_id !== user.$id) {
-      console.error("Unauthorized access to old wallet");
+      console.error('Unauthorized access to old wallet');
       return false;
     }
 
@@ -188,12 +187,12 @@ export const updateTransaction = async ({
     );
 
     if (!newWallet) {
-      console.error("New wallet not found");
+      console.error('New wallet not found');
       return false;
     }
 
     if (newWallet.user_id !== user.$id) {
-      console.error("Unauthorized access to new wallet");
+      console.error('Unauthorized access to new wallet');
       return false;
     }
 
@@ -225,13 +224,13 @@ export const updateTransaction = async ({
 
       // Revert old transaction effect
       const balanceAfterRevert =
-        oldType === "income"
+        oldType === 'income'
           ? currentBalance - oldAmount
           : currentBalance + oldAmount;
 
       // Apply new transaction effect
       const newBalance =
-        type === "income"
+        type === 'income'
           ? balanceAfterRevert + amount
           : balanceAfterRevert - amount;
 
@@ -249,7 +248,7 @@ export const updateTransaction = async ({
       // Revert the old transaction from the old wallet
       const oldWalletBalance = oldWallet.current_balance as number;
       const oldWalletNewBalance =
-        oldType === "income"
+        oldType === 'income'
           ? oldWalletBalance - oldAmount
           : oldWalletBalance + oldAmount;
 
@@ -265,7 +264,7 @@ export const updateTransaction = async ({
       // Apply the new transaction to the new wallet
       const newWalletBalance = newWallet.current_balance as number;
       const newWalletNewBalance =
-        type === "income"
+        type === 'income'
           ? newWalletBalance + amount
           : newWalletBalance - amount;
 
@@ -281,7 +280,7 @@ export const updateTransaction = async ({
 
     return true;
   } catch (error) {
-    console.error("Error updating transaction:", error);
+    console.error('Error updating transaction:', error);
     return false;
   }
 };
@@ -299,12 +298,12 @@ export const deleteTransaction = async (id: string): Promise<boolean> => {
     );
 
     if (!transaction) {
-      console.error("Transaction not found");
+      console.error('Transaction not found');
       return false;
     }
 
     if (transaction.user_id !== user.$id) {
-      console.error("Unauthorized access to transaction");
+      console.error('Unauthorized access to transaction');
       return false;
     }
 
@@ -317,12 +316,12 @@ export const deleteTransaction = async (id: string): Promise<boolean> => {
     );
 
     if (!wallet) {
-      console.error("Wallet not found");
+      console.error('Wallet not found');
       return false;
     }
 
     if (wallet.user_id !== user.$id) {
-      console.error("Unauthorized access to wallet");
+      console.error('Unauthorized access to wallet');
       return false;
     }
 
@@ -344,7 +343,7 @@ export const deleteTransaction = async (id: string): Promise<boolean> => {
     const type = transaction.type as TransactionType;
 
     const newBalance =
-      type === "income" ? currentBalance - amount : currentBalance + amount;
+      type === 'income' ? currentBalance - amount : currentBalance + amount;
 
     await databases.updateDocument(
       config.databaseId,
@@ -357,7 +356,7 @@ export const deleteTransaction = async (id: string): Promise<boolean> => {
 
     return true;
   } catch (error) {
-    console.error("Error deleting transaction:", error);
+    console.error('Error deleting transaction:', error);
     return false;
   }
 };
@@ -369,12 +368,12 @@ export const getTransactions = async ({
     const user = await getCurrentUser();
     if (!user) return [];
 
-    const queries = [Query.equal("user_id", user.$id)];
+    const queries = [Query.equal('user_id', user.$id)];
     if (type) {
-      queries.push(Query.equal("type", type));
+      queries.push(Query.equal('type', type));
     }
-    queries.push(Query.orderDesc("date"));
-    queries.push(Query.orderDesc("$createdAt"));
+    queries.push(Query.orderDesc('date'));
+    queries.push(Query.orderDesc('$createdAt'));
 
     const response = await databases.listDocuments(
       config.databaseId,
@@ -405,7 +404,7 @@ export const getTransactions = async ({
 
     return transactions;
   } catch (error) {
-    console.error("Error fetching transactions:", error);
+    console.error('Error fetching transactions:', error);
     return [];
   }
 };
@@ -427,7 +426,7 @@ export const getTransaction = async (
 
     // Check if user owns this transaction
     if (transaction.user_id !== user.$id) {
-      console.error("Unauthorized access to transaction");
+      console.error('Unauthorized access to transaction');
       return null;
     }
 
@@ -448,188 +447,8 @@ export const getTransaction = async (
       imageUrl: imageUrl.toString(),
     };
   } catch (error) {
-    console.error("Error fetching transaction:", error);
+    console.error('Error fetching transaction:', error);
     return null;
-  }
-};
-
-export const getTotalIncomes = async ({
-  period,
-}: { period?: PeriodTypes } = {}): Promise<number> => {
-  try {
-    const user = await getCurrentUser();
-    if (!user) return 0;
-
-    const queries = [
-      Query.equal("user_id", user.$id),
-      Query.equal("type", TransactionType.INCOME),
-    ];
-
-    if (period !== PeriodTypes.ALL_TIME) {
-      const now = new Date();
-      let startDate: Date;
-      let endDate: Date;
-
-      switch (period) {
-        case PeriodTypes.WEEKLY:
-          // Get current week (Monday to Sunday)
-          const currentDay = now.getDay();
-          const diff = now.getDate() - currentDay + (currentDay === 0 ? -6 : 1); // adjust when day is Sunday
-          startDate = new Date(now.setDate(diff));
-          startDate.setHours(0, 0, 0, 0);
-          endDate = new Date(startDate);
-          endDate.setDate(startDate.getDate() + 6);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        case PeriodTypes.MONTHLY:
-          // Get current month
-          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        case PeriodTypes.ANNUAL:
-          // Get current year
-          startDate = new Date(now.getFullYear(), 0, 1);
-          endDate = new Date(now.getFullYear(), 11, 31);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        case PeriodTypes.SEVEN_DAYS:
-          // Get last 7 days
-          startDate = new Date(now);
-          startDate.setDate(now.getDate() - 6);
-          startDate.setHours(0, 0, 0, 0);
-          endDate = new Date(now);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        case PeriodTypes.THIRTY_DAYS:
-          // Get last 30 days
-          startDate = new Date(now);
-          startDate.setDate(now.getDate() - 29);
-          startDate.setHours(0, 0, 0, 0);
-          endDate = new Date(now);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        default:
-          // No time filter for unknown period types
-          break;
-      }
-
-      if (startDate! && endDate!) {
-        queries.push(Query.greaterThanEqual("date", startDate.toISOString()));
-        queries.push(Query.lessThanEqual("date", endDate.toISOString()));
-      }
-    }
-
-    const response = await databases.listDocuments(
-      config.databaseId,
-      config.transactionCollectionId,
-      queries
-    );
-
-    const totalIncome = response.documents.reduce(
-      (acc, transaction: any) => acc + (transaction.amount as number),
-      0
-    );
-
-    return totalIncome;
-  } catch (error) {
-    console.error("Error fetching total income:", error);
-    return 0;
-  }
-};
-
-export const getTotalExpenses = async ({
-  period,
-}: { period?: PeriodTypes } = {}): Promise<number> => {
-  try {
-    const user = await getCurrentUser();
-    if (!user) return 0;
-
-    const queries = [
-      Query.equal("user_id", user.$id),
-      Query.equal("type", TransactionType.EXPENSE),
-    ];
-
-    if (period !== PeriodTypes.ALL_TIME) {
-      const now = new Date();
-      let startDate: Date;
-      let endDate: Date;
-
-      switch (period) {
-        case PeriodTypes.WEEKLY:
-          // Get current week (Monday to Sunday)
-          const currentDay = now.getDay();
-          const diff = now.getDate() - currentDay + (currentDay === 0 ? -6 : 1); // adjust when day is Sunday
-          startDate = new Date(now.setDate(diff));
-          startDate.setHours(0, 0, 0, 0);
-          endDate = new Date(startDate);
-          endDate.setDate(startDate.getDate() + 6);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        case PeriodTypes.MONTHLY:
-          // Get current month
-          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        case PeriodTypes.ANNUAL:
-          // Get current year
-          startDate = new Date(now.getFullYear(), 0, 1);
-          endDate = new Date(now.getFullYear(), 11, 31);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        case PeriodTypes.SEVEN_DAYS:
-          // Get last 7 days
-          startDate = new Date(now);
-          startDate.setDate(now.getDate() - 6);
-          startDate.setHours(0, 0, 0, 0);
-          endDate = new Date(now);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        case PeriodTypes.THIRTY_DAYS:
-          // Get last 30 days
-          startDate = new Date(now);
-          startDate.setDate(now.getDate() - 29);
-          startDate.setHours(0, 0, 0, 0);
-          endDate = new Date(now);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        default:
-          // No time filter for unknown period types
-          break;
-      }
-
-      if (startDate! && endDate!) {
-        queries.push(Query.greaterThanEqual("date", startDate.toISOString()));
-        queries.push(Query.lessThanEqual("date", endDate.toISOString()));
-      }
-    }
-
-    const response = await databases.listDocuments(
-      config.databaseId,
-      config.transactionCollectionId,
-      queries
-    );
-
-    const totalExpenses = response.documents.reduce(
-      (acc, transaction: any) => acc + (transaction.amount as number),
-      0
-    );
-
-    return totalExpenses;
-  } catch (error) {
-    console.error("Error fetching total expenses:", error);
-    return 0;
   }
 };
 
@@ -648,7 +467,7 @@ export const searchTransactions = async (
     const response = await databases.listDocuments(
       config.databaseId,
       config.transactionCollectionId,
-      [Query.equal("user_id", user.$id)]
+      [Query.equal('user_id', user.$id)]
     );
 
     // Filter transactions based on search query
@@ -656,10 +475,10 @@ export const searchTransactions = async (
     const filteredTransactions =
       response?.documents?.filter((transaction) => {
         const description =
-          (transaction.description as string)?.toLowerCase() || "";
+          (transaction.description as string)?.toLowerCase() || '';
         const category =
-          (transaction.category?.name as string)?.toLowerCase() || "";
-        const amount = (transaction.amount as number)?.toString() || "";
+          (transaction.category?.name as string)?.toLowerCase() || '';
+        const amount = (transaction.amount as number)?.toString() || '';
 
         return (
           description.includes(searchLower) ||
@@ -679,170 +498,7 @@ export const searchTransactions = async (
       imageUrl: transaction.image as string,
     }));
   } catch (error) {
-    console.error("Error searching transactions:", error);
-    return [];
-  }
-};
-
-export const getExpensesByCategoryWithTimeFilter = async ({
-  period,
-}: {
-  period: PeriodTypes;
-}): Promise<CategoryExpenseData[]> => {
-  try {
-    const user = await getCurrentUser();
-    if (!user) return [];
-
-    // Build queries based on time filter
-    const queries = [
-      Query.equal("user_id", user.$id),
-      Query.equal("type", TransactionType.EXPENSE),
-    ];
-    if (period !== PeriodTypes.ALL_TIME) {
-      const now = new Date();
-      let startDate: Date;
-      let endDate: Date;
-
-      switch (period) {
-        case PeriodTypes.WEEKLY:
-          // Get current week (Monday to Sunday)
-          const currentDay = now.getDay();
-          const diff = now.getDate() - currentDay + (currentDay === 0 ? -6 : 1); // adjust when day is Sunday
-          startDate = new Date(now.setDate(diff));
-          startDate.setHours(0, 0, 0, 0);
-          endDate = new Date(startDate);
-          endDate.setDate(startDate.getDate() + 6);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        case PeriodTypes.MONTHLY:
-          // Get current month
-          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        case PeriodTypes.ANNUAL:
-          // Get current year
-          startDate = new Date(now.getFullYear(), 0, 1);
-          endDate = new Date(now.getFullYear(), 11, 31);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        case PeriodTypes.SEVEN_DAYS:
-          // Get last 7 days
-          startDate = new Date(now);
-          startDate.setDate(now.getDate() - 6);
-          startDate.setHours(0, 0, 0, 0);
-          endDate = new Date(now);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        case PeriodTypes.THIRTY_DAYS:
-          // Get last 30 days
-          startDate = new Date(now);
-          startDate.setDate(now.getDate() - 29);
-          startDate.setHours(0, 0, 0, 0);
-          endDate = new Date(now);
-          endDate.setHours(23, 59, 59, 999);
-          break;
-
-        default:
-          // No time filter for unknown period types
-          break;
-      }
-
-      if (startDate! && endDate!) {
-        queries.push(Query.greaterThanEqual("date", startDate.toISOString()));
-        queries.push(Query.lessThanEqual("date", endDate.toISOString()));
-      }
-    }
-
-    queries.push(Query.orderDesc("date"));
-
-    // Get filtered transactions
-    const response = await databases.listDocuments(
-      config.databaseId,
-      config.transactionCollectionId,
-      queries
-    );
-
-    if (!response?.documents?.length) return [];
-
-    // Group transactions by category and calculate totals
-    const categoryTotals = new Map<
-      string,
-      {
-        name: string;
-        total: number;
-        color: string;
-      }
-    >();
-
-    let totalExpenses = 0;
-
-    response.documents.forEach((transaction: any) => {
-      const categoryId = transaction.category.$id as string;
-      const categoryName = transaction.category.name as string;
-      const amount = transaction.amount as number;
-
-      // Try to get color from category, fallback to default colors
-      let categoryColor = transaction.category.color as string;
-
-      // Default colors for categories if color is not available
-      const defaultColors = [
-        "#f59e0b",
-        "#3b82f6",
-        "#ec4899",
-        "#8b5cf6",
-        "#ef4444",
-        "#10b981",
-        "#84cc16",
-        "#94a3b8",
-        "#f97316",
-        "#06b6d4",
-      ];
-
-      // If no color is set, use default color based on category name or index
-      if (!categoryColor) {
-        const colorIndex = categoryTotals.size % defaultColors.length;
-        categoryColor = defaultColors[colorIndex];
-      }
-
-      totalExpenses += amount;
-
-      if (categoryTotals.has(categoryId)) {
-        const existing = categoryTotals.get(categoryId)!;
-        existing.total += amount;
-      } else {
-        categoryTotals.set(categoryId, {
-          name: categoryName,
-          total: amount,
-          color: categoryColor,
-        });
-      }
-    });
-
-    // Convert to array and calculate percentages
-    const categoryData: CategoryExpenseData[] = Array.from(
-      categoryTotals.entries()
-    ).map(([categoryId, data]) => ({
-      categoryId,
-      categoryName: data.name,
-      totalAmount: data.total,
-      percentage: totalExpenses > 0 ? (data.total / totalExpenses) * 100 : 0,
-      color: data.color,
-    }));
-
-    // Sort by total amount (highest first)
-    categoryData.sort((a, b) => b.totalAmount - a.totalAmount);
-
-    return categoryData;
-  } catch (error) {
-    console.error(
-      "Error fetching expenses by category with time filter:",
-      error
-    );
+    console.error('Error searching transactions:', error);
     return [];
   }
 };

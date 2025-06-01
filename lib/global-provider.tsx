@@ -4,13 +4,15 @@ import { createContext, useContext } from "react";
 import {
   getCategories,
   getCurrentUser,
-  getExpensesByCategoryWithTimeFilter,
   getTotalBalance,
-  getTotalExpenses,
-  getTotalIncomes,
   getTransactions,
   getWallets,
 } from './appwrite';
+import {
+  getExpensesByCategoryWithTimeFilter,
+  getTotalExpenses,
+  getTotalIncomes,
+} from './appwrite/statistics';
 import { useAppwrite } from './useAppwrite';
 
 interface User {
