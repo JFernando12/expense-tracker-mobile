@@ -1,7 +1,7 @@
+import { CategoryExpenseData, PeriodTypes } from "@/constants/interfaces";
 import { Category, Transaction, TransactionType, Wallet } from "@/types/types";
 import { createContext, useContext } from "react";
 import {
-  CategoryExpenseData,
   getCategories,
   getCurrentUser,
   getExpensesByCategoryWithTimeFilter,
@@ -10,7 +10,6 @@ import {
   getTotalIncomes,
   getTransactions,
   getWallets,
-  PeriodTypes,
 } from './appwrite';
 import { useAppwrite } from './useAppwrite';
 

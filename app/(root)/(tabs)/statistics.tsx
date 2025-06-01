@@ -1,18 +1,11 @@
 import { CategoryDistribution, SummaryCards } from '@/components/statistics';
-import { CategoryExpenseData } from '@/lib/appwrite/index';
+import { CategoryExpenseData, ExtendedCategoryData } from '@/constants/interfaces';
 import { useGlobalContext } from '@/lib/global-provider';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-interface ExtendedCategoryData extends CategoryExpenseData {
-  color: string;
-  value: number;
-  text: string;
-  name: string;
-}
 
 const Statistics = () => {
   const {
