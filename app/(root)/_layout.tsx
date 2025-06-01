@@ -1,11 +1,11 @@
 import { useGlobalContext } from '@/lib/global-provider';
-import { Redirect, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const RootLayout = () => {
-  const { userLoading, isLoggedIn } = useGlobalContext();
+  const { userLoading } = useGlobalContext();
 
   if (userLoading) {
     return (
@@ -14,7 +14,6 @@ const RootLayout = () => {
       </SafeAreaView>
     );
   }
-  if (!isLoggedIn) return <Redirect href="/login" />;
 
   return (
     <View style={{ flex: 1 }}>

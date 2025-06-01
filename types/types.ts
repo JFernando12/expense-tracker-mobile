@@ -5,13 +5,12 @@ export enum TransactionType {
 
 export interface Transaction {
   id: string;
-  walletId?: string;
-  categoryId?: string;
-  category: string;
-  description: string;
+  walletId: string;
+  categoryId: string;
   amount: number;
   type: TransactionType;
   date: string;
+  description?: string;
   imageUrl?: string;
 }
 

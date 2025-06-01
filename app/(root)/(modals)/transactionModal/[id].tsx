@@ -2,12 +2,12 @@ import CustomField from "@/components/CustomField";
 import icons from "@/constants/icons";
 import { deleteTransaction, updateTransaction } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/global-provider";
-import { TransactionType } from "@/types/types";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import * as ImagePicker from "expo-image-picker";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { TransactionType } from '@/types/types';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import * as ImagePicker from 'expo-image-picker';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -19,35 +19,34 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 enum fieldTypes {
-  TEXT = "text",
-  NUMBER = "number",
-  DATE = "date",
-  SELECT = "select",
+  TEXT = 'text',
+  NUMBER = 'number',
+  DATE = 'date',
+  SELECT = 'select',
 }
 
 const TransactionUpdate = () => {
   const { id } = useLocalSearchParams();
-  const [transactionType, setTransactionType] = useState<"expense" | "income">(
-    "expense"
+  const [transactionType, setTransactionType] = useState<'expense' | 'income'>(
+    'expense'
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   // Form state
   const [formData, setFormData] = useState({
-    walletId: "",
-    categoryId: "",
-    description: "",
-    amount: "",
+    walletId: '',
+    categoryId: '',
+    description: '',
+    amount: '',
     date: new Date(),
   });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
-
   const {
     expenseCategories,
     incomeCategories,
@@ -69,8 +68,8 @@ const TransactionUpdate = () => {
   // Helper function to parse date string
   const parseDate = (dateString: string): Date => {
     // Handle DD/M/YYYY or DD/MM/YYYY format
-    if (typeof dateString === "string" && dateString.includes("/")) {
-      const parts = dateString.split("/");
+    if (typeof dateString === 'string' && dateString.includes('/')) {
+      const parts = dateString.split('/');
       if (parts.length === 3) {
         const day = parseInt(parts[0], 10);
         const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
@@ -85,14 +84,14 @@ const TransactionUpdate = () => {
   useEffect(() => {
     if (transactionToEdit && wallets && expenseCategories && incomeCategories) {
       setFormData({
-        walletId: transactionToEdit.walletId || "",
-        categoryId: transactionToEdit.categoryId || "",
-        description: transactionToEdit.description,
+        walletId: transactionToEdit.walletId || '',
+        categoryId: transactionToEdit.categoryId || '',
+        description: transactionToEdit.description || '',
         amount: transactionToEdit.amount.toString(),
         date: parseDate(transactionToEdit.date),
       });
       setTransactionType(
-        transactionToEdit.type === TransactionType.INCOME ? "income" : "expense"
+        transactionToEdit.type === TransactionType.INCOME ? 'income' : 'expense'
       );
       // Set existing image
       setSelectedImage(transactionToEdit.imageUrl || null);
@@ -111,16 +110,16 @@ const TransactionUpdate = () => {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-      if (status !== "granted") {
+      if (status !== 'granted') {
         Alert.alert(
-          "Permisos requeridos",
-          "Se necesitan permisos para acceder a la galería de fotos."
+          'Permisos requeridos',
+          'Se necesitan permisos para acceder a la galería de fotos.'
         );
         return;
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "images",
+        mediaTypes: 'images',
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -129,8 +128,8 @@ const TransactionUpdate = () => {
         setSelectedImage(result.assets[0].uri);
       }
     } catch (error) {
-      console.error("Error picking image:", error);
-      Alert.alert("Algo salio mal", "No se pudo seleccionar la imagen");
+      console.error('Error picking image:', error);
+      Alert.alert('Algo salio mal', 'No se pudo seleccionar la imagen');
     }
   };
 
@@ -138,10 +137,10 @@ const TransactionUpdate = () => {
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
 
-      if (status !== "granted") {
+      if (status !== 'granted') {
         Alert.alert(
-          "Permisos requeridos",
-          "Se necesitan permisos para acceder a la cámara."
+          'Permisos requeridos',
+          'Se necesitan permisos para acceder a la cámara.'
         );
         return;
       }
@@ -155,16 +154,16 @@ const TransactionUpdate = () => {
         setSelectedImage(result.assets[0].uri);
       }
     } catch (error) {
-      console.error("Error taking photo:", error);
-      Alert.alert("Algo salio mal", "No se pudo tomar la foto");
+      console.error('Error taking photo:', error);
+      Alert.alert('Algo salio mal', 'No se pudo tomar la foto');
     }
   };
 
   const showImagePicker = () => {
-    Alert.alert("Seleccionar imagen", "Elige una opción", [
-      { text: "Cancelar", style: "cancel" },
-      { text: "Tomar foto", onPress: takePhoto },
-      { text: "Galería", onPress: pickImage },
+    Alert.alert('Seleccionar imagen', 'Elige una opción', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Tomar foto', onPress: takePhoto },
+      { text: 'Galería', onPress: pickImage },
     ]);
   };
 
@@ -172,45 +171,40 @@ const TransactionUpdate = () => {
     setSelectedImage(null);
     setRemoveImage(true);
   };
-
   const handleDelete = async () => {
     if (!transactionToEdit) return;
 
     Alert.alert(
-      "Eliminar Transacción",
-      "¿Estás seguro de que quieres eliminar esta transacción? Esta acción no se puede deshacer.",
+      'Eliminar Transacción',
+      '¿Estás seguro de que quieres eliminar esta transacción? Esta acción no se puede deshacer.',
       [
         {
-          text: "Cancelar",
-          style: "cancel",
+          text: 'Cancelar',
+          style: 'cancel',
         },
         {
-          text: "Eliminar",
-          style: "destructive",
+          text: 'Eliminar',
+          style: 'destructive',
           onPress: async () => {
             setIsDeleting(true);
             try {
-              const success = await deleteTransaction(transactionToEdit.id);
+              await deleteTransaction(transactionToEdit.id);
 
-              if (success) {
-                Alert.alert("Éxito", "Transacción eliminada exitosamente", [
-                  {
-                    text: "OK",
-                    onPress: () => {
-                      refetchResources(); // Refresh wallets and categories
-                      refetchTransactions(); // Refresh transactions
-                      router.back();
-                    },
+              Alert.alert('Éxito', 'Transacción eliminada exitosamente', [
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    refetchResources(); // Refresh wallets and categories
+                    refetchTransactions(); // Refresh transactions
+                    router.back();
                   },
-                ]);
-              } else {
-                Alert.alert("Error", "No se pudo eliminar la transacción");
-              }
+                },
+              ]);
             } catch (error) {
-              console.error("Error deleting transaction:", error);
+              console.error('Error deleting transaction:', error);
               Alert.alert(
-                "Error",
-                "Ocurrió un error al eliminar la transacción"
+                'Error',
+                'Ocurrió un error al eliminar la transacción'
               );
             } finally {
               setIsDeleting(false);
@@ -223,60 +217,67 @@ const TransactionUpdate = () => {
 
   const validateForm = () => {
     if (!transactionToEdit) {
-      Alert.alert("Completa los campos", "Transacción no encontrada");
+      Alert.alert('Completa los campos', 'Transacción no encontrada');
       return false;
     }
     if (!formData.walletId) {
-      Alert.alert("Completa los campos", "Debe seleccionar una cartera");
+      Alert.alert('Completa los campos', 'Debe seleccionar una cartera');
       return false;
     }
     if (!formData.categoryId) {
-      Alert.alert("Completa los campos", "Debe seleccionar una categoría");
+      Alert.alert('Completa los campos', 'Debe seleccionar una categoría');
       return false;
     }
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      Alert.alert("Completa los campos", "Debe ingresar un monto mayor a 0");
+      Alert.alert('Completa los campos', 'Debe ingresar un monto mayor a 0');
       return false;
     }
     return true;
   };
-
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
     try {
-      const success = await updateTransaction({
-        id: transactionToEdit!.id,
-        walletId: formData.walletId,
-        categoryId: formData.categoryId,
-        description: formData.description,
-        amount: parseFloat(formData.amount),
-        type: transactionType as TransactionType,
-        date: formData.date,
-        imageUri: selectedImage || undefined,
-        removeImage: removeImage,
+      const id = transactionToEdit?.id;
+      if (!id) {
+        Alert.alert(
+          'Algo salio mal',
+          'Transacción no encontrada para actualizar'
+        );
+        setIsSubmitting(false);
+        return;
+      }
+      await updateTransaction({
+        input: {
+          id,
+          data: {
+            walletId: formData.walletId,
+            categoryId: formData.categoryId,
+            description: formData.description,
+            amount: parseFloat(formData.amount),
+            type: transactionType as TransactionType,
+            date: formData.date.toISOString(),
+            imageUrl: selectedImage || undefined,
+          },
+        },
       });
 
-      if (success) {
-        Alert.alert("Éxito", "Transacción actualizada exitosamente", [
-          {
-            text: "OK",
-            onPress: () => {
-              refetchResources(); // Refresh wallets and categories
-              refetchTransactions(); // Refresh transactions
-              router.back();
-            },
+      Alert.alert('Éxito', 'Transacción actualizada exitosamente', [
+        {
+          text: 'OK',
+          onPress: () => {
+            refetchResources(); // Refresh wallets and categories
+            refetchTransactions(); // Refresh transactions
+            router.back();
           },
-        ]);
-      } else {
-        Alert.alert("Algo salio mal", "No se pudo actualizar la transacción");
-      }
+        },
+      ]);
     } catch (error) {
-      console.error("Error updating transaction:", error);
+      console.error('Error updating transaction:', error);
       Alert.alert(
-        "Algo salio mal",
-        "Ocurrió un error al actualizar la transacción"
+        'Algo salio mal',
+        'Ocurrió un error al actualizar la transacción'
       );
     } finally {
       setIsSubmitting(false);
@@ -285,7 +286,7 @@ const TransactionUpdate = () => {
   const onDateChange = (event: any, selectedDate?: Date) => {
     // For Android, date picker closes automatically after selection
     // For iOS, we need to keep it open until user manually closes it
-    const isIOS = Platform.OS === "ios";
+    const isIOS = Platform.OS === 'ios';
     if (!isIOS) {
       setShowDatePicker(false);
     }
@@ -300,8 +301,8 @@ const TransactionUpdate = () => {
 
   const fields = [
     {
-      label: "walletId",
-      title: "Cartera",
+      label: 'walletId',
+      title: 'Cartera',
       type: fieldTypes.SELECT,
       value: formData.walletId,
       options:
@@ -311,12 +312,12 @@ const TransactionUpdate = () => {
         })) || [],
     },
     {
-      label: "categoryId",
-      title: "Categoria",
+      label: 'categoryId',
+      title: 'Categoria',
       type: fieldTypes.SELECT,
       value: formData.categoryId,
       options:
-        transactionType === "expense"
+        transactionType === 'expense'
           ? expenseCategories?.map(
               (category: { name: string; id: string }) => ({
                 label: category.name,
@@ -329,24 +330,24 @@ const TransactionUpdate = () => {
             })) || [],
     },
     {
-      label: "date",
-      title: "Fecha",
+      label: 'date',
+      title: 'Fecha',
       type: fieldTypes.DATE,
-      value: formData.date.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
+      value: formData.date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
       }),
     },
     {
-      label: "amount",
-      title: "Monto",
+      label: 'amount',
+      title: 'Monto',
       type: fieldTypes.NUMBER,
       value: formData.amount,
     },
     {
-      label: "description",
-      title: "Descripcion",
+      label: 'description',
+      title: 'Descripcion',
       type: fieldTypes.TEXT,
       value: formData.description,
     },
@@ -400,25 +401,25 @@ const TransactionUpdate = () => {
       </View>
       <View className="mb-4">
         <SegmentedControl
-          values={["Gasto", "Ingreso"]}
-          selectedIndex={transactionType === "expense" ? 0 : 1}
-          tintColor={transactionType === "expense" ? "#EA4335" : "#34A853"}
+          values={['Gasto', 'Ingreso']}
+          selectedIndex={transactionType === 'expense' ? 0 : 1}
+          tintColor={transactionType === 'expense' ? '#EA4335' : '#34A853'}
           onChange={(event) => {
             const selectedValue = event.nativeEvent.value;
-            const newType = selectedValue === "Gasto" ? "expense" : "income";
+            const newType = selectedValue === 'Gasto' ? 'expense' : 'income';
             setTransactionType(newType);
             // Reset category when transaction type changes
             setFormData((prev) => ({
               ...prev,
-              categoryId: "",
+              categoryId: '',
             }));
           }}
         />
       </View>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
         {isLoading && !isSubmitting ? (
           <View className="flex-1 justify-center items-center">
@@ -433,7 +434,7 @@ const TransactionUpdate = () => {
             <View className="rounded-3xl shadow-lg">
               {fields.map((field, index) => (
                 <View key={index}>
-                  {field.label === "date" ? (
+                  {field.label === 'date' ? (
                     <View className="py-3 px-0">
                       <Text className="text-neutral-200 text-sm mb-1">
                         {field.title}
@@ -448,12 +449,12 @@ const TransactionUpdate = () => {
                           {field.value}
                         </Text>
                       </TouchableOpacity>
-                      {showDatePicker && field.label === "date" && (
+                      {showDatePicker && field.label === 'date' && (
                         <DateTimePicker
                           value={formData.date}
                           mode="date"
                           display={
-                            Platform.OS === "ios" ? "spinner" : "default"
+                            Platform.OS === 'ios' ? 'spinner' : 'default'
                           }
                           onChange={onDateChange}
                         />
@@ -488,7 +489,7 @@ const TransactionUpdate = () => {
                         style={{
                           maxWidth: 280,
                           maxHeight: 200,
-                          width: "100%",
+                          width: '100%',
                           height: undefined,
                           aspectRatio: 1,
                         }}
@@ -523,7 +524,7 @@ const TransactionUpdate = () => {
       <View className="flex-row gap-3 mt-5">
         <TouchableOpacity
           className={`flex-1 rounded-xl py-3 ${
-            (isSubmitting || isDeleting) ? "bg-gray-600" : "bg-accent-200"
+            isSubmitting || isDeleting ? 'bg-gray-600' : 'bg-accent-200'
           }`}
           onPress={handleSubmit}
           disabled={isSubmitting || isDeleting}
@@ -543,7 +544,7 @@ const TransactionUpdate = () => {
         </TouchableOpacity>
         <TouchableOpacity
           className={`rounded-xl flex justify-center items-center px-3 ${
-            (isDeleting || isSubmitting) ? "bg-gray-600" : "bg-red-600"
+            isDeleting || isSubmitting ? 'bg-gray-600' : 'bg-red-600'
           }`}
           onPress={handleDelete}
           disabled={isDeleting || isSubmitting}
@@ -557,7 +558,7 @@ const TransactionUpdate = () => {
               source={icons.trashCan as ImagePropsBase}
               className="size-8"
               tintColor="white"
-              />
+            />
           )}
         </TouchableOpacity>
       </View>

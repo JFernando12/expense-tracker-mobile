@@ -11,7 +11,8 @@ const TransactionList = ({ transactions }: { transactions: Transaction[] }) => {
           <TransactionItem
             id={transaction.id}
             key={index}
-            category={transaction.category}
+            walletId={transaction.walletId}
+            categoryId={transaction.categoryId}
             description={transaction.description}
             amount={transaction.amount}
             type={transaction.type}

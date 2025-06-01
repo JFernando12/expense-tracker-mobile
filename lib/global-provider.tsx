@@ -24,6 +24,7 @@ interface User {
 
 interface GlobalContextType {
   isLoggedIn: boolean;
+  isLocalMode: boolean; // Indicates if the app is running in local mode (no user logged in)
   user: User | null | undefined;
   userLoading: boolean;
   refetchUser: (newParams?: Record<string, string | number>) => Promise<void>;
@@ -204,6 +205,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   });
 
   const isLoggedIn = !!user;
+  const isLocalMode = !isLoggedIn;
 
   const refetchUser = async () => {
     await refetch();
@@ -232,10 +234,11 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   return (
     <GlobalContext.Provider
       value={{
+        isLoggedIn,
+        isLocalMode,
         refetchUser,
         refetchResources,
         refetchTransactions,
-        isLoggedIn,
         user,
         userLoading,
         expenseCategories,

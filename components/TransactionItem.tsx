@@ -11,7 +11,7 @@ import {
 
 const TransactionItem = ({
   id,
-  category,
+  categoryId,
   description,
   amount,
   type,
@@ -21,20 +21,20 @@ const TransactionItem = ({
     <TouchableOpacity
       onPress={() =>
         router.push({
-          pathname: "/(root)/(modals)/transactionModal/[id]",
+          pathname: '/(root)/(modals)/transactionModal/[id]',
           params: { id },
         })
       }
       className={`${
         type === TransactionType.INCOME
-          ? "bg-secondary-200"
-          : "bg-secondary-100"
+          ? 'bg-secondary-200'
+          : 'bg-secondary-100'
       } flex-row items-center justify-between p-5 rounded-2xl mb-3 shadow-sm`}
     >
       <View className="flex-row items-center">
         <View
           className={`h-12 w-12 ${
-            type === TransactionType.INCOME ? "bg-accent-200" : "bg-danger-100"
+            type === TransactionType.INCOME ? 'bg-accent-200' : 'bg-danger-100'
           } rounded-full items-center justify-center mr-3`}
         >
           <Image
@@ -48,7 +48,7 @@ const TransactionItem = ({
           />
         </View>
         <View>
-          <Text className="text-white text-lg font-bold">{category}</Text>
+          <Text className="text-white text-lg font-bold">{categoryId}</Text>
           <Text className="text-neutral-200">{description}</Text>
         </View>
       </View>
@@ -57,11 +57,11 @@ const TransactionItem = ({
         <Text
           className={
             type === TransactionType.INCOME
-              ? "text-accent-100 text-lg font-bold"
-              : "text-danger text-lg font-bold"
+              ? 'text-accent-100 text-lg font-bold'
+              : 'text-danger text-lg font-bold'
           }
         >
-          {type === TransactionType.INCOME ? "+" : "-"} $
+          {type === TransactionType.INCOME ? '+' : '-'} $
           {Number(amount).toFixed(2)}
         </Text>
         <Text className="text-neutral-200 mt-1">{date}</Text>

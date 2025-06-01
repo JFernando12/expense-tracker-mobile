@@ -17,7 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SearchModal = () => {
-  const { transactions } = useGlobalContext();
+  const { transactions, isLocalMode } = useGlobalContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Transaction[]>(
     transactions || []
@@ -42,7 +42,7 @@ const SearchModal = () => {
     }, 300); // 300ms debounce
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, transactions]);
+  }, [searchQuery, transactions, isLocalMode]);
 
   const handleSearchChange = (text: string) => {
     setIsSearching(true);

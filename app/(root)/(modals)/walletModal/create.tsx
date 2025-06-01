@@ -1,6 +1,5 @@
 import CustomField from '@/components/CustomField';
 import icons from '@/constants/icons';
-import { createWallet } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -61,11 +60,13 @@ const WalletCreate = () => {
       [key]: value,
     }));
   };
-
   const handleCreateWallet = async () => {
     // Validate form
     if (!formData.name.trim()) {
-      Alert.alert('Completa los campos', 'El nombre de la cartera es requerido');
+      Alert.alert(
+        'Completa los campos',
+        'El nombre de la cartera es requerido'
+      );
       return;
     }
 
@@ -86,27 +87,21 @@ const WalletCreate = () => {
     setIsLoading(true);
 
     try {
-      const wallet = await createWallet({
+      await addWallet({
         name: formData.name.trim(),
         description: formData.description.trim(),
         initialBalance: initialBalance,
+        currentBalance: initialBalance,
       });
 
-      if (wallet) {
-        // Refetch resources to update the wallet list
-        await refetchResources();
-        Alert.alert('Éxito', 'Cartera creada exitosamente', [
-          {
-            text: 'OK',
-            onPress: () => router.back(),
-          },
-        ]);
-      } else {
-        Alert.alert(
-          'Error',
-          'No se pudo crear la cartera. Inténtalo de nuevo.'
-        );
-      }
+      // Refetch resources to update the wallet list
+      await refetchResources();
+      Alert.alert('Éxito', 'Cartera creada exitosamente', [
+        {
+          text: 'OK',
+          onPress: () => router.back(),
+        },
+      ]);
     } catch (error) {
       console.error('Error creating wallet:', error);
       Alert.alert(

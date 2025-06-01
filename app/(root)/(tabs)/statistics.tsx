@@ -1,5 +1,8 @@
 import { CategoryDistribution, SummaryCards } from '@/components/statistics';
-import { CategoryExpenseData, ExtendedCategoryData } from '@/constants/interfaces';
+import {
+  CategoryExpenseData,
+  ExtendedCategoryData,
+} from '@/constants/interfaces';
 import { useGlobalContext } from '@/lib/global-provider';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { router } from 'expo-router';
@@ -19,9 +22,7 @@ const Statistics = () => {
     categoryExpensesSevenDays,
     categoryExpensesThirtyDays,
     categoryExpensesYear,
-    categoryExpensesSevenDaysLoading,
-    categoryExpensesThirtyDaysLoading,
-    categoryExpensesYearLoading,
+    isLocalMode,
   } = useGlobalContext();
   const [categoryData, setCategoryData] = useState<ExtendedCategoryData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,19 +57,19 @@ const Statistics = () => {
     switch (selectedPeriod) {
       case '7days':
         currentData = categoryExpensesSevenDays || [];
-        currentLoading = categoryExpensesSevenDaysLoading;
+        currentLoading = isLocalMode ? false : false; // Local mode doesn't have loading states for statistics
         incomes = totalIncomesSevenDays;
         expenses = totalExpensesSevenDays;
         break;
       case '30days':
         currentData = categoryExpensesThirtyDays || [];
-        currentLoading = categoryExpensesThirtyDaysLoading;
+        currentLoading = isLocalMode ? false : false;
         incomes = totalIncomesThirtyDays;
         expenses = totalExpensesThirtyDays;
         break;
       case 'total':
         currentData = categoryExpensesYear || [];
-        currentLoading = categoryExpensesYearLoading;
+        currentLoading = isLocalMode ? false : false;
         incomes = totalIncomes;
         expenses = totalExpenses;
         break;
@@ -83,9 +84,7 @@ const Statistics = () => {
     categoryExpensesSevenDays,
     categoryExpensesThirtyDays,
     categoryExpensesYear,
-    categoryExpensesSevenDaysLoading,
-    categoryExpensesThirtyDaysLoading,
-    categoryExpensesYearLoading,
+    isLocalMode,
     totalIncomesSevenDays,
     totalExpensesSevenDays,
     totalIncomesThirtyDays,
@@ -121,7 +120,13 @@ const Statistics = () => {
           onPress={() => router.push('/(root)/(modals)/profileModal')}
           className="absolute right-0 top-0 size-12 rounded-full overflow-hidden bg-accent-200"
         >
-          <Image source={{ uri: user?.avatar }} className="h-full w-full" />
+          {isLocalMode ? (
+            <View className="h-full w-full flex items-center justify-center">
+              <Text className="text-white text-lg font-bold">U</Text>
+            </View>
+          ) : (
+            <Image source={{ uri: user?.avatar }} className="h-full w-full" />
+          )}
         </TouchableOpacity>
       </View>
       {/* Segmented Control */}
@@ -129,11 +134,7 @@ const Statistics = () => {
         <SegmentedControl
           values={['7 Dias', '30 Dias', 'Total']}
           selectedIndex={
-            selectedPeriod === '7days'
-              ? 0
-              : selectedPeriod === '30days'
-              ? 1
-              : 2
+            selectedPeriod === '7days' ? 0 : selectedPeriod === '30days' ? 1 : 2
           }
           onChange={(event) => handleSegmentChange(event.nativeEvent.value)}
           tintColor="#18C06A"
