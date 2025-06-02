@@ -1,5 +1,7 @@
 import { Transaction, TransactionType } from '@/types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 
 // Storage keys
 const TRANSACTIONS_KEY = 'transactions';
@@ -17,6 +19,8 @@ export interface PendingTransactionChange {
 
 export interface StoredTransaction extends Transaction {
   syncStatus: 'synced' | 'pending' | 'conflict';
+  lastModified: number;
+  deleteAt?: number;
 }
 
 class TransactionLocalStorage {
@@ -35,7 +39,10 @@ class TransactionLocalStorage {
   // Save transactions to local storage
   async saveTransactions(transactions: StoredTransaction[]): Promise<void> {
     try {
-      await AsyncStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(transactions));
+      await AsyncStorage.setItem(
+        TRANSACTIONS_KEY,
+        JSON.stringify(transactions)
+      );
     } catch (error) {
       console.error('Error saving transactions to storage:', error);
       throw error;
@@ -45,17 +52,19 @@ class TransactionLocalStorage {
   // Get a single transaction by ID
   async getTransaction(id: string): Promise<StoredTransaction | null> {
     const transactions = await this.getTransactions();
-    return transactions.find(transaction => transaction.id === id) || null;
+    return transactions.find((transaction) => transaction.id === id) || null;
   }
 
   // Add or update a transaction in local storage
-  async upsertTransaction(transaction: Transaction, isFromServer = false): Promise<void> {
+  async upsertTransaction(transaction: StoredTransaction): Promise<void> {
     const transactions = await this.getTransactions();
-    const existingIndex = transactions.findIndex(t => t.id === transaction.id);
-    
+    const existingIndex = transactions.findIndex(
+      (t) => t.id === transaction.id
+    );
+
     const storedTransaction: StoredTransaction = {
       ...transaction,
-      syncStatus: isFromServer ? 'synced' : 'pending',
+      syncStatus: 'pending',
     };
 
     if (existingIndex >= 0) {
@@ -67,51 +76,58 @@ class TransactionLocalStorage {
     await this.saveTransactions(transactions);
   }
 
-  async updateSyncStatus(id: string, status: 'synced' | 'pending' | 'conflict'): Promise<void> {
+  async updateSyncStatus(
+    id: string,
+    status: 'synced' | 'pending' | 'conflict'
+  ): Promise<void> {
     const transactions = await this.getTransactions();
-    const transactionIndex = transactions.findIndex(t => t.id === id);
+    const transactionIndex = transactions.findIndex((t) => t.id === id);
     if (transactionIndex >= 0) {
       transactions[transactionIndex].syncStatus = status;
       await this.saveTransactions(transactions);
     }
   }
 
-  async createTransaction(transaction: Omit<Transaction, 'id'>): Promise<StoredTransaction> {
-    const localId = `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  async createTransaction(
+    transaction: Omit<Transaction, 'id'>
+  ): Promise<{ localId: string }> {
+    const localId = uuidv4();
     const storedTransaction: StoredTransaction = {
       ...transaction,
       id: localId,
       syncStatus: 'pending',
+      lastModified: Date.now(),
     };
 
     await this.upsertTransaction(storedTransaction);
 
-    return storedTransaction;
+    return { localId };
   }
 
-  // Update a transaction
-  async updateTransaction(id: string, updates: Omit<Transaction, 'id'>): Promise<StoredTransaction> {
+  async updateTransaction(
+    id: string,
+    updates: Omit<Transaction, 'id'>
+  ): Promise<boolean> {
     const storedTransaction: StoredTransaction = {
       ...updates,
       id,
       syncStatus: 'pending',
+      lastModified: Date.now(),
     };
 
     await this.upsertTransaction(storedTransaction);
-
-    return storedTransaction;    
-  }
-
-  // Delete a transaction
-  async deleteTransaction(id: string): Promise<boolean> {
-    const transactions = await this.getTransactions();
-    const filteredTransactions = transactions.filter(t => t.id !== id);
-    
-    await this.saveTransactions(filteredTransactions);
     return true;
   }
 
-  // Pending changes management
+  async deleteTransaction(id: string): Promise<boolean> {
+    const transactions = await this.getTransactions();
+    const transaction = transactions.find((t) => t.id === id);
+    if (!transaction) return false;
+    transaction.deleteAt = Date.now();
+    await this.upsertTransaction(transaction);
+    return true;
+  }
+
   async getPendingChanges(): Promise<PendingTransactionChange[]> {
     try {
       const changesJson = await AsyncStorage.getItem(PENDING_CHANGES_KEY);
@@ -126,12 +142,15 @@ class TransactionLocalStorage {
   async addPendingChange(change: PendingTransactionChange): Promise<void> {
     try {
       const changes = await this.getPendingChanges();
-      
+
       // Remove any existing change for the same transaction
-      const filteredChanges = changes.filter(c => c.id !== change.id);
+      const filteredChanges = changes.filter((c) => c.id !== change.id);
       filteredChanges.push(change);
-      
-      await AsyncStorage.setItem(PENDING_CHANGES_KEY, JSON.stringify(filteredChanges));
+
+      await AsyncStorage.setItem(
+        PENDING_CHANGES_KEY,
+        JSON.stringify(filteredChanges)
+      );
     } catch (error) {
       console.error('Error adding pending change:', error);
     }
@@ -140,8 +159,11 @@ class TransactionLocalStorage {
   async removePendingChange(id: string): Promise<void> {
     try {
       const changes = await this.getPendingChanges();
-      const filteredChanges = changes.filter(c => c.id !== id);
-      await AsyncStorage.setItem(PENDING_CHANGES_KEY, JSON.stringify(filteredChanges));
+      const filteredChanges = changes.filter((c) => c.id !== id);
+      await AsyncStorage.setItem(
+        PENDING_CHANGES_KEY,
+        JSON.stringify(filteredChanges)
+      );
     } catch (error) {
       console.error('Error removing pending change:', error);
     }
@@ -177,40 +199,52 @@ class TransactionLocalStorage {
   // Utility methods
   async clearAllData(): Promise<void> {
     try {
-      await AsyncStorage.multiRemove([TRANSACTIONS_KEY, PENDING_CHANGES_KEY, LAST_SYNC_KEY]);
+      await AsyncStorage.multiRemove([
+        TRANSACTIONS_KEY,
+        PENDING_CHANGES_KEY,
+        LAST_SYNC_KEY,
+      ]);
     } catch (error) {
       console.error('Error clearing all transaction data:', error);
     }
   }
 
   // Get transactions by type
-  async getTransactionsByType(type: TransactionType): Promise<StoredTransaction[]> {
+  async getTransactionsByType(
+    type: TransactionType
+  ): Promise<StoredTransaction[]> {
     const transactions = await this.getTransactions();
-    return transactions.filter(t => t.type === type);
+    return transactions.filter((t) => t.type === type);
   }
 
   // Get transactions by wallet
-  async getTransactionsByWallet(walletId: string): Promise<StoredTransaction[]> {
+  async getTransactionsByWallet(
+    walletId: string
+  ): Promise<StoredTransaction[]> {
     const transactions = await this.getTransactions();
-    return transactions.filter(t => t.walletId === walletId);
+    return transactions.filter((t) => t.walletId === walletId);
   }
 
   // Search transactions
   async searchTransactions(query: string): Promise<StoredTransaction[]> {
     const transactions = await this.getTransactions();
     const searchLower = query.toLowerCase();
-    
-    return transactions.filter(t => 
-      t.description?.toLowerCase().includes(searchLower) ||
-      t.categoryId?.toLowerCase().includes(searchLower) ||
-      t.amount?.toString().includes(searchLower)
+
+    return transactions.filter(
+      (t) =>
+        t.description?.toLowerCase().includes(searchLower) ||
+        t.categoryId?.toLowerCase().includes(searchLower) ||
+        t.amount?.toString().includes(searchLower)
     );
   }
 
   // Get total amounts by type
   async getTotalByType(type: TransactionType): Promise<number> {
     const transactions = await this.getTransactionsByType(type);
-    return transactions.reduce((total, transaction) => total + transaction.amount, 0);
+    return transactions.reduce(
+      (total, transaction) => total + transaction.amount,
+      0
+    );
   }
 }
 

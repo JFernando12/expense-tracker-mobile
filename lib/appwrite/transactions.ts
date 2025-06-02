@@ -1,5 +1,5 @@
 import { Transaction, TransactionType } from '@/types/types';
-import { ID, Query } from 'react-native-appwrite';
+import { Query } from 'react-native-appwrite';
 import { transactionLocalStorage } from '../storage/transactionLocalStorage';
 import { getCurrentUser } from './auth';
 import { config, databases, storage } from './client';
@@ -7,6 +7,7 @@ import { deleteImage, uploadImage } from './storage';
 
 // Original server-only functions (used by sync service)
 export const createTransactionOnServer = async ({
+  id,
   walletId,
   categoryId,
   description,
@@ -14,7 +15,7 @@ export const createTransactionOnServer = async ({
   type,
   date,
   imageUrl,
-}: Omit<Transaction, 'id'>): Promise<Transaction | null> => {
+}: Transaction): Promise<Transaction | null> => {
   try {
     const user = await getCurrentUser();
     if (!user) return null;
@@ -61,7 +62,7 @@ export const createTransactionOnServer = async ({
     const response = await databases.createDocument(
       config.databaseId,
       config.transactionCollectionId,
-      ID.unique(),
+      id,
       transactionData
     );
 
@@ -321,13 +322,11 @@ export const deleteTransactionFromServer = async (
     if (!user) return false;
 
     // Get the transaction to delete
-    console.log('Fetching transaction to delete:', id);
     const transaction = await databases.getDocument(
       config.databaseId,
       config.transactionCollectionId,
       id
     );
-    console.log('Transaction fetched:', transaction);
 
     if (!transaction) {
       console.error('Transaction not found');
@@ -341,13 +340,11 @@ export const deleteTransactionFromServer = async (
 
     // Get the wallet to update its balance
     const walletId = transaction.wallet.$id as string;
-    console.log('Fetching wallet for transaction:', walletId);
     const wallet = await databases.getDocument(
       config.databaseId,
       config.walletCollectionId,
       walletId
     );
-    console.log('Wallet fetched:', wallet);
 
     if (!wallet) {
       console.error('Wallet not found');
@@ -363,15 +360,6 @@ export const deleteTransactionFromServer = async (
     if (transaction.image) {
       await deleteImage(transaction.image as string);
     }
-
-    console.log('Deleting transaction:', id);
-    // Delete the transaction document
-    await databases.deleteDocument(
-      config.databaseId,
-      config.transactionCollectionId,
-      id
-    );
-    console.log('Transaction deleted successfully:', id);
 
     // Update wallet balance (revert the transaction)
     const currentBalance = wallet.current_balance as number;
@@ -390,6 +378,16 @@ export const deleteTransactionFromServer = async (
       }
     );
 
+    // Mark the transaction as deleted
+    await databases.updateDocument(
+      config.databaseId,
+      config.transactionCollectionId,
+      id,
+      {
+        deleted_at: new Date().toISOString(),
+      }
+    );
+
     return true;
   } catch (error) {
     console.error('Error deleting transaction3:', error);
@@ -404,12 +402,16 @@ export const getTransactionsFromServer = async (filters?: {
     const user = await getCurrentUser();
     if (!user) return [];
 
-    const queries = [Query.equal('user_id', user.$id)];
+    const queries = [
+      Query.equal('user_id', user.$id),
+      Query.orderDesc('date'),
+      Query.isNull('deleted_at'),
+      Query.orderDesc('$createdAt'),
+    ];
+
     if (filters?.type) {
       queries.push(Query.equal('type', filters.type));
     }
-    queries.push(Query.orderDesc('date'));
-    queries.push(Query.orderDesc('$createdAt'));
 
     const response = await databases.listDocuments(
       config.databaseId,
@@ -496,7 +498,6 @@ export const searchTransactionsOnServer = async (
   }
 };
 
-// Enhanced functions that work offline (using sync service)
 export const createTransaction = async ({
   isLocalMode = true,
   data,
@@ -504,14 +505,14 @@ export const createTransaction = async ({
   isLocalMode?: boolean;
   data: Omit<Transaction, 'id'>;
 }): Promise<boolean> => {
-  const result = await transactionLocalStorage.createTransaction(data);
+  const { localId } = await transactionLocalStorage.createTransaction(data);
 
   if (!isLocalMode) {
-    await createTransactionOnServer(data);
-    await transactionLocalStorage.updateSyncStatus(result.id, 'synced');
+    await createTransactionOnServer({ ...data, id: localId });
+    await transactionLocalStorage.updateSyncStatus(localId, 'synced');
   }
 
-  return !!result;
+  return !!localId;
 };
 
 export const updateTransaction = async ({
@@ -528,7 +529,7 @@ export const updateTransaction = async ({
     await transactionLocalStorage.updateSyncStatus(id, 'synced');
   }
 
-  return !!result;
+  return result;
 };
 
 export const deleteTransaction = async (
@@ -552,12 +553,56 @@ export const getTransactions = async ({
   return localTransactions;
 };
 
+const getTransactionFromServer = async (
+  id: string
+): Promise<Transaction | null> => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return null;
+
+    const queries = [Query.isNull('deleted_at')];
+    const transaction = await databases.getDocument(
+      config.databaseId,
+      config.transactionCollectionId,
+      id,
+      queries
+    );
+
+    if (!transaction || transaction.user_id !== user.$id) {
+      return null;
+    }
+
+    const imageUrl =
+      transaction.image ??
+      storage
+        .getFileView(config.storageBucketId, transaction.image as string)
+        .toString();
+
+    return {
+      id: transaction.$id as string,
+      walletId: transaction.wallet.$id as string,
+      categoryId: transaction.category.$id as string,
+      description: transaction.description as string,
+      amount: transaction.amount as number,
+      type: transaction.type as TransactionType,
+      date: new Date(transaction.date).toLocaleDateString(),
+      imageUrl,
+    };
+  } catch (error) {
+    console.error('Error fetching transaction from server:', error);
+    return null;
+  }
+};
+
 export const getTransaction = async (
   id: string,
   isLocalMode = true
 ): Promise<Transaction | null> => {
   const transaction = await transactionLocalStorage.getTransaction(id);
-  return transaction;
+  if (isLocalMode) return transaction;
+
+  const serverTransaction = await getTransactionFromServer(id);
+  return serverTransaction;
 };
 
 export const searchTransactions = async (

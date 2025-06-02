@@ -1,27 +1,24 @@
 import { Wallet } from '@/types/types';
-import { ID, Query } from 'react-native-appwrite';
-import { walletStorage } from '../storage/walletStorage';
+import { Query } from 'react-native-appwrite';
+import { walletLocalStorage } from '../storage/walletLocalStorage';
 import { getCurrentUser } from './auth';
 import { config, databases } from './client';
 
 // Original server-only functions (used by sync service)
 export const createWalletOnServer = async ({
+  id,
   name,
   description,
   initialBalance,
-}: {
-  name: string;
-  description: string;
-  initialBalance: number;
-}): Promise<Wallet | null> => {
+}: Omit<Wallet, 'currentBalance'>): Promise<boolean> => {
   try {
     const user = await getCurrentUser();
-    if (!user) return null;
+    if (!user) return false;
 
     const response = await databases.createDocument(
       config.databaseId,
       config.walletCollectionId,
-      ID.unique(),
+      id,
       {
         name,
         description,
@@ -31,16 +28,10 @@ export const createWalletOnServer = async ({
       }
     );
 
-    return {
-      id: response.$id as string,
-      name: response.name as string,
-      description: response.description as string,
-      initialBalance: response.initial_balance as number,
-      currentBalance: response.current_balance as number,
-    };
+    return !!response.$id;
   } catch (error) {
     console.error('Error creating wallet:', error);
-    return null;
+    return false;
   }
 };
 
@@ -50,48 +41,34 @@ export const createWallet = async ({
   data,
 }: {
   isLocalMode?: boolean;
-  data: {
-    name: string;
-    description: string;
-    initialBalance: number;
-  };
+  data: Omit<Wallet, 'id' | 'currentBalance'>;
 }): Promise<boolean> => {
-  const walletData = {
-    ...data,
-    currentBalance: data.initialBalance,
-  };
+  const { localId } = await walletLocalStorage.createWallet(data);
+  if (isLocalMode) return !!localId;
 
-  const result = await walletStorage.createWalletOffline(walletData);
+  await createWalletOnServer({ ...data, id: localId });
+  await walletLocalStorage.updateSyncStatus(localId, 'synced');
 
-  if (!isLocalMode) {
-    await createWalletOnServer(data);
-    await walletStorage.upsertWallet(result, true);
-  }
-
-  return !!result;
+  return !!localId;
 };
 
 export const updateWalletOnServer = async ({
   id,
-  name,
-  description,
-  initialBalance,
+  data: { name, description, initialBalance },
 }: {
   id: string;
-  name: string;
-  description: string;
-  initialBalance: number;
-}) => {
+  data: Omit<Wallet, 'id' | 'currentBalance'>;
+}): Promise<boolean> => {
   try {
     const user = await getCurrentUser();
-    if (!user) return null;
+    if (!user) return false;
 
     const wallet = await databases.getDocument(
       config.databaseId,
       config.walletCollectionId,
       id
     );
-    if (!wallet) return null;
+    if (!wallet) return false;
 
     if (wallet.user_id !== user.$id)
       throw new Error('Unauthorized access to wallet');
@@ -115,16 +92,10 @@ export const updateWalletOnServer = async ({
       }
     );
 
-    return {
-      id: response.$id as string,
-      name: response.name as string,
-      description: response.description as string,
-      initialBalance: response.initial_balance as number,
-      currentBalance: response.current_balance as number,
-    };
+    return !!response.$id;
   } catch (error) {
     console.error('Error updating wallet:', error);
-    return null;
+    return false;
   }
 };
 
@@ -134,34 +105,17 @@ export const updateWallet = async ({
 }: {
   input: {
     id: string;
-    data: {
-      name: string;
-      description: string;
-      initialBalance: number;
-    };
+    data: Omit<Wallet, 'id' | 'currentBalance'>;
   };
   isLocalMode?: boolean;
 }): Promise<boolean> => {
-  const result = await walletStorage.updateWallet(id, {
-    ...data,
-    currentBalance: data.initialBalance,
-  });
+  const result = await walletLocalStorage.updateWallet(id, data);
+  if (isLocalMode) return result;
 
-  if (!isLocalMode) {
-    await updateWalletOnServer({
-      id,
-      ...data,
-    });
-    // Update sync status to synced
-    const wallets = await walletStorage.getWallets();
-    const walletIndex = wallets.findIndex((w) => w.id === id);
-    if (walletIndex >= 0) {
-      wallets[walletIndex].syncStatus = 'synced';
-      await walletStorage.saveWallets(wallets);
-    }
-  }
+  await updateWalletOnServer({ id, data });
+  await walletLocalStorage.updateSyncStatus(id, 'synced');
 
-  return true;
+  return result;
 };
 
 export const getWalletsFromServer = async (): Promise<Wallet[]> => {
@@ -169,10 +123,17 @@ export const getWalletsFromServer = async (): Promise<Wallet[]> => {
     const user = await getCurrentUser();
     if (!user) return [];
 
+    const queries = [
+      Query.equal('user_id', user.$id),
+      Query.orderDesc('date'),
+      Query.isNull('deleted_at'),
+      Query.orderDesc('$createdAt'),
+    ];
+
     const response = await databases.listDocuments(
       config.databaseId,
       config.walletCollectionId,
-      [Query.equal('user_id', user.$id)]
+      queries
     );
 
     return (
@@ -195,30 +156,63 @@ export const getWallets = async ({
 }: {
   isLocalMode?: boolean;
 } = {}): Promise<Wallet[]> => {
-  const localWallets = await walletStorage.getWallets();
-  return localWallets.map((wallet) => ({
-    id: wallet.id,
-    name: wallet.name,
-    description: wallet.description,
-    initialBalance: wallet.initialBalance,
-    currentBalance: wallet.currentBalance,
-  }));
+  const localWallets = await walletLocalStorage.getWallets();
+  if (isLocalMode) return localWallets;
+
+  const serverWallets = await getWalletsFromServer();
+
+  const totalWallets = [...localWallets];
+  for (const serverWallet of serverWallets) {
+    const existingWallet = totalWallets.find(
+      (wallet) => wallet.id === serverWallet.id
+    );
+    if (existingWallet) {
+      Object.assign(existingWallet, serverWallet);
+    } else {
+      totalWallets.push(serverWallet);
+    }
+  }
+
+  return totalWallets;
+};
+
+const getWalletFromServer = async (id: string): Promise<Wallet | null> => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return null;
+
+    const queries = [Query.isNull('deleted_at')];
+    const wallet = await databases.getDocument(
+      config.databaseId,
+      config.walletCollectionId,
+      id,
+      queries
+    );
+
+    if (!wallet || wallet.user_id !== user.$id) return null;
+
+    return {
+      id: wallet.$id as string,
+      name: wallet.name as string,
+      description: wallet.description as string,
+      initialBalance: wallet.initial_balance as number,
+      currentBalance: wallet.current_balance as number,
+    };
+  } catch (error) {
+    console.error('Error fetching wallet:', error);
+    return null;
+  }
 };
 
 export const getWallet = async (
   id: string,
   isLocalMode = true
 ): Promise<Wallet | null> => {
-  const wallet = await walletStorage.getWallet(id);
-  if (!wallet) return null;
+  const wallet = await walletLocalStorage.getWallet(id);
+  if (isLocalMode) return wallet;
 
-  return {
-    id: wallet.id,
-    name: wallet.name,
-    description: wallet.description,
-    initialBalance: wallet.initialBalance,
-    currentBalance: wallet.currentBalance,
-  };
+  const serverWallet = await getWalletFromServer(id);
+  return serverWallet;
 };
 
 export const deleteWalletFromServer = async (id: string): Promise<boolean> => {
@@ -255,11 +249,14 @@ export const deleteWalletFromServer = async (id: string): Promise<boolean> => {
       return false;
     }
 
-    // Delete the wallet document
-    await databases.deleteDocument(
+    // Mark the wallet as deleted
+    await databases.updateDocument(
       config.databaseId,
       config.walletCollectionId,
-      id
+      id,
+      {
+        deleted_at: new Date().toISOString(),
+      }
     );
 
     return true;
@@ -273,17 +270,14 @@ export const deleteWallet = async (
   id: string,
   isLocalMode = true
 ): Promise<boolean> => {
-  const result = await walletStorage.deleteWallet(id);
+  const result = await walletLocalStorage.deleteWallet(id);
+  if (isLocalMode) return result;
 
-  if (!isLocalMode) {
-    await deleteWalletFromServer(id);
-    // Remove from pending changes since it's synced
-    await walletStorage.removePendingChange(id);
-  }
-
-  return true;
+  await deleteWalletFromServer(id);
+  await walletLocalStorage.updateSyncStatus(id, 'synced');
+  return result;
 };
 
 export const getTotalBalance = async (): Promise<number> => {
-  return await walletStorage.getTotalBalance();
+  return await walletLocalStorage.getTotalBalance();
 };
