@@ -4,7 +4,41 @@ import { walletLocalStorage } from '../storage/walletLocalStorage';
 import { getCurrentUser } from './auth';
 import { config, databases } from './client';
 
-// Original server-only functions (used by sync service)
+export const upsertWalletOnServer = async ({
+  id,
+  name,
+  description,
+  initialBalance,
+  currentBalance,
+}: Wallet): Promise<boolean> => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return false;
+
+    // Create or update the transaction
+    const walletData: any = {
+      name,
+      description,
+      initial_balance: initialBalance,
+      current_balance: currentBalance,
+      user_id: user.$id,
+    };
+
+    const response = await databases.upsertDocument(
+      config.databaseId,
+      config.walletCollectionId,
+      id,
+      walletData
+    );
+    if (!response.$id) return false;
+
+    return true;
+  } catch (error) {
+    console.error('Error upserting transaction:', error);
+    return false;
+  }
+};
+
 export const createWalletOnServer = async ({
   id,
   name,
@@ -125,7 +159,6 @@ export const getWalletsFromServer = async (): Promise<Wallet[]> => {
 
     const queries = [
       Query.equal('user_id', user.$id),
-      Query.orderDesc('date'),
       Query.isNull('deleted_at'),
       Query.orderDesc('$createdAt'),
     ];

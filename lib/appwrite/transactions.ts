@@ -5,7 +5,57 @@ import { getCurrentUser } from './auth';
 import { config, databases, storage } from './client';
 import { deleteImage, uploadImage } from './storage';
 
-// Original server-only functions (used by sync service)
+export const upsertTransactionOnServer = async ({
+  id,
+  walletId,
+  categoryId,
+  description,
+  amount,
+  type,
+  date,
+  imageUrl,
+}: Transaction): Promise<boolean> => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return false;
+
+    // Upload image if provided
+    let imageId: string | null = null;
+    if (imageUrl) {
+      imageId = await uploadImage(imageUrl);
+    }
+
+    // Create or update the transaction
+    const transactionData: any = {
+      wallet: walletId,
+      category: categoryId,
+      description,
+      amount,
+      type,
+      date: date,
+      user_id: user.$id,
+    };
+
+    // Add image URL if available
+    if (imageId) {
+      transactionData.image = imageId;
+    }
+
+    const response = await databases.upsertDocument(
+      config.databaseId,
+      config.transactionCollectionId,
+      id,
+      transactionData
+    );
+    if (!response.$id) return false;
+
+    return true;
+  } catch (error) {
+    console.error('Error upserting transaction:', error);
+    return false;
+  }
+};
+
 export const createTransactionOnServer = async ({
   id,
   walletId,

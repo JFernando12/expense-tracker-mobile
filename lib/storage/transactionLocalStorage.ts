@@ -1,4 +1,4 @@
-import { Transaction, TransactionType } from '@/types/types';
+import { Transaction } from '@/types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
@@ -138,104 +138,6 @@ class TransactionLocalStorage {
     return true;
   }
 
-  async getPendingChanges(): Promise<PendingTransactionChange[]> {
-    try {
-      const changesJson = await AsyncStorage.getItem(PENDING_CHANGES_KEY);
-      if (!changesJson) return [];
-      return JSON.parse(changesJson);
-    } catch (error) {
-      console.error('Error getting pending changes:', error);
-      return [];
-    }
-  }
-
-  async addPendingChange(change: PendingTransactionChange): Promise<void> {
-    try {
-      const changes = await this.getPendingChanges();
-
-      // Remove any existing change for the same transaction
-      const filteredChanges = changes.filter((c) => c.id !== change.id);
-      filteredChanges.push(change);
-
-      await AsyncStorage.setItem(
-        PENDING_CHANGES_KEY,
-        JSON.stringify(filteredChanges)
-      );
-    } catch (error) {
-      console.error('Error adding pending change:', error);
-    }
-  }
-
-  async removePendingChange(id: string): Promise<void> {
-    try {
-      const changes = await this.getPendingChanges();
-      const filteredChanges = changes.filter((c) => c.id !== id);
-      await AsyncStorage.setItem(
-        PENDING_CHANGES_KEY,
-        JSON.stringify(filteredChanges)
-      );
-    } catch (error) {
-      console.error('Error removing pending change:', error);
-    }
-  }
-
-  async clearPendingChanges(): Promise<void> {
-    try {
-      await AsyncStorage.removeItem(PENDING_CHANGES_KEY);
-    } catch (error) {
-      console.error('Error clearing pending changes:', error);
-    }
-  }
-
-  // Sync status management
-  async updateLastSyncTime(): Promise<void> {
-    try {
-      await AsyncStorage.setItem(LAST_SYNC_KEY, Date.now().toString());
-    } catch (error) {
-      console.error('Error updating last sync time:', error);
-    }
-  }
-
-  async getLastSyncTime(): Promise<number> {
-    try {
-      const time = await AsyncStorage.getItem(LAST_SYNC_KEY);
-      return time ? parseInt(time) : 0;
-    } catch (error) {
-      console.error('Error getting last sync time:', error);
-      return 0;
-    }
-  }
-
-  // Utility methods
-  async clearAllData(): Promise<void> {
-    try {
-      await AsyncStorage.multiRemove([
-        TRANSACTIONS_KEY,
-        PENDING_CHANGES_KEY,
-        LAST_SYNC_KEY,
-      ]);
-    } catch (error) {
-      console.error('Error clearing all transaction data:', error);
-    }
-  }
-
-  // Get transactions by type
-  async getTransactionsByType(
-    type: TransactionType
-  ): Promise<StoredTransaction[]> {
-    const transactions = await this.getTransactionsStorage();
-    return transactions.filter((t) => t.type === type);
-  }
-
-  // Get transactions by wallet
-  async getTransactionsByWallet(
-    walletId: string
-  ): Promise<StoredTransaction[]> {
-    const transactions = await this.getTransactionsStorage();
-    return transactions.filter((t) => t.walletId === walletId);
-  }
-
-  // Search transactions
   async searchTransactions(query: string): Promise<StoredTransaction[]> {
     const transactions = await this.getTransactionsStorage();
     const searchLower = query.toLowerCase();
@@ -245,15 +147,6 @@ class TransactionLocalStorage {
         t.description?.toLowerCase().includes(searchLower) ||
         t.categoryId?.toLowerCase().includes(searchLower) ||
         t.amount?.toString().includes(searchLower)
-    );
-  }
-
-  // Get total amounts by type
-  async getTotalByType(type: TransactionType): Promise<number> {
-    const transactions = await this.getTransactionsByType(type);
-    return transactions.reduce(
-      (total, transaction) => total + transaction.amount,
-      0
     );
   }
 }
