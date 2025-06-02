@@ -1,5 +1,6 @@
 import CustomField from '@/components/CustomField';
 import icons from '@/constants/icons';
+import { createWallet } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -23,7 +24,7 @@ enum fieldTypes {
 }
 
 const WalletCreate = () => {
-  const { refetchResources } = useGlobalContext();
+  const { refetchResources, isLocalMode } = useGlobalContext();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -87,11 +88,13 @@ const WalletCreate = () => {
     setIsLoading(true);
 
     try {
-      await addWallet({
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        initialBalance: initialBalance,
-        currentBalance: initialBalance,
+      await createWallet({
+        isLocalMode,
+        data: {
+          name: formData.name,
+          description: formData.description,
+          initialBalance: initialBalance,
+        },
       });
 
       // Refetch resources to update the wallet list

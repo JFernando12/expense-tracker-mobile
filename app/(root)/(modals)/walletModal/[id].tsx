@@ -1,6 +1,6 @@
 import CustomField from "@/components/CustomField";
 import icons from "@/constants/icons";
-import { updateWallet } from '@/lib/appwrite';
+import { createWallet, deleteWallet } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -25,7 +25,7 @@ enum fieldTypes {
 
 const WalletUpdate = () => {
   const { id } = useLocalSearchParams();
-  const { refetchResources, wallets } = useGlobalContext();
+  const { refetchResources, wallets, isLocalMode } = useGlobalContext();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -107,13 +107,13 @@ const WalletUpdate = () => {
     setIsLoading(true);
 
     try {
-      await updateWallet(walletToEdit.id, {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        initialBalance: initialBalance,
-        currentBalance:
-          walletToEdit.currentBalance +
-          (initialBalance - walletToEdit.initialBalance),
+      await createWallet({
+        isLocalMode,
+        data: {
+          name: formData.name,
+          description: formData.description,
+          initialBalance: initialBalance,
+        },
       });
 
       // Refetch resources to update the wallet list
@@ -151,7 +151,7 @@ const WalletUpdate = () => {
           onPress: async () => {
             setIsDeleting(true);
             try {
-              await hybridDeleteWallet(walletToEdit.id);
+              await deleteWallet(walletToEdit.id, isLocalMode);
 
               Alert.alert('Éxito', 'Cartera eliminada exitosamente', [
                 {
