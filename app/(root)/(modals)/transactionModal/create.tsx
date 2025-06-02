@@ -1,7 +1,8 @@
 import CustomField from "@/components/CustomField";
-import icons from "@/constants/icons";
-import { createTransaction } from "@/lib/appwrite";
-import { useGlobalContext } from "@/lib/global-provider";
+import { CATEGORIES } from '@/constants/categories';
+import icons from '@/constants/icons';
+import { createTransaction } from '@/lib/appwrite';
+import { useGlobalContext } from '@/lib/global-provider';
 import { TransactionType } from '@/types/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
@@ -30,6 +31,20 @@ enum fieldTypes {
 }
 
 const TransactionCreate = () => {
+  const incomeCategories = CATEGORIES.filter(
+    (category) => category.type === 'income'
+  ).map((category) => ({
+    value: category.id,
+    label: category.name,
+  }));
+
+  const expenseCategories = CATEGORIES.filter(
+    (category) => category.type === 'expense'
+  ).map((category) => ({
+    value: category.id,
+    label: category.name,
+  }));
+
   const [transactionType, setTransactionType] = useState<'expense' | 'income'>(
     'expense'
   );
@@ -43,14 +58,11 @@ const TransactionCreate = () => {
     amount: '',
     date: new Date(),
   });
+
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const {
     isLocalMode,
-    expenseCategories,
-    incomeCategories,
     wallets,
-    expenseCategoriesLoading,
-    incomeCategoriesLoading,
     walletsLoading,
     refetchResources,
     refetchTransactions,
@@ -208,17 +220,7 @@ const TransactionCreate = () => {
       type: fieldTypes.SELECT,
       value: formData.categoryId,
       options:
-        transactionType === 'expense'
-          ? expenseCategories?.map(
-              (category: { name: string; id: string }) => ({
-                label: category.name,
-                value: category.id,
-              })
-            ) || []
-          : incomeCategories?.map((category: { name: string; id: string }) => ({
-              label: category.name,
-              value: category.id,
-            })) || [],
+        transactionType === 'expense' ? expenseCategories : incomeCategories,
     },
     {
       label: 'date',
@@ -240,8 +242,7 @@ const TransactionCreate = () => {
     },
   ];
 
-  const isLoading =
-    expenseCategoriesLoading || incomeCategoriesLoading || walletsLoading;
+  const isLoading = walletsLoading;
 
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5">

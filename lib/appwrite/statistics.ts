@@ -1,8 +1,9 @@
-import { CategoryExpenseData, PeriodTypes } from "@/constants/interfaces";
-import { TransactionType } from "@/types/types";
-import { Query } from "react-native-appwrite";
-import { getCurrentUser } from "./auth";
-import { config, databases } from "./client";
+import { CATEGORIES } from '@/constants/categories';
+import { CategoryExpenseData, PeriodTypes } from '@/constants/interfaces';
+import { TransactionType } from '@/types/types';
+import { Query } from 'react-native-appwrite';
+import { getCurrentUser } from './auth';
+import { config, databases } from './client';
 
 export const getTotalIncomes = async ({
   period,
@@ -12,8 +13,8 @@ export const getTotalIncomes = async ({
     if (!user) return 0;
 
     const queries = [
-      Query.equal("user_id", user.$id),
-      Query.equal("type", TransactionType.INCOME),
+      Query.equal('user_id', user.$id),
+      Query.equal('type', TransactionType.INCOME),
     ];
 
     if (period !== PeriodTypes.ALL_TIME) {
@@ -71,8 +72,8 @@ export const getTotalIncomes = async ({
       }
 
       if (startDate! && endDate!) {
-        queries.push(Query.greaterThanEqual("date", startDate.toISOString()));
-        queries.push(Query.lessThanEqual("date", endDate.toISOString()));
+        queries.push(Query.greaterThanEqual('date', startDate.toISOString()));
+        queries.push(Query.lessThanEqual('date', endDate.toISOString()));
       }
     }
 
@@ -89,7 +90,7 @@ export const getTotalIncomes = async ({
 
     return totalIncome;
   } catch (error) {
-    console.error("Error fetching total income:", error);
+    console.error('Error fetching total income:', error);
     return 0;
   }
 };
@@ -102,8 +103,8 @@ export const getTotalExpenses = async ({
     if (!user) return 0;
 
     const queries = [
-      Query.equal("user_id", user.$id),
-      Query.equal("type", TransactionType.EXPENSE),
+      Query.equal('user_id', user.$id),
+      Query.equal('type', TransactionType.EXPENSE),
     ];
 
     if (period !== PeriodTypes.ALL_TIME) {
@@ -161,8 +162,8 @@ export const getTotalExpenses = async ({
       }
 
       if (startDate! && endDate!) {
-        queries.push(Query.greaterThanEqual("date", startDate.toISOString()));
-        queries.push(Query.lessThanEqual("date", endDate.toISOString()));
+        queries.push(Query.greaterThanEqual('date', startDate.toISOString()));
+        queries.push(Query.lessThanEqual('date', endDate.toISOString()));
       }
     }
 
@@ -179,7 +180,7 @@ export const getTotalExpenses = async ({
 
     return totalExpenses;
   } catch (error) {
-    console.error("Error fetching total expenses:", error);
+    console.error('Error fetching total expenses:', error);
     return 0;
   }
 };
@@ -195,8 +196,8 @@ export const getExpensesByCategoryWithTimeFilter = async ({
 
     // Build queries based on time filter
     const queries = [
-      Query.equal("user_id", user.$id),
-      Query.equal("type", TransactionType.EXPENSE),
+      Query.equal('user_id', user.$id),
+      Query.equal('type', TransactionType.EXPENSE),
     ];
     if (period !== PeriodTypes.ALL_TIME) {
       const now = new Date();
@@ -253,12 +254,12 @@ export const getExpensesByCategoryWithTimeFilter = async ({
       }
 
       if (startDate! && endDate!) {
-        queries.push(Query.greaterThanEqual("date", startDate.toISOString()));
-        queries.push(Query.lessThanEqual("date", endDate.toISOString()));
+        queries.push(Query.greaterThanEqual('date', startDate.toISOString()));
+        queries.push(Query.lessThanEqual('date', endDate.toISOString()));
       }
     }
 
-    queries.push(Query.orderDesc("date"));
+    queries.push(Query.orderDesc('date'));
 
     // Get filtered transactions
     const response = await databases.listDocuments(
@@ -282,32 +283,27 @@ export const getExpensesByCategoryWithTimeFilter = async ({
     let totalExpenses = 0;
 
     response.documents.forEach((transaction: any) => {
-      const categoryId = transaction.category.$id as string;
-      const categoryName = transaction.category.name as string;
+      const categoryId = transaction.category as string;
+      const category = CATEGORIES.find((cat) => cat.id === categoryId);
+      const categoryName = category?.name || 'Uncategorized';
       const amount = transaction.amount as number;
-
-      // Try to get color from category, fallback to default colors
-      let categoryColor = transaction.category.color as string;
 
       // Default colors for categories if color is not available
       const defaultColors = [
-        "#f59e0b",
-        "#3b82f6",
-        "#ec4899",
-        "#8b5cf6",
-        "#ef4444",
-        "#10b981",
-        "#84cc16",
-        "#94a3b8",
-        "#f97316",
-        "#06b6d4",
+        '#f59e0b',
+        '#3b82f6',
+        '#ec4899',
+        '#8b5cf6',
+        '#ef4444',
+        '#10b981',
+        '#84cc16',
+        '#94a3b8',
+        '#f97316',
+        '#06b6d4',
       ];
 
-      // If no color is set, use default color based on category name or index
-      if (!categoryColor) {
-        const colorIndex = categoryTotals.size % defaultColors.length;
-        categoryColor = defaultColors[colorIndex];
-      }
+      const colorIndex = categoryTotals.size % defaultColors.length;
+      const categoryColor = defaultColors[colorIndex];
 
       totalExpenses += amount;
 
@@ -340,7 +336,7 @@ export const getExpensesByCategoryWithTimeFilter = async ({
     return categoryData;
   } catch (error) {
     console.error(
-      "Error fetching expenses by category with time filter:",
+      'Error fetching expenses by category with time filter:',
       error
     );
     return [];

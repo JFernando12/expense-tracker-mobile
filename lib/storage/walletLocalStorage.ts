@@ -24,7 +24,6 @@ export interface StoredWallet extends Wallet {
 }
 
 class WalletLocalStorage {
-  // Get all wallets from local storage
   async getWalletsStorage(): Promise<StoredWallet[]> {
     try {
       const walletsJson = await AsyncStorage.getItem(WALLETS_KEY);
@@ -49,9 +48,9 @@ class WalletLocalStorage {
   // Get all wallets
   async getWallets(): Promise<Wallet[]> {
     const wallets = await this.getWalletsStorage();
-    const walletNotDeleted = wallets.filter((wallet) => !wallet.deleteAt);
-    
-    return walletNotDeleted.map((wallet) => ({
+    const walletsNotDeleted = wallets.filter((wallet) => !wallet.deleteAt);
+
+    return walletsNotDeleted.map((wallet) => ({
       id: wallet.id,
       name: wallet.name,
       description: wallet.description,
@@ -115,7 +114,9 @@ class WalletLocalStorage {
     }
   }
 
-  async createWallet(wallet: Omit<Wallet, 'id' | 'currentBalance'>): Promise<{ localId: string }> {
+  async createWallet(
+    wallet: Omit<Wallet, 'id' | 'currentBalance'>
+  ): Promise<{ localId: string }> {
     const localId = uuidv4();
     const storedWallet: Omit<StoredWallet, 'currentBalance'> = {
       ...wallet,

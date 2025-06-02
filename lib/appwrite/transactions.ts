@@ -96,7 +96,7 @@ export const createTransactionOnServer = async ({
       description: createdTransaction.description as string,
       amount: createdTransaction.amount as number,
       type: createdTransaction.type as TransactionType,
-      date: new Date(createdTransaction.date).toLocaleDateString(),
+      date: new Date(createdTransaction.date).toLocaleDateString('en-GB'),
       imageUrl: createdTransaction.image
         ? storage
             .getFileView(
@@ -298,7 +298,7 @@ export const updateTransactionOnServer = async ({
       description: updatedTransaction.description as string,
       amount: updatedTransaction.amount as number,
       type: updatedTransaction.type as TransactionType,
-      date: new Date(updatedTransaction.date).toLocaleDateString(),
+      date: new Date(updatedTransaction.date).toLocaleDateString('en-GB'),
       imageUrl: updatedTransaction.image
         ? storage
             .getFileView(
@@ -426,7 +426,6 @@ export const getTransactionsFromServer = async (filters?: {
               .getFileView(config.storageBucketId, transaction.image as string)
               .toString()
           : null;
-
         return {
           id: transaction.$id as string,
           walletId: transaction.wallet.$id as string,
@@ -435,7 +434,7 @@ export const getTransactionsFromServer = async (filters?: {
           description: transaction.description as string,
           amount: transaction.amount as number,
           type: transaction.type as TransactionType,
-          date: new Date(transaction.date).toLocaleDateString(),
+          date: new Date(transaction.date).toLocaleDateString('en-GB'),
           imageUrl,
         };
       }) as Transaction[]) || [];
@@ -489,7 +488,7 @@ export const searchTransactionsOnServer = async (
       description: transaction.description as string,
       amount: transaction.amount as number,
       type: transaction.type as TransactionType,
-      date: new Date(transaction.date).toLocaleDateString(),
+      date: new Date(transaction.date).toLocaleDateString('en-GB'),
       imageUrl: transaction.image as string,
     }));
   } catch (error) {
@@ -523,11 +522,10 @@ export const updateTransaction = async ({
   isLocalMode?: boolean;
 }): Promise<boolean> => {
   const result = await transactionLocalStorage.updateTransaction(id, data);
+  if (isLocalMode) return result;
 
-  if (!isLocalMode) {
-    await updateTransactionOnServer({ id, data, removeImage });
-    await transactionLocalStorage.updateSyncStatus(id, 'synced');
-  }
+  await updateTransactionOnServer({ id, data, removeImage });
+  await transactionLocalStorage.updateSyncStatus(id, 'synced');
 
   return result;
 };
@@ -547,10 +545,28 @@ export const deleteTransaction = async (
 };
 
 export const getTransactions = async ({
-  isLocalMode = true,
-}): Promise<Transaction[]> => {
+  isLocalMode,
+}: { isLocalMode?: boolean } = {}): Promise<Transaction[]> => {
   const localTransactions = await transactionLocalStorage.getTransactions();
-  return localTransactions;
+  console.log('Local transactions:', localTransactions);
+  if (isLocalMode) return localTransactions;
+
+  const serverTransactions = await getTransactionsFromServer();
+  console.log('Server transactions:', serverTransactions);
+
+  const totalTransactions = [...localTransactions];
+  for (const serverTransaction of serverTransactions) {
+    const existingWallet = totalTransactions.find(
+      (wallet) => wallet.id === serverTransaction.id
+    );
+    if (existingWallet) {
+      Object.assign(existingWallet, serverTransaction);
+    } else {
+      totalTransactions.push(serverTransaction);
+    }
+  }
+
+  return totalTransactions;
 };
 
 const getTransactionFromServer = async (
@@ -585,7 +601,7 @@ const getTransactionFromServer = async (
       description: transaction.description as string,
       amount: transaction.amount as number,
       type: transaction.type as TransactionType,
-      date: new Date(transaction.date).toLocaleDateString(),
+      date: new Date(transaction.date).toLocaleDateString('en-GB'),
       imageUrl,
     };
   } catch (error) {

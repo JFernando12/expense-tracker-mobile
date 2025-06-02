@@ -7,11 +7,9 @@ export * from './auth';
 // Re-export wallet functions
 export * from './wallets';
 
-// Re-export category functions
-export * from './categories';
-
 // Re-export transaction functions
 export * from './transactions';
 
 // Re-export storage functions
 export * from './storage';
+

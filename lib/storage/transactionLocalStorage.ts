@@ -24,16 +24,32 @@ export interface StoredTransaction extends Transaction {
 }
 
 class TransactionLocalStorage {
-  // Get all transactions from local storage
-  async getTransactions(): Promise<StoredTransaction[]> {
+  async getTransactionsStorage(): Promise<StoredTransaction[]> {
     try {
       const transactionsJson = await AsyncStorage.getItem(TRANSACTIONS_KEY);
       if (!transactionsJson) return [];
       return JSON.parse(transactionsJson);
     } catch (error) {
-      console.error('Error getting transactions from storage:', error);
+      console.error('Error getting wallets from storage:', error);
       return [];
     }
+  }
+  async getTransactions(): Promise<Transaction[]> {
+    const transactions = await this.getTransactionsStorage();
+    const transactionsNotDeleted = transactions.filter(
+      (transaction) => !transaction.deleteAt
+    );
+
+    return transactionsNotDeleted.map((transaction) => ({
+      id: transaction.id,
+      walletId: transaction.walletId,
+      categoryId: transaction.categoryId,
+      amount: transaction.amount,
+      type: transaction.type,
+      date: transaction.date,
+      description: transaction.description,
+      imageUrl: transaction.imageUrl,
+    }));
   }
 
   // Save transactions to local storage
@@ -51,13 +67,13 @@ class TransactionLocalStorage {
 
   // Get a single transaction by ID
   async getTransaction(id: string): Promise<StoredTransaction | null> {
-    const transactions = await this.getTransactions();
+    const transactions = await this.getTransactionsStorage();
     return transactions.find((transaction) => transaction.id === id) || null;
   }
 
   // Add or update a transaction in local storage
   async upsertTransaction(transaction: StoredTransaction): Promise<void> {
-    const transactions = await this.getTransactions();
+    const transactions = await this.getTransactionsStorage();
     const existingIndex = transactions.findIndex(
       (t) => t.id === transaction.id
     );
@@ -80,7 +96,7 @@ class TransactionLocalStorage {
     id: string,
     status: 'synced' | 'pending' | 'conflict'
   ): Promise<void> {
-    const transactions = await this.getTransactions();
+    const transactions = await this.getTransactionsStorage();
     const transactionIndex = transactions.findIndex((t) => t.id === id);
     if (transactionIndex >= 0) {
       transactions[transactionIndex].syncStatus = status;
@@ -120,7 +136,7 @@ class TransactionLocalStorage {
   }
 
   async deleteTransaction(id: string): Promise<boolean> {
-    const transactions = await this.getTransactions();
+    const transactions = await this.getTransactionsStorage();
     const transaction = transactions.find((t) => t.id === id);
     if (!transaction) return false;
     transaction.deleteAt = Date.now();
@@ -213,7 +229,7 @@ class TransactionLocalStorage {
   async getTransactionsByType(
     type: TransactionType
   ): Promise<StoredTransaction[]> {
-    const transactions = await this.getTransactions();
+    const transactions = await this.getTransactionsStorage();
     return transactions.filter((t) => t.type === type);
   }
 
@@ -221,13 +237,13 @@ class TransactionLocalStorage {
   async getTransactionsByWallet(
     walletId: string
   ): Promise<StoredTransaction[]> {
-    const transactions = await this.getTransactions();
+    const transactions = await this.getTransactionsStorage();
     return transactions.filter((t) => t.walletId === walletId);
   }
 
   // Search transactions
   async searchTransactions(query: string): Promise<StoredTransaction[]> {
-    const transactions = await this.getTransactions();
+    const transactions = await this.getTransactionsStorage();
     const searchLower = query.toLowerCase();
 
     return transactions.filter(

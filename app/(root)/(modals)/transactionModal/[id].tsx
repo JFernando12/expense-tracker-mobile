@@ -1,7 +1,8 @@
 import CustomField from "@/components/CustomField";
-import icons from "@/constants/icons";
-import { deleteTransaction, updateTransaction } from "@/lib/appwrite";
-import { useGlobalContext } from "@/lib/global-provider";
+import { CATEGORIES } from '@/constants/categories';
+import icons from '@/constants/icons';
+import { deleteTransaction, updateTransaction } from '@/lib/appwrite';
+import { useGlobalContext } from '@/lib/global-provider';
 import { TransactionType } from '@/types/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
@@ -30,14 +31,37 @@ enum fieldTypes {
 }
 
 const TransactionUpdate = () => {
+  const incomeCategories = CATEGORIES.filter(
+    (category) => category.type === 'income'
+  ).map((category) => ({
+    value: category.id,
+    label: category.name,
+  }));
+
+  const expenseCategories = CATEGORIES.filter(
+    (category) => category.type === 'expense'
+  ).map((category) => ({
+    value: category.id,
+    label: category.name,
+  }));
   const { id } = useLocalSearchParams();
   const [transactionType, setTransactionType] = useState<'expense' | 'income'>(
     'expense'
   );
+
+  const {
+    isLocalMode,
+    wallets,
+    transactions,
+    walletsLoading,
+    transactionsLoading,
+    refetchResources,
+    refetchTransactions,
+  } = useGlobalContext();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  // Form state
   const [formData, setFormData] = useState({
     walletId: '',
     categoryId: '',
@@ -47,18 +71,6 @@ const TransactionUpdate = () => {
   });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
-  const {
-    expenseCategories,
-    incomeCategories,
-    wallets,
-    transactions,
-    expenseCategoriesLoading,
-    incomeCategoriesLoading,
-    walletsLoading,
-    transactionsLoading,
-    refetchResources,
-    refetchTransactions,
-  } = useGlobalContext();
 
   // Find the transaction to edit
   const transactionToEdit = transactions?.find(
@@ -82,7 +94,7 @@ const TransactionUpdate = () => {
   };
 
   useEffect(() => {
-    if (transactionToEdit && wallets && expenseCategories && incomeCategories) {
+    if (transactionToEdit && wallets) {
       setFormData({
         walletId: transactionToEdit.walletId || '',
         categoryId: transactionToEdit.categoryId || '',
@@ -96,7 +108,7 @@ const TransactionUpdate = () => {
       // Set existing image
       setSelectedImage(transactionToEdit.imageUrl || null);
     }
-  }, [transactionToEdit, wallets, expenseCategories, incomeCategories]);
+  }, [transactionToEdit, wallets]);
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -249,6 +261,7 @@ const TransactionUpdate = () => {
         return;
       }
       await updateTransaction({
+        isLocalMode,
         input: {
           id,
           data: {
@@ -317,17 +330,7 @@ const TransactionUpdate = () => {
       type: fieldTypes.SELECT,
       value: formData.categoryId,
       options:
-        transactionType === 'expense'
-          ? expenseCategories?.map(
-              (category: { name: string; id: string }) => ({
-                label: category.name,
-                value: category.id,
-              })
-            ) || []
-          : incomeCategories?.map((category: { name: string; id: string }) => ({
-              label: category.name,
-              value: category.id,
-            })) || [],
+        transactionType === 'expense' ? expenseCategories : incomeCategories,
     },
     {
       label: 'date',
@@ -353,11 +356,7 @@ const TransactionUpdate = () => {
     },
   ];
 
-  const isLoading =
-    expenseCategoriesLoading ||
-    incomeCategoriesLoading ||
-    walletsLoading ||
-    transactionsLoading;
+  const isLoading = walletsLoading || transactionsLoading;
   if (!transactionToEdit && !transactionsLoading) {
     return (
       <SafeAreaView className="bg-primary-100 h-full p-5">

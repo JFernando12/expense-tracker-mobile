@@ -1,8 +1,7 @@
-import { CategoryExpenseData, PeriodTypes } from "@/constants/interfaces";
-import { Category, Transaction, TransactionType, Wallet } from "@/types/types";
-import { createContext, useContext } from "react";
+import { CategoryExpenseData, PeriodTypes } from '@/constants/interfaces';
+import { Transaction, Wallet } from '@/types/types';
+import { createContext, useContext } from 'react';
 import {
-  getCategories,
   getCurrentUser,
   getTotalBalance,
   getTransactions,
@@ -28,12 +27,8 @@ interface GlobalContextType {
   user: User | null | undefined;
   userLoading: boolean;
   refetchUser: (newParams?: Record<string, string | number>) => Promise<void>;
-  expenseCategories: Category[] | null;
-  incomeCategories: Category[] | null;
   wallets: Wallet[] | null;
   transactions: Transaction[] | null;
-  expenseCategoriesLoading: boolean;
-  incomeCategoriesLoading: boolean;
   walletsLoading: boolean;
   transactionsLoading: boolean;
   refetchResources: () => Promise<void>;
@@ -78,23 +73,8 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     fn: getCurrentUser,
   });
 
-  const {
-    data: expenseCategories,
-    loading: expenseCategoriesLoading,
-    refetch: refetchExpenseCategories,
-  } = useAppwrite({
-    fn: getCategories,
-    params: { type: TransactionType.EXPENSE },
-  });
-
-  const {
-    data: incomeCategories,
-    loading: incomeCategoriesLoading,
-    refetch: refetchIncomeCategories,
-  } = useAppwrite({
-    fn: getCategories,
-    params: { type: TransactionType.INCOME },
-  });
+  const isLoggedIn = !!user;
+  const isLocalMode = !isLoggedIn;
 
   const {
     data: wallets,
@@ -111,7 +91,9 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     refetch: refetchTransactions,
   } = useAppwrite({
     fn: getTransactions,
-    params: {},
+    params: {
+      isLocalMode,
+    },
   });
 
   const {
@@ -204,9 +186,6 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     params: { period: PeriodTypes.ALL_TIME },
   });
 
-  const isLoggedIn = !!user;
-  const isLocalMode = !isLoggedIn;
-
   const refetchUser = async () => {
     await refetch();
   };
@@ -214,8 +193,6 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   const refetchResources = async () => {
     if (isLoggedIn) {
       await Promise.all([
-        refetchExpenseCategories(),
-        refetchIncomeCategories(),
         refetchWallets(),
         refetchTransactions(),
         refetchTotalBalance(),
@@ -241,10 +218,6 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         refetchTransactions,
         user,
         userLoading,
-        expenseCategories,
-        expenseCategoriesLoading,
-        incomeCategories,
-        incomeCategoriesLoading,
         wallets,
         walletsLoading,
         transactions,
@@ -279,7 +252,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
 export const useGlobalContext = (): GlobalContextType => {
   const context = useContext(GlobalContext);
   if (!context)
-    throw new Error("useGlobalContext must be used within a GlobalProvider");
+    throw new Error('useGlobalContext must be used within a GlobalProvider');
   return context;
 };
 
