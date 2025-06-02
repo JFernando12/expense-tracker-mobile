@@ -59,23 +59,6 @@ class WalletLocalStorage {
     }));
   }
 
-  // Get a single wallet by ID
-  async getWallet(id: string): Promise<Wallet | null> {
-    const wallets = await this.getWalletsStorage();
-    const wallet = wallets.find((wallet) => wallet.id === id);
-
-    if (!wallet || wallet.deleteAt) return null;
-
-    return {
-      id: wallet.id,
-      name: wallet.name,
-      description: wallet.description,
-      initialBalance: wallet.initialBalance,
-      currentBalance: wallet.currentBalance,
-    };
-  }
-
-  // Add or update a wallet in local storage
   async upsertWallet(
     wallet: Omit<StoredWallet, 'currentBalance'>
   ): Promise<void> {

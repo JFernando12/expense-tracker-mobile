@@ -22,7 +22,7 @@ const Statistics = () => {
     categoryExpensesSevenDays,
     categoryExpensesThirtyDays,
     categoryExpensesYear,
-    isLocalMode,
+    isOnlineMode,
   } = useGlobalContext();
   const [categoryData, setCategoryData] = useState<ExtendedCategoryData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,19 +57,19 @@ const Statistics = () => {
     switch (selectedPeriod) {
       case '7days':
         currentData = categoryExpensesSevenDays || [];
-        currentLoading = isLocalMode ? false : false; // Local mode doesn't have loading states for statistics
+        currentLoading = isOnlineMode ? false : false; // Local mode doesn't have loading states for statistics
         incomes = totalIncomesSevenDays;
         expenses = totalExpensesSevenDays;
         break;
       case '30days':
         currentData = categoryExpensesThirtyDays || [];
-        currentLoading = isLocalMode ? false : false;
+        currentLoading = isOnlineMode ? false : false;
         incomes = totalIncomesThirtyDays;
         expenses = totalExpensesThirtyDays;
         break;
       case 'total':
         currentData = categoryExpensesYear || [];
-        currentLoading = isLocalMode ? false : false;
+        currentLoading = isOnlineMode ? false : false;
         incomes = totalIncomes;
         expenses = totalExpenses;
         break;
@@ -84,7 +84,7 @@ const Statistics = () => {
     categoryExpensesSevenDays,
     categoryExpensesThirtyDays,
     categoryExpensesYear,
-    isLocalMode,
+    isOnlineMode,
     totalIncomesSevenDays,
     totalExpensesSevenDays,
     totalIncomesThirtyDays,
@@ -120,7 +120,7 @@ const Statistics = () => {
           onPress={() => router.push('/(root)/(modals)/profileModal')}
           className="absolute right-0 top-0 size-12 rounded-full overflow-hidden bg-accent-200"
         >
-          {isLocalMode ? (
+          {isOnlineMode ? (
             <View className="h-full w-full flex items-center justify-center">
               <Text className="text-white text-lg font-bold">U</Text>
             </View>

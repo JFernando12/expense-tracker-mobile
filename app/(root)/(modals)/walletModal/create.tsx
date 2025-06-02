@@ -24,7 +24,7 @@ enum fieldTypes {
 }
 
 const WalletCreate = () => {
-  const { refetchResources, isLocalMode } = useGlobalContext();
+  const { refetchResources, isOnlineMode } = useGlobalContext();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -89,7 +89,7 @@ const WalletCreate = () => {
 
     try {
       await createWallet({
-        isLocalMode,
+        isOnlineMode,
         data: {
           name: formData.name,
           description: formData.description,

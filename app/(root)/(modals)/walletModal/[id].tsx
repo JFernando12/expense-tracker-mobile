@@ -25,7 +25,7 @@ enum fieldTypes {
 
 const WalletUpdate = () => {
   const { id } = useLocalSearchParams();
-  const { refetchResources, wallets, isLocalMode } = useGlobalContext();
+  const { refetchResources, wallets, isOnlineMode } = useGlobalContext();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -108,7 +108,7 @@ const WalletUpdate = () => {
 
     try {
       await createWallet({
-        isLocalMode,
+        isOnlineMode,
         data: {
           name: formData.name,
           description: formData.description,
@@ -151,7 +151,7 @@ const WalletUpdate = () => {
           onPress: async () => {
             setIsDeleting(true);
             try {
-              await deleteWallet(walletToEdit.id, isLocalMode);
+              await deleteWallet({ isOnlineMode, id: walletToEdit.id });
 
               Alert.alert('Éxito', 'Cartera eliminada exitosamente', [
                 {

@@ -22,7 +22,7 @@ export default function Index() {
     totalExpenses,
     refetchResources,
     isLoggedIn,
-    isLocalMode,
+    isOnlineMode,
   } = useGlobalContext();
 
   const handleSyncComplete = () => {

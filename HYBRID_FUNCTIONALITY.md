@@ -93,7 +93,7 @@ HybridProvider
 
 ### Mode Selection Logic
 ```typescript
-const isLocalMode = !isLoggedIn || !isConnected;
+const isOnlineMode = !isLoggedIn || !isConnected;
 ```
 
 ### Sync Algorithm
@@ -118,9 +118,9 @@ await addTransaction({ walletId, amount: 50, description: "Coffee" });
 
 ### Sync Operations
 ```typescript
-const { syncWithAppwrite, isLocalMode } = useGlobalContext();
+const { syncWithAppwrite, isOnlineMode } = useGlobalContext();
 
-if (isLocalMode && isLoggedIn) {
+if (isOnlineMode && isLoggedIn) {
   await syncWithAppwrite(); // Sync local data to cloud
 }
 ```

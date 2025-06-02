@@ -37,14 +37,14 @@ export const createWalletOnServer = async ({
 
 // Enhanced functions that work offline (using local storage and sync service)
 export const createWallet = async ({
-  isLocalMode = true,
+  isOnlineMode,
   data,
 }: {
-  isLocalMode?: boolean;
+  isOnlineMode: boolean;
   data: Omit<Wallet, 'id' | 'currentBalance'>;
 }): Promise<boolean> => {
   const { localId } = await walletLocalStorage.createWallet(data);
-  if (isLocalMode) return !!localId;
+  if (!isOnlineMode) return !!localId;
 
   await createWalletOnServer({ ...data, id: localId });
   await walletLocalStorage.updateSyncStatus(localId, 'synced');
@@ -101,16 +101,16 @@ export const updateWalletOnServer = async ({
 
 export const updateWallet = async ({
   input: { id, data },
-  isLocalMode = true,
+  isOnlineMode,
 }: {
   input: {
     id: string;
     data: Omit<Wallet, 'id' | 'currentBalance'>;
   };
-  isLocalMode?: boolean;
+  isOnlineMode: boolean;
 }): Promise<boolean> => {
   const result = await walletLocalStorage.updateWallet(id, data);
-  if (isLocalMode) return result;
+  if (!isOnlineMode) return result;
 
   await updateWalletOnServer({ id, data });
   await walletLocalStorage.updateSyncStatus(id, 'synced');
@@ -152,14 +152,16 @@ export const getWalletsFromServer = async (): Promise<Wallet[]> => {
 };
 
 export const getWallets = async ({
-  isLocalMode = true,
+  isOnlineMode,
 }: {
-  isLocalMode?: boolean;
-} = {}): Promise<Wallet[]> => {
+  isOnlineMode: boolean;
+}): Promise<Wallet[]> => {
   const localWallets = await walletLocalStorage.getWallets();
-  if (isLocalMode) return localWallets;
+  console.log('Local wallets.');
+  if (!isOnlineMode) return localWallets;
 
   const serverWallets = await getWalletsFromServer();
+  console.log('Server wallets.');
 
   const totalWallets = [...localWallets];
   for (const serverWallet of serverWallets) {
@@ -202,17 +204,6 @@ const getWalletFromServer = async (id: string): Promise<Wallet | null> => {
     console.error('Error fetching wallet:', error);
     return null;
   }
-};
-
-export const getWallet = async (
-  id: string,
-  isLocalMode = true
-): Promise<Wallet | null> => {
-  const wallet = await walletLocalStorage.getWallet(id);
-  if (isLocalMode) return wallet;
-
-  const serverWallet = await getWalletFromServer(id);
-  return serverWallet;
 };
 
 export const deleteWalletFromServer = async (id: string): Promise<boolean> => {
@@ -266,12 +257,15 @@ export const deleteWalletFromServer = async (id: string): Promise<boolean> => {
   }
 };
 
-export const deleteWallet = async (
-  id: string,
-  isLocalMode = true
-): Promise<boolean> => {
+export const deleteWallet = async ({
+  id,
+  isOnlineMode,
+}: {
+  id: string;
+  isOnlineMode: boolean;
+}): Promise<boolean> => {
   const result = await walletLocalStorage.deleteWallet(id);
-  if (isLocalMode) return result;
+  if (!isOnlineMode) return result;
 
   await deleteWalletFromServer(id);
   await walletLocalStorage.updateSyncStatus(id, 'synced');

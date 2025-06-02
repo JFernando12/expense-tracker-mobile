@@ -8,7 +8,7 @@ import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Profile = () => {
-  const { user, refetchUser, isLoggedIn, isLocalMode } = useGlobalContext();
+  const { user, refetchUser, isLoggedIn, isOnlineMode } = useGlobalContext();
   const [isSyncing, setIsSyncing] = useState(false);
 
   const handleLogout = async () => {

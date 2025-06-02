@@ -50,7 +50,7 @@ const TransactionUpdate = () => {
   );
 
   const {
-    isLocalMode,
+    isOnlineMode,
     wallets,
     transactions,
     walletsLoading,
@@ -200,7 +200,10 @@ const TransactionUpdate = () => {
           onPress: async () => {
             setIsDeleting(true);
             try {
-              await deleteTransaction(transactionToEdit.id);
+              await deleteTransaction({
+                isOnlineMode,
+                id: transactionToEdit.id,
+              });
 
               Alert.alert('Éxito', 'Transacción eliminada exitosamente', [
                 {
@@ -261,7 +264,7 @@ const TransactionUpdate = () => {
         return;
       }
       await updateTransaction({
-        isLocalMode,
+        isOnlineMode,
         input: {
           id,
           data: {

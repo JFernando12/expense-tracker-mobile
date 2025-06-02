@@ -429,8 +429,7 @@ export const getTransactionsFromServer = async (filters?: {
         return {
           id: transaction.$id as string,
           walletId: transaction.wallet.$id as string,
-          categoryId: transaction.category.$id as string,
-          category: transaction.category.name as string,
+          categoryId: transaction.category as string,
           description: transaction.description as string,
           amount: transaction.amount as number,
           type: transaction.type as TransactionType,
@@ -498,31 +497,31 @@ export const searchTransactionsOnServer = async (
 };
 
 export const createTransaction = async ({
-  isLocalMode = true,
+  isOnlineMode,
   data,
 }: {
-  isLocalMode?: boolean;
+  isOnlineMode: boolean;
   data: Omit<Transaction, 'id'>;
 }): Promise<boolean> => {
   const { localId } = await transactionLocalStorage.createTransaction(data);
 
-  if (!isLocalMode) {
-    await createTransactionOnServer({ ...data, id: localId });
-    await transactionLocalStorage.updateSyncStatus(localId, 'synced');
-  }
+  if (!isOnlineMode) return !!localId;
+
+  await createTransactionOnServer({ ...data, id: localId });
+  await transactionLocalStorage.updateSyncStatus(localId, 'synced');
 
   return !!localId;
 };
 
 export const updateTransaction = async ({
   input: { id, data, removeImage = false },
-  isLocalMode = true,
+  isOnlineMode,
 }: {
   input: { id: string; data: Omit<Transaction, 'id'>; removeImage?: boolean };
-  isLocalMode?: boolean;
+  isOnlineMode: boolean;
 }): Promise<boolean> => {
   const result = await transactionLocalStorage.updateTransaction(id, data);
-  if (isLocalMode) return result;
+  if (!isOnlineMode) return result;
 
   await updateTransactionOnServer({ id, data, removeImage });
   await transactionLocalStorage.updateSyncStatus(id, 'synced');
@@ -530,29 +529,33 @@ export const updateTransaction = async ({
   return result;
 };
 
-export const deleteTransaction = async (
-  id: string,
-  isLocalMode = true
-): Promise<boolean> => {
+export const deleteTransaction = async ({
+  id,
+  isOnlineMode,
+}: {
+  id: string;
+  isOnlineMode: boolean;
+}): Promise<boolean> => {
   const result = await transactionLocalStorage.deleteTransaction(id);
+  if (!isOnlineMode) return result;
 
-  if (!isLocalMode) {
-    await deleteTransactionFromServer(id);
-    await transactionLocalStorage.updateSyncStatus(id, 'synced');
-  }
+  await deleteTransactionFromServer(id);
+  await transactionLocalStorage.updateSyncStatus(id, 'synced');
 
-  return !!result;
+  return result;
 };
 
 export const getTransactions = async ({
-  isLocalMode,
-}: { isLocalMode?: boolean } = {}): Promise<Transaction[]> => {
+  isOnlineMode,
+}: {
+  isOnlineMode: boolean;
+}): Promise<Transaction[]> => {
   const localTransactions = await transactionLocalStorage.getTransactions();
-  console.log('Local transactions:', localTransactions);
-  if (isLocalMode) return localTransactions;
+  console.log('Local transactions...');
+  if (!isOnlineMode) return localTransactions;
 
   const serverTransactions = await getTransactionsFromServer();
-  console.log('Server transactions:', serverTransactions);
+  console.log('Server transactions...');
 
   const totalTransactions = [...localTransactions];
   for (const serverTransaction of serverTransactions) {
@@ -608,17 +611,6 @@ const getTransactionFromServer = async (
     console.error('Error fetching transaction from server:', error);
     return null;
   }
-};
-
-export const getTransaction = async (
-  id: string,
-  isLocalMode = true
-): Promise<Transaction | null> => {
-  const transaction = await transactionLocalStorage.getTransaction(id);
-  if (isLocalMode) return transaction;
-
-  const serverTransaction = await getTransactionFromServer(id);
-  return serverTransaction;
 };
 
 export const searchTransactions = async (

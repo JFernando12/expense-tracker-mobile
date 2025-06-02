@@ -6,7 +6,7 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Wallet = () => {
-  const { wallets, totalBalance, user, isLocalMode } = useGlobalContext();
+  const { wallets, totalBalance, user, isOnlineMode } = useGlobalContext();
 
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-20">
@@ -17,7 +17,7 @@ const Wallet = () => {
           onPress={() => router.push('/(root)/(modals)/profileModal')}
           className="absolute right-0 top-0 size-12 rounded-full overflow-hidden bg-accent-200"
         >
-          {isLocalMode ? (
+          {isOnlineMode ? (
             <View className="h-full w-full flex items-center justify-center">
               <Text className="text-white text-lg font-bold">U</Text>
             </View>

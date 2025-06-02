@@ -1,6 +1,6 @@
 import { CategoryExpenseData, PeriodTypes } from '@/constants/interfaces';
 import { Transaction, Wallet } from '@/types/types';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import {
   getCurrentUser,
   getTotalBalance,
@@ -23,7 +23,7 @@ interface User {
 
 interface GlobalContextType {
   isLoggedIn: boolean;
-  isLocalMode: boolean; // Indicates if the app is running in local mode (no user logged in)
+  isOnlineMode: boolean; // Indicates if the app is running in local mode (no user logged in)
   user: User | null | undefined;
   userLoading: boolean;
   refetchUser: (newParams?: Record<string, string | number>) => Promise<void>;
@@ -74,7 +74,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   });
 
   const isLoggedIn = !!user;
-  const isLocalMode = !isLoggedIn;
+  const isOnlineMode = isLoggedIn;
 
   const {
     data: wallets,
@@ -82,7 +82,9 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     refetch: refetchWallets,
   } = useAppwrite({
     fn: getWallets,
-    params: {},
+    params: {
+      isOnlineMode,
+    },
   });
 
   const {
@@ -92,7 +94,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   } = useAppwrite({
     fn: getTransactions,
     params: {
-      isLocalMode,
+      isOnlineMode,
     },
   });
 
@@ -208,11 +210,18 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
       ]);
     }
   };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      refetchResources();
+    }
+  }, [isLoggedIn]);
+
   return (
     <GlobalContext.Provider
       value={{
         isLoggedIn,
-        isLocalMode,
+        isOnlineMode,
         refetchUser,
         refetchResources,
         refetchTransactions,

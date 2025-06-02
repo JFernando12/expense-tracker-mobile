@@ -46,7 +46,7 @@ class TransactionLocalStorage {
       categoryId: transaction.categoryId,
       amount: transaction.amount,
       type: transaction.type,
-      date: transaction.date,
+      date: new Date(transaction.date).toLocaleDateString('en-GB'),
       description: transaction.description,
       imageUrl: transaction.imageUrl,
     }));
@@ -63,12 +63,6 @@ class TransactionLocalStorage {
       console.error('Error saving transactions to storage:', error);
       throw error;
     }
-  }
-
-  // Get a single transaction by ID
-  async getTransaction(id: string): Promise<StoredTransaction | null> {
-    const transactions = await this.getTransactionsStorage();
-    return transactions.find((transaction) => transaction.id === id) || null;
   }
 
   // Add or update a transaction in local storage

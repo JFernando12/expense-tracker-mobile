@@ -61,7 +61,7 @@ const TransactionCreate = () => {
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const {
-    isLocalMode,
+    isOnlineMode,
     wallets,
     walletsLoading,
     refetchResources,
@@ -164,7 +164,7 @@ const TransactionCreate = () => {
     setIsSubmitting(true);
     try {
       await createTransaction({
-        isLocalMode,
+        isOnlineMode,
         data: {
           walletId: formData.walletId,
           categoryId: formData.categoryId,
