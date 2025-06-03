@@ -8,10 +8,11 @@ import {
   getWallets,
 } from './appwrite';
 import {
-  getExpensesByCategoryWithTimeFilter,
+  getExpensesByCategory,
   getTotalExpenses,
   getTotalIncomes,
 } from './appwrite/statistics';
+import { syncTransactions, syncWallets } from './services/syncData';
 import { useAppwrite } from './useAppwrite';
 
 interface User {
@@ -68,7 +69,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   const {
     data: user,
     loading: userLoading,
-    refetch,
+    refetch: refetchUser,
   } = useAppwrite({
     fn: getCurrentUser,
   });
@@ -113,7 +114,9 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     refetch: refetchTotalIncomes,
   } = useAppwrite({
     fn: getTotalIncomes,
-    params: {},
+    params: {
+      period: PeriodTypes.ALL_TIME,
+    },
   });
 
   const {
@@ -122,7 +125,9 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     refetch: refetchTotalExpenses,
   } = useAppwrite({
     fn: getTotalExpenses,
-    params: {},
+    params: {
+      period: PeriodTypes.ALL_TIME,
+    },
   });
 
   const {
@@ -166,7 +171,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     loading: categoryExpensesSevenDaysLoading,
     refetch: refetchCategoryExpensesSevenDays,
   } = useAppwrite({
-    fn: getExpensesByCategoryWithTimeFilter,
+    fn: getExpensesByCategory,
     params: { period: PeriodTypes.SEVEN_DAYS },
   });
 
@@ -175,7 +180,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     loading: categoryExpensesThirtyDaysLoading,
     refetch: refetchCategoryExpensesThirtyDays,
   } = useAppwrite({
-    fn: getExpensesByCategoryWithTimeFilter,
+    fn: getExpensesByCategory,
     params: { period: PeriodTypes.THIRTY_DAYS },
   });
 
@@ -184,38 +189,41 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     loading: categoryExpensesYearLoading,
     refetch: refetchCategoryExpensesYear,
   } = useAppwrite({
-    fn: getExpensesByCategoryWithTimeFilter,
+    fn: getExpensesByCategory,
     params: { period: PeriodTypes.ALL_TIME },
   });
 
-  const refetchUser = async () => {
-    await refetch();
+  const refetchResources = async () => {
+    await Promise.all([
+      refetchWallets(),
+      refetchTransactions(),
+      refetchTotalBalance(),
+      refetchTotalIncomes(),
+      refetchTotalExpenses(),
+      refetchTotalIncomesSevenDays(),
+      refetchTotalExpensesSevenDays(),
+      refetchTotalIncomesThirtyDays(),
+      refetchTotalExpensesThirtyDays(),
+      refetchCategoryExpensesSevenDays(),
+      refetchCategoryExpensesThirtyDays(),
+      refetchCategoryExpensesYear(),
+    ]);
   };
 
-  const refetchResources = async () => {
-    if (isLoggedIn) {
-      await Promise.all([
-        refetchWallets(),
-        refetchTransactions(),
-        refetchTotalBalance(),
-        refetchTotalIncomes(),
-        refetchTotalExpenses(),
-        refetchTotalIncomesSevenDays(),
-        refetchTotalExpensesSevenDays(),
-        refetchTotalIncomesThirtyDays(),
-        refetchTotalExpensesThirtyDays(),
-        refetchCategoryExpensesSevenDays(),
-        refetchCategoryExpensesThirtyDays(),
-        refetchCategoryExpensesYear(),
-      ]);
+  const syncData = async () => {
+    if (isOnlineMode) {
+      await syncWallets();
+      await syncTransactions();
+      await refetchResources();
     }
   };
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isOnlineMode) {
+      syncData();
       refetchResources();
     }
-  }, [isLoggedIn]);
+  }, [isOnlineMode]);
 
   return (
     <GlobalContext.Provider

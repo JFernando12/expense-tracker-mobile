@@ -1,3 +1,4 @@
+import { PeriodTypes } from '@/constants/interfaces';
 import { Transaction } from '@/types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-get-random-values';
@@ -138,8 +139,8 @@ class TransactionLocalStorage {
     return true;
   }
 
-  async searchTransactions(query: string): Promise<StoredTransaction[]> {
-    const transactions = await this.getTransactionsStorage();
+  async searchTransactions(query: string): Promise<Transaction[]> {
+    const transactions = await this.getTransactions();
     const searchLower = query.toLowerCase();
 
     return transactions.filter(
@@ -148,6 +149,110 @@ class TransactionLocalStorage {
         t.categoryId?.toLowerCase().includes(searchLower) ||
         t.amount?.toString().includes(searchLower)
     );
+  }
+
+  async getTotalIncome({ period }: { period: PeriodTypes }): Promise<number> {
+    const transactions = await this.getTransactions();
+    const now = new Date();
+    let startDate: Date | null = null;
+
+    switch (period) {
+      case PeriodTypes.SEVEN_DAYS:
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - 6);
+        break;
+      case PeriodTypes.THIRTY_DAYS:
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - 29);
+        break;
+      case PeriodTypes.ALL_TIME:
+        startDate = null;
+        break;
+    }
+
+    return transactions.reduce((total, transaction) => {
+      if (
+        transaction.type === 'income' &&
+        (!startDate || new Date(transaction.date) >= startDate)
+      ) {
+        return total + transaction.amount;
+      }
+      return total;
+    }, 0);
+  }
+
+  async getTotalExpenses({ period }: { period: PeriodTypes }): Promise<number> {
+    const transactions = await this.getTransactions();
+    const now = new Date();
+    let startDate: Date | null = null;
+
+    switch (period) {
+      case PeriodTypes.SEVEN_DAYS:
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - 6);
+        break;
+      case PeriodTypes.THIRTY_DAYS:
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - 29);
+        break;
+      case PeriodTypes.ALL_TIME:
+        startDate = null;
+        break;
+    }
+
+    return transactions.reduce((total, transaction) => {
+      if (
+        transaction.type === 'expense' &&
+        (!startDate || new Date(transaction.date) >= startDate)
+      ) {
+        return total + transaction.amount;
+      }
+      return total;
+    }, 0);
+  }
+
+  async getExpensesByCategory({
+    period,
+  }: {
+    period: PeriodTypes;
+  }): Promise<{ categoryId: string; total: number }[]> {
+    const transactions = await this.getTransactions();
+
+    const now = new Date();
+    let startDate: Date | null = null;
+
+    switch (period) {
+      case PeriodTypes.SEVEN_DAYS:
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - 6);
+        break;
+      case PeriodTypes.THIRTY_DAYS:
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - 29);
+        break;
+      case PeriodTypes.ALL_TIME:
+        startDate = null;
+        break;
+    }
+
+    const categoryTotals: Record<string, number> = {};
+
+    transactions.forEach((transaction) => {
+      if (
+        transaction.type === 'expense' &&
+        (!startDate || new Date(transaction.date) >= startDate)
+      ) {
+        if (!categoryTotals[transaction.categoryId]) {
+          categoryTotals[transaction.categoryId] = 0;
+        }
+        categoryTotals[transaction.categoryId] += transaction.amount;
+      }
+    });
+
+    return Object.entries(categoryTotals).map(([categoryId, total]) => ({
+      categoryId,
+      total,
+    }));
   }
 }
 

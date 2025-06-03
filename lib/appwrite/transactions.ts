@@ -601,11 +601,9 @@ export const getTransactions = async ({
   isOnlineMode: boolean;
 }): Promise<Transaction[]> => {
   const localTransactions = await transactionLocalStorage.getTransactions();
-  console.log('Local transactions...');
   if (!isOnlineMode) return localTransactions;
 
   const serverTransactions = await getTransactionsFromServer();
-  console.log('Server transactions...');
 
   const totalTransactions = [...localTransactions];
   for (const serverTransaction of serverTransactions) {
@@ -620,47 +618,6 @@ export const getTransactions = async ({
   }
 
   return totalTransactions;
-};
-
-const getTransactionFromServer = async (
-  id: string
-): Promise<Transaction | null> => {
-  try {
-    const user = await getCurrentUser();
-    if (!user) return null;
-
-    const queries = [Query.isNull('deleted_at')];
-    const transaction = await databases.getDocument(
-      config.databaseId,
-      config.transactionCollectionId,
-      id,
-      queries
-    );
-
-    if (!transaction || transaction.user_id !== user.$id) {
-      return null;
-    }
-
-    const imageUrl =
-      transaction.image ??
-      storage
-        .getFileView(config.storageBucketId, transaction.image as string)
-        .toString();
-
-    return {
-      id: transaction.$id as string,
-      walletId: transaction.wallet.$id as string,
-      categoryId: transaction.category.$id as string,
-      description: transaction.description as string,
-      amount: transaction.amount as number,
-      type: transaction.type as TransactionType,
-      date: new Date(transaction.date).toLocaleDateString('en-GB'),
-      imageUrl,
-    };
-  } catch (error) {
-    console.error('Error fetching transaction from server:', error);
-    return null;
-  }
 };
 
 export const searchTransactions = async (

@@ -177,7 +177,6 @@ const TransactionCreate = () => {
       });
 
       await refetchResources();
-      await refetchTransactions();
       setIsSubmitting(false);
       router.back();
     } catch (error) {

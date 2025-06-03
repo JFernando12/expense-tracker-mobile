@@ -34,7 +34,7 @@ export const upsertWalletOnServer = async ({
 
     return true;
   } catch (error) {
-    console.error('Error upserting transaction:', error);
+    console.error('Error upserting wallets:', error);
     return false;
   }
 };
@@ -190,11 +190,9 @@ export const getWallets = async ({
   isOnlineMode: boolean;
 }): Promise<Wallet[]> => {
   const localWallets = await walletLocalStorage.getWallets();
-  console.log('Local wallets.');
   if (!isOnlineMode) return localWallets;
 
   const serverWallets = await getWalletsFromServer();
-  console.log('Server wallets.');
 
   const totalWallets = [...localWallets];
   for (const serverWallet of serverWallets) {
