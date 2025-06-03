@@ -1,24 +1,11 @@
-import { Wallet } from '@/types/types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid';
+import { Wallet } from "@/types/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import "react-native-get-random-values";
+import { v4 as uuidv4 } from "uuid";
 
-// Storage keys
-const WALLETS_KEY = 'wallets';
-const PENDING_CHANGES_KEY = 'pending_wallet_changes';
-const LAST_SYNC_KEY = 'last_wallet_sync';
-
-// Pending change types
-export interface PendingWalletChange {
-  id: string;
-  type: 'create' | 'update' | 'delete';
-  data?: Partial<Wallet>;
-  timestamp: number;
-  localId?: string; // For offline-created wallets
-}
-
+const WALLETS_KEY = "wallets";
 export interface StoredWallet extends Wallet {
-  syncStatus: 'synced' | 'pending' | 'conflict';
+  syncStatus: "synced" | "pending" | "conflict";
   lastModified: number;
   deleteAt?: number;
 }
@@ -30,22 +17,20 @@ class WalletLocalStorage {
       if (!walletsJson) return [];
       return JSON.parse(walletsJson);
     } catch (error) {
-      console.error('Error getting wallets from storage:', error);
+      console.error("Error getting wallets from storage:", error);
       return [];
     }
   }
 
-  // Save wallets to local storage
   async saveWallets(wallets: StoredWallet[]): Promise<void> {
     try {
       await AsyncStorage.setItem(WALLETS_KEY, JSON.stringify(wallets));
     } catch (error) {
-      console.error('Error saving wallets to storage:', error);
+      console.error("Error saving wallets to storage:", error);
       throw error;
     }
   }
 
-  // Get all wallets
   async getWallets(): Promise<Wallet[]> {
     const wallets = await this.getWalletsStorage();
     const walletsNotDeleted = wallets.filter((wallet) => !wallet.deleteAt);
@@ -60,7 +45,7 @@ class WalletLocalStorage {
   }
 
   async upsertWallet(
-    wallet: Omit<StoredWallet, 'currentBalance'>
+    wallet: Omit<StoredWallet, "currentBalance">
   ): Promise<void> {
     const wallets = await this.getWalletsStorage();
     const existingIndex = wallets.findIndex((w) => w.id === wallet.id);
@@ -87,7 +72,7 @@ class WalletLocalStorage {
 
   async updateSyncStatus(
     id: string,
-    status: 'synced' | 'pending' | 'conflict'
+    status: "synced" | "pending" | "conflict"
   ): Promise<void> {
     const wallets = await this.getWalletsStorage();
     const walletIndex = wallets.findIndex((t) => t.id === id);
@@ -98,14 +83,14 @@ class WalletLocalStorage {
   }
 
   async createWallet(
-    wallet: Omit<Wallet, 'id' | 'currentBalance'>
+    wallet: Omit<Wallet, "id" | "currentBalance">
   ): Promise<{ localId: string }> {
     const localId = uuidv4();
-    const storedWallet: Omit<StoredWallet, 'currentBalance'> = {
+    const storedWallet: Omit<StoredWallet, "currentBalance"> = {
       ...wallet,
       id: localId,
       lastModified: Date.now(),
-      syncStatus: 'pending',
+      syncStatus: "pending",
     };
 
     await this.upsertWallet(storedWallet);
@@ -115,12 +100,12 @@ class WalletLocalStorage {
 
   async updateWallet(
     id: string,
-    updates: Omit<Wallet, 'id' | 'currentBalance'>
+    updates: Omit<Wallet, "id" | "currentBalance">
   ): Promise<boolean> {
-    const storedWallet: Omit<StoredWallet, 'currentBalance'> = {
+    const storedWallet: Omit<StoredWallet, "currentBalance"> = {
       ...updates,
       id,
-      syncStatus: 'pending',
+      syncStatus: "pending",
       lastModified: Date.now(),
     };
 

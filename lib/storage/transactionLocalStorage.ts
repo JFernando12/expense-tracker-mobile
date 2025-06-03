@@ -4,20 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 
-// Storage keys
 const TRANSACTIONS_KEY = 'transactions';
-const PENDING_CHANGES_KEY = 'pending_transaction_changes';
-const LAST_SYNC_KEY = 'last_transaction_sync';
-
-// Pending change types
-export interface PendingTransactionChange {
-  id: string;
-  type: 'create' | 'update' | 'delete';
-  data?: Partial<Transaction>;
-  timestamp: number;
-  localId?: string; // For offline-created transactions
-}
-
 export interface StoredTransaction extends Transaction {
   syncStatus: 'synced' | 'pending' | 'conflict';
   lastModified: number;
@@ -53,7 +40,6 @@ class TransactionLocalStorage {
     }));
   }
 
-  // Save transactions to local storage
   async saveTransactions(transactions: StoredTransaction[]): Promise<void> {
     try {
       await AsyncStorage.setItem(
@@ -66,7 +52,6 @@ class TransactionLocalStorage {
     }
   }
 
-  // Add or update a transaction in local storage
   async upsertTransaction(transaction: StoredTransaction): Promise<void> {
     const transactions = await this.getTransactionsStorage();
     const existingIndex = transactions.findIndex(
