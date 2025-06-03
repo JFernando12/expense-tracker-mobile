@@ -15,6 +15,7 @@ export const createTransaction = async ({
   isOnlineMode: boolean;
   data: Omit<Transaction, "id">;
 }): Promise<boolean> => {
+  console.log("Creating transaction", data);
   const { localId } = await transactionLocalStorage.createTransaction(data);
   
   // Update Wallets' current balance
