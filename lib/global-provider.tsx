@@ -190,6 +190,12 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     await Promise.all([
       refetchWallets(),
       refetchTransactions(),
+    ]);
+  };
+
+  const refetchStatistics = async () => {
+    console.log('Refetching statistics...');
+    await Promise.all([
       refetchTotalBalance(),
       refetchTotalIncomes(),
       refetchTotalExpenses(),
@@ -201,7 +207,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
       refetchCategoryExpensesThirtyDays(),
       refetchCategoryExpensesYear(),
     ]);
-  };
+  }
 
   const syncData = async () => {
     if (isOnlineMode) {
@@ -217,6 +223,10 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
       refetchResources();
     }
   }, [isOnlineMode]);
+
+  useEffect(() => {
+    refetchStatistics();
+  }, [wallets, transactions]);
 
   return (
     <GlobalContext.Provider

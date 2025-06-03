@@ -1,12 +1,12 @@
-import { PeriodTypes } from '@/constants/interfaces';
-import { Transaction } from '@/types/types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid';
+import { PeriodTypes } from "@/constants/interfaces";
+import { Transaction, TransactionType } from "@/types/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import "react-native-get-random-values";
+import { v4 as uuidv4 } from "uuid";
 
-const TRANSACTIONS_KEY = 'transactions';
+const TRANSACTIONS_KEY = "transactions";
 export interface StoredTransaction extends Transaction {
-  syncStatus: 'synced' | 'pending' | 'conflict';
+  syncStatus: "synced" | "pending" | "conflict";
   lastModified: number;
   deleteAt?: number;
 }
@@ -18,7 +18,7 @@ class TransactionLocalStorage {
       if (!transactionsJson) return [];
       return JSON.parse(transactionsJson);
     } catch (error) {
-      console.error('Error getting wallets from storage:', error);
+      console.error("Error getting wallets from storage:", error);
       return [];
     }
   }
@@ -34,12 +34,12 @@ class TransactionLocalStorage {
       categoryId: transaction.categoryId,
       amount: transaction.amount,
       type: transaction.type,
-      date: new Date(transaction.date).toLocaleDateString('en-GB'),
+      date: new Date(transaction.date).toLocaleDateString("en-GB"),
       description: transaction.description,
       imageUrl: transaction.imageUrl,
     };
   }
-  
+
   async getTransactions(): Promise<Transaction[]> {
     const transactions = await this.getTransactionsStorage();
     const transactionsNotDeleted = transactions.filter(
@@ -52,7 +52,7 @@ class TransactionLocalStorage {
       categoryId: transaction.categoryId,
       amount: transaction.amount,
       type: transaction.type,
-      date: new Date(transaction.date).toLocaleDateString('en-GB'),
+      date: new Date(transaction.date).toLocaleDateString("en-GB"),
       description: transaction.description,
       imageUrl: transaction.imageUrl,
     }));
@@ -65,7 +65,7 @@ class TransactionLocalStorage {
         JSON.stringify(transactions)
       );
     } catch (error) {
-      console.error('Error saving transactions to storage:', error);
+      console.error("Error saving transactions to storage:", error);
       throw error;
     }
   }
@@ -78,7 +78,7 @@ class TransactionLocalStorage {
 
     const storedTransaction: StoredTransaction = {
       ...transaction,
-      syncStatus: 'pending',
+      syncStatus: "pending",
     };
 
     if (existingIndex >= 0) {
@@ -92,7 +92,7 @@ class TransactionLocalStorage {
 
   async updateSyncStatus(
     id: string,
-    status: 'synced' | 'pending' | 'conflict'
+    status: "synced" | "pending" | "conflict"
   ): Promise<void> {
     const transactions = await this.getTransactionsStorage();
     const transactionIndex = transactions.findIndex((t) => t.id === id);
@@ -103,13 +103,13 @@ class TransactionLocalStorage {
   }
 
   async createTransaction(
-    transaction: Omit<Transaction, 'id'>
+    transaction: Omit<Transaction, "id">
   ): Promise<{ localId: string }> {
     const localId = uuidv4();
     const storedTransaction: StoredTransaction = {
       ...transaction,
       id: localId,
-      syncStatus: 'pending',
+      syncStatus: "pending",
       lastModified: Date.now(),
     };
 
@@ -120,12 +120,12 @@ class TransactionLocalStorage {
 
   async updateTransaction(
     id: string,
-    updates: Omit<Transaction, 'id'>
+    updates: Omit<Transaction, "id">
   ): Promise<boolean> {
     const storedTransaction: StoredTransaction = {
       ...updates,
       id,
-      syncStatus: 'pending',
+      syncStatus: "pending",
       lastModified: Date.now(),
     };
 
@@ -173,14 +173,28 @@ class TransactionLocalStorage {
         break;
     }
 
-    return transactions.reduce((total, transaction) => {
-      if (
-        transaction.type === 'income' &&
-        (!startDate || new Date(transaction.date) >= startDate)
-      ) {
-        return total + transaction.amount;
+    const transactionsFiltered = transactions.filter((transaction) => {
+      if (transaction.type !== TransactionType.INCOME) {
+        return false;
       }
-      return total;
+
+      if (!startDate) {
+        return true;
+      }
+
+      // Parse the date from DD/MM/YYYY format
+      const [day, month, year] = transaction.date.split("/");
+      const transactionDate = new Date(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(day)
+      );
+
+      return transactionDate >= startDate;
+    });
+
+    return transactionsFiltered.reduce((total, transaction) => {
+      return total + transaction.amount;
     }, 0);
   }
 
@@ -202,15 +216,30 @@ class TransactionLocalStorage {
         startDate = null;
         break;
     }
+   
 
-    return transactions.reduce((total, transaction) => {
-      if (
-        transaction.type === 'expense' &&
-        (!startDate || new Date(transaction.date) >= startDate)
-      ) {
-        return total + transaction.amount;
+    const transactionsFiltered = transactions.filter((transaction) => {
+      if (transaction.type !== TransactionType.EXPENSE) {
+        return false;
       }
-      return total;
+
+      if (!startDate) {
+        return true;
+      }
+
+      // Parse the date from DD/MM/YYYY format
+      const [day, month, year] = transaction.date.split("/");
+      const transactionDate = new Date(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(day)
+      );
+
+      return transactionDate >= startDate;
+    });
+
+    return transactionsFiltered.reduce((total, transaction) => {
+      return total + transaction.amount;
     }, 0);
   }
 
@@ -239,16 +268,29 @@ class TransactionLocalStorage {
     }
 
     const categoryTotals: Record<string, number> = {};
-
     transactions.forEach((transaction) => {
-      if (
-        transaction.type === 'expense' &&
-        (!startDate || new Date(transaction.date) >= startDate)
-      ) {
-        if (!categoryTotals[transaction.categoryId]) {
-          categoryTotals[transaction.categoryId] = 0;
+      if (transaction.type === "expense") {
+        let includeTransaction = false;
+
+        if (!startDate) {
+          includeTransaction = true;
+        } else {
+          // Parse the date from DD/MM/YYYY format
+          const [day, month, year] = transaction.date.split("/");
+          const transactionDate = new Date(
+            parseInt(year),
+            parseInt(month) - 1,
+            parseInt(day)
+          );
+          includeTransaction = transactionDate >= startDate;
         }
-        categoryTotals[transaction.categoryId] += transaction.amount;
+
+        if (includeTransaction) {
+          if (!categoryTotals[transaction.categoryId]) {
+            categoryTotals[transaction.categoryId] = 0;
+          }
+          categoryTotals[transaction.categoryId] += transaction.amount;
+        }
       }
     });
 
@@ -263,7 +305,7 @@ class TransactionLocalStorage {
       await AsyncStorage.removeItem(TRANSACTIONS_KEY);
       return true;
     } catch (error) {
-      console.error('Error clearing transactions from storage:', error);
+      console.error("Error clearing transactions from storage:", error);
       return false;
     }
   }
