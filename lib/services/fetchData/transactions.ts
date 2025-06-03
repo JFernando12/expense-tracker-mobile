@@ -13,11 +13,12 @@ export const createTransaction = async ({
   data,
 }: {
   isOnlineMode: boolean;
-  data: Omit<Transaction, "id">;
+  data: Omit<Transaction, 'id' | 'updatedAt'>;
 }): Promise<boolean> => {
-  console.log("Creating transaction", data);
-  const { localId } = await transactionLocalStorage.createTransaction(data);
-  
+  console.log('Creating transaction', data);
+  const { localId, updatedAt } =
+    await transactionLocalStorage.createTransaction(data);
+
   // Update Wallets' current balance
   await walletLocalStorage.addToBalance({
     id: data.walletId,
@@ -27,19 +28,24 @@ export const createTransaction = async ({
 
   if (!isOnlineMode) return !!localId;
 
-  await createTransactionOnServer({ ...data, id: localId });
-  await transactionLocalStorage.updateSyncStatus(localId, "synced");
+  await createTransactionOnServer({ ...data, id: localId, updatedAt });
+  await transactionLocalStorage.updateSyncStatus(localId, 'synced');
 
   return !!localId;
 };
 
 export const updateTransaction = async ({
-  input: { id, data, removeImage = false },
+  input: { id, data, removeImage },
   isOnlineMode,
 }: {
-  input: { id: string; data: Omit<Transaction, "id">; removeImage?: boolean };
+  input: {
+    id: string;
+    data: Omit<Transaction, 'id' | 'updatedAt'>;
+    removeImage: boolean;
+  };
   isOnlineMode: boolean;
 }): Promise<boolean> => {
+  console.log('Updating transaction', id, data);
   const oldTransaction = await transactionLocalStorage.getTransaction(id);
   if (!oldTransaction) return false;
 
@@ -57,14 +63,23 @@ export const updateTransaction = async ({
     type: data.type,
   });
 
-  const result = await transactionLocalStorage.updateTransaction(id, data);
+  const { success, updatedAt } =
+    await transactionLocalStorage.updateTransaction({
+      id,
+      data,
+      removeImage,
+    });
 
-  if (!isOnlineMode) return result;
+  if (!isOnlineMode) return success;
 
-  await updateTransactionOnServer({ id, data, removeImage });
-  await transactionLocalStorage.updateSyncStatus(id, "synced");
+  await updateTransactionOnServer({
+    id,
+    data: { ...data, updatedAt },
+    removeImage,
+  });
+  await transactionLocalStorage.updateSyncStatus(id, 'synced');
 
-  return result;
+  return success;
 };
 
 export const deleteTransaction = async ({
@@ -74,13 +89,14 @@ export const deleteTransaction = async ({
   id: string;
   isOnlineMode: boolean;
 }): Promise<boolean> => {
-  const result = await transactionLocalStorage.deleteTransaction(id);
-  if (!isOnlineMode) return result;
+  const { success, deletedAt } =
+    await transactionLocalStorage.deleteTransaction(id);
+  if (!isOnlineMode) return success;
 
-  await deleteTransactionFromServer(id);
-  await transactionLocalStorage.updateSyncStatus(id, "synced");
+  await deleteTransactionFromServer({ id, deletedAt });
+  await transactionLocalStorage.updateSyncStatus(id, 'synced');
 
-  return result;
+  return success;
 };
 
 export const getTransactions = async ({

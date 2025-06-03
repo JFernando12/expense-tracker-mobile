@@ -10,8 +10,9 @@ export interface Transaction {
   amount: number;
   type: TransactionType;
   date: string;
-  description?: string;
-  imageUrl?: string;
+  description: string | null;
+  imageUrl: string | null;
+  updatedAt: number;
 }
 
 export interface Wallet {

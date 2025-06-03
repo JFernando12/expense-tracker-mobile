@@ -194,7 +194,6 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   };
 
   const refetchStatistics = async () => {
-    console.log('Refetching statistics...');
     await Promise.all([
       refetchTotalBalance(),
       refetchTotalIncomes(),
@@ -207,7 +206,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
       refetchCategoryExpensesThirtyDays(),
       refetchCategoryExpensesYear(),
     ]);
-  }
+  };
 
   const syncData = async () => {
     if (isOnlineMode) {

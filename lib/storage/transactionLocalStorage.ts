@@ -1,13 +1,14 @@
 import { PeriodTypes } from "@/constants/interfaces";
 import { Transaction, TransactionType } from "@/types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import "react-native-get-random-values";
-import { v4 as uuidv4 } from "uuid";
+import * as FileSystem from 'expo-file-system';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 
-const TRANSACTIONS_KEY = "transactions";
+const TRANSACTIONS_KEY = 'transactions';
 export interface StoredTransaction extends Transaction {
-  syncStatus: "synced" | "pending" | "conflict";
-  lastModified: number;
+  syncStatus: 'synced' | 'pending' | 'conflict';
+  updatedAt: number;
   deleteAt?: number;
 }
 
@@ -18,7 +19,7 @@ class TransactionLocalStorage {
       if (!transactionsJson) return [];
       return JSON.parse(transactionsJson);
     } catch (error) {
-      console.error("Error getting wallets from storage:", error);
+      console.error('Error getting wallets from storage:', error);
       return [];
     }
   }
@@ -30,11 +31,12 @@ class TransactionLocalStorage {
 
     return {
       id: transaction.id,
+      updatedAt: transaction.updatedAt,
       walletId: transaction.walletId,
       categoryId: transaction.categoryId,
       amount: transaction.amount,
       type: transaction.type,
-      date: new Date(transaction.date).toLocaleDateString("en-GB"),
+      date: new Date(transaction.date).toLocaleDateString('en-GB'),
       description: transaction.description,
       imageUrl: transaction.imageUrl,
     };
@@ -48,11 +50,12 @@ class TransactionLocalStorage {
 
     return transactionsNotDeleted.map((transaction) => ({
       id: transaction.id,
+      updatedAt: transaction.updatedAt,
       walletId: transaction.walletId,
       categoryId: transaction.categoryId,
       amount: transaction.amount,
       type: transaction.type,
-      date: new Date(transaction.date).toLocaleDateString("en-GB"),
+      date: new Date(transaction.date).toLocaleDateString('en-GB'),
       description: transaction.description,
       imageUrl: transaction.imageUrl,
     }));
@@ -65,7 +68,7 @@ class TransactionLocalStorage {
         JSON.stringify(transactions)
       );
     } catch (error) {
-      console.error("Error saving transactions to storage:", error);
+      console.error('Error saving transactions to storage:', error);
       throw error;
     }
   }
@@ -78,7 +81,7 @@ class TransactionLocalStorage {
 
     const storedTransaction: StoredTransaction = {
       ...transaction,
-      syncStatus: "pending",
+      syncStatus: 'pending',
     };
 
     if (existingIndex >= 0) {
@@ -92,7 +95,7 @@ class TransactionLocalStorage {
 
   async updateSyncStatus(
     id: string,
-    status: "synced" | "pending" | "conflict"
+    status: 'synced' | 'pending' | 'conflict'
   ): Promise<void> {
     const transactions = await this.getTransactionsStorage();
     const transactionIndex = transactions.findIndex((t) => t.id === id);
@@ -103,43 +106,69 @@ class TransactionLocalStorage {
   }
 
   async createTransaction(
-    transaction: Omit<Transaction, "id">
-  ): Promise<{ localId: string }> {
+    transaction: Omit<Transaction, 'id' | 'updatedAt'>
+  ): Promise<{ localId: string; updatedAt: number }> {
     const localId = uuidv4();
+    const updatedAt = Date.now();
     const storedTransaction: StoredTransaction = {
       ...transaction,
       id: localId,
-      syncStatus: "pending",
-      lastModified: Date.now(),
+      syncStatus: 'pending',
+      updatedAt,
     };
 
     await this.upsertTransaction(storedTransaction);
 
-    return { localId };
+    return { localId, updatedAt };
   }
 
-  async updateTransaction(
-    id: string,
-    updates: Omit<Transaction, "id">
-  ): Promise<boolean> {
+  async updateTransaction({
+    id,
+    data,
+    removeImage,
+  }: {
+    id: string;
+    data: Omit<Transaction, 'id' | 'updatedAt'>;
+    removeImage?: boolean;
+  }): Promise<{ success: boolean; updatedAt: number }> {
+    const updatedAt = Date.now();
     const storedTransaction: StoredTransaction = {
-      ...updates,
+      ...data,
       id,
-      syncStatus: "pending",
-      lastModified: Date.now(),
+      syncStatus: 'pending',
+      updatedAt,
     };
 
+    const oldTransaction = await this.getTransaction(id);
+    if (!oldTransaction) return { success: false, updatedAt: 0 };
+
+    // If the image is removed, remove it from the filesystem
+    if (removeImage && oldTransaction.imageUrl) {
+      try {
+        await FileSystem.deleteAsync(oldTransaction.imageUrl, {
+          idempotent: true,
+        });
+      } catch (error) {
+        console.error('Error deleting image file:', error);
+      }
+      storedTransaction.imageUrl = null; // Clear the image URL
+    }
+
     await this.upsertTransaction(storedTransaction);
-    return true;
+
+    return { success: true, updatedAt };
   }
 
-  async deleteTransaction(id: string): Promise<boolean> {
+  async deleteTransaction(
+    id: string
+  ): Promise<{ success: boolean; deletedAt: number }> {
     const transactions = await this.getTransactionsStorage();
     const transaction = transactions.find((t) => t.id === id);
-    if (!transaction) return false;
-    transaction.deleteAt = Date.now();
+    if (!transaction) return { success: false, deletedAt: 0 };
+    const deletedAt = Date.now();
+    transaction.deleteAt = deletedAt;
     await this.upsertTransaction(transaction);
-    return true;
+    return { success: true, deletedAt };
   }
 
   async searchTransactions(query: string): Promise<Transaction[]> {
@@ -183,7 +212,7 @@ class TransactionLocalStorage {
       }
 
       // Parse the date from DD/MM/YYYY format
-      const [day, month, year] = transaction.date.split("/");
+      const [day, month, year] = transaction.date.split('/');
       const transactionDate = new Date(
         parseInt(year),
         parseInt(month) - 1,
@@ -216,7 +245,6 @@ class TransactionLocalStorage {
         startDate = null;
         break;
     }
-   
 
     const transactionsFiltered = transactions.filter((transaction) => {
       if (transaction.type !== TransactionType.EXPENSE) {
@@ -228,7 +256,7 @@ class TransactionLocalStorage {
       }
 
       // Parse the date from DD/MM/YYYY format
-      const [day, month, year] = transaction.date.split("/");
+      const [day, month, year] = transaction.date.split('/');
       const transactionDate = new Date(
         parseInt(year),
         parseInt(month) - 1,
@@ -269,14 +297,14 @@ class TransactionLocalStorage {
 
     const categoryTotals: Record<string, number> = {};
     transactions.forEach((transaction) => {
-      if (transaction.type === "expense") {
+      if (transaction.type === 'expense') {
         let includeTransaction = false;
 
         if (!startDate) {
           includeTransaction = true;
         } else {
           // Parse the date from DD/MM/YYYY format
-          const [day, month, year] = transaction.date.split("/");
+          const [day, month, year] = transaction.date.split('/');
           const transactionDate = new Date(
             parseInt(year),
             parseInt(month) - 1,
@@ -305,7 +333,7 @@ class TransactionLocalStorage {
       await AsyncStorage.removeItem(TRANSACTIONS_KEY);
       return true;
     } catch (error) {
-      console.error("Error clearing transactions from storage:", error);
+      console.error('Error clearing transactions from storage:', error);
       return false;
     }
   }

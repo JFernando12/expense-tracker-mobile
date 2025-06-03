@@ -1,11 +1,15 @@
-import CustomField from "@/components/CustomField";
+import CustomField from '@/components/CustomField';
 import { CATEGORIES } from '@/constants/categories';
 import icons from '@/constants/icons';
 import { useGlobalContext } from '@/lib/global-provider';
-import { deleteTransaction, updateTransaction } from "@/lib/services/fetchData/transactions";
+import {
+  deleteTransaction,
+  updateTransaction,
+} from '@/lib/services/fetchData/transactions';
 import { TransactionType } from '@/types/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -44,6 +48,7 @@ const TransactionUpdate = () => {
     value: category.id,
     label: category.name,
   }));
+
   const { id } = useLocalSearchParams();
   const [transactionType, setTransactionType] = useState<'expense' | 'income'>(
     'expense'
@@ -106,7 +111,7 @@ const TransactionUpdate = () => {
         transactionToEdit.type === TransactionType.INCOME ? 'income' : 'expense'
       );
       // Set existing image
-      setSelectedImage(transactionToEdit.imageUrl || null);
+      setSelectedImage(transactionToEdit.imageUrl);
     }
   }, [transactionToEdit, wallets]);
 
@@ -119,10 +124,10 @@ const TransactionUpdate = () => {
 
   const pickImage = async () => {
     try {
-      const { status } =
+      const { granted } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-      if (status !== 'granted') {
+      if (!granted) {
         Alert.alert(
           'Permisos requeridos',
           'Se necesitan permisos para acceder a la galería de fotos.'
@@ -132,12 +137,26 @@ const TransactionUpdate = () => {
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: 'images',
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
+        quality: 1,
       });
+
       if (!result.canceled && result.assets[0]) {
-        setSelectedImage(result.assets[0].uri);
+        // Save the image to local filesystem
+        const localUri = result.assets[0].uri;
+        const filename = localUri.split('/').pop();
+        const documentDirectory = FileSystem.documentDirectory || '';
+        const destUri = documentDirectory + filename;
+        try {
+          await FileSystem.copyAsync({
+            from: localUri,
+            to: destUri,
+          });
+          Alert.alert('Guardado', `Imagen guardada en ${destUri}`);
+        } catch (error) {
+          console.error('Error al guardar la imagen:', error);
+          Alert.alert('Error', 'No se pudo guardar la imagen');
+        }
+        setSelectedImage(destUri);
       }
     } catch (error) {
       console.error('Error picking image:', error);
@@ -147,9 +166,9 @@ const TransactionUpdate = () => {
 
   const takePhoto = async () => {
     try {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      const { granted } = await ImagePicker.requestCameraPermissionsAsync();
 
-      if (status !== 'granted') {
+      if (!granted) {
         Alert.alert(
           'Permisos requeridos',
           'Se necesitan permisos para acceder a la cámara.'
@@ -158,12 +177,28 @@ const TransactionUpdate = () => {
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
+        quality: 1,
       });
+
       if (!result.canceled && result.assets[0]) {
-        setSelectedImage(result.assets[0].uri);
+        // Save the image to local filesystem
+        const localUri = result.assets[0].uri;
+        const filename = localUri.split('/').pop();
+        const documentDirectory = FileSystem.documentDirectory || '';
+        const destUri = documentDirectory + filename;
+
+        try {
+          await FileSystem.copyAsync({
+            from: localUri,
+            to: destUri,
+          });
+          Alert.alert('Saved', `Image saved to ${destUri}`);
+        } catch (error) {
+          console.error('Error saving image:', error);
+          Alert.alert('Error', 'Failed to save image');
+        }
+
+        setSelectedImage(destUri);
       }
     } catch (error) {
       console.error('Error taking photo:', error);
@@ -183,6 +218,7 @@ const TransactionUpdate = () => {
     setSelectedImage(null);
     setRemoveImage(true);
   };
+
   const handleDelete = async () => {
     if (!transactionToEdit) return;
 
@@ -249,6 +285,7 @@ const TransactionUpdate = () => {
     }
     return true;
   };
+
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
@@ -274,8 +311,9 @@ const TransactionUpdate = () => {
             amount: parseFloat(formData.amount),
             type: transactionType as TransactionType,
             date: formData.date.toISOString(),
-            imageUrl: selectedImage || undefined,
+            imageUrl: selectedImage,
           },
+          removeImage,
         },
       });
 

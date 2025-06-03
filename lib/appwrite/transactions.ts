@@ -78,6 +78,7 @@ export const createTransactionOnServer = async ({
   type,
   date,
   imageUrl,
+  updatedAt,
 }: Transaction): Promise<Transaction | null> => {
   try {
     const user = await getCurrentUser();
@@ -97,17 +98,18 @@ export const createTransactionOnServer = async ({
     );
 
     if (!wallet) {
-      console.error("Wallet not found");
+      console.error('Wallet not found');
       return null;
     }
 
     if (wallet.user_id !== user.$id) {
-      console.error("Unauthorized access to wallet");
+      console.error('Unauthorized access to wallet');
       return null;
     }
 
     // Create the transaction
     const transactionData: any = {
+      updated_at: updatedAt,
       wallet: walletId,
       category: categoryId,
       description,
@@ -134,7 +136,7 @@ export const createTransactionOnServer = async ({
     // Update wallet balance
     const currentBalance = wallet.current_balance as number;
     const newBalance =
-      type === "income" ? currentBalance + amount : currentBalance - amount;
+      type === 'income' ? currentBalance + amount : currentBalance - amount;
 
     await databases.updateDocument(
       config.databaseId,
@@ -154,12 +156,13 @@ export const createTransactionOnServer = async ({
 
     return {
       id: createdTransaction.$id as string,
+      updatedAt: createdTransaction.updatedAt as number,
       walletId: createdTransaction.wallet.$id as string,
       categoryId: createdTransaction.category.$id as string,
       description: createdTransaction.description as string,
       amount: createdTransaction.amount as number,
       type: createdTransaction.type as TransactionType,
-      date: new Date(createdTransaction.date).toLocaleDateString("en-GB"),
+      date: new Date(createdTransaction.date).toLocaleDateString('en-GB'),
       imageUrl: createdTransaction.image
         ? storage
             .getFileView(
@@ -167,10 +170,10 @@ export const createTransactionOnServer = async ({
               createdTransaction.image as string
             )
             .toString()
-        : undefined,
+        : null,
     };
   } catch (error) {
-    console.error("Error creating transaction:", error);
+    console.error('Error creating transaction:', error);
     return null;
   }
 };
@@ -181,7 +184,7 @@ export const updateTransactionOnServer = async ({
   removeImage,
 }: {
   id: string;
-  data: Omit<Transaction, "id">;
+  data: Omit<Transaction, 'id'>;
   removeImage?: boolean;
 }): Promise<Transaction | null> => {
   try {
@@ -196,12 +199,12 @@ export const updateTransactionOnServer = async ({
     );
 
     if (!transaction) {
-      console.error("Transaction not found");
+      console.error('Transaction not found');
       return null;
     }
 
     if (transaction.user_id !== user.$id) {
-      console.error("Unauthorized access to transaction");
+      console.error('Unauthorized access to transaction');
       return null;
     }
 
@@ -239,12 +242,12 @@ export const updateTransactionOnServer = async ({
     );
 
     if (!oldWallet) {
-      console.error("Old wallet not found");
+      console.error('Old wallet not found');
       return null;
     }
 
     if (oldWallet.user_id !== user.$id) {
-      console.error("Unauthorized access to old wallet");
+      console.error('Unauthorized access to old wallet');
       return null;
     }
 
@@ -256,12 +259,12 @@ export const updateTransactionOnServer = async ({
     );
 
     if (!newWallet) {
-      console.error("New wallet not found");
+      console.error('New wallet not found');
       return null;
     }
 
     if (newWallet.user_id !== user.$id) {
-      console.error("Unauthorized access to new wallet");
+      console.error('Unauthorized access to new wallet');
       return null;
     }
 
@@ -293,13 +296,13 @@ export const updateTransactionOnServer = async ({
 
       // Revert old transaction effect
       const balanceAfterRevert =
-        oldType === "income"
+        oldType === 'income'
           ? currentBalance - oldAmount
           : currentBalance + oldAmount;
 
       // Apply new transaction effect
       const newBalance =
-        type === "income"
+        type === 'income'
           ? balanceAfterRevert + amount
           : balanceAfterRevert - amount;
 
@@ -317,7 +320,7 @@ export const updateTransactionOnServer = async ({
       // Revert the old transaction from the old wallet
       const oldWalletBalance = oldWallet.current_balance as number;
       const oldWalletNewBalance =
-        oldType === "income"
+        oldType === 'income'
           ? oldWalletBalance - oldAmount
           : oldWalletBalance + oldAmount;
 
@@ -333,7 +336,7 @@ export const updateTransactionOnServer = async ({
       // Apply the new transaction to the new wallet
       const newWalletBalance = newWallet.current_balance as number;
       const newWalletNewBalance =
-        type === "income"
+        type === 'income'
           ? newWalletBalance + amount
           : newWalletBalance - amount;
 
@@ -356,12 +359,13 @@ export const updateTransactionOnServer = async ({
 
     return {
       id: updatedTransaction.$id as string,
+      updatedAt: updatedTransaction.updatedAt as number,
       walletId: updatedTransaction.wallet.$id as string,
       categoryId: updatedTransaction.category.$id as string,
       description: updatedTransaction.description as string,
       amount: updatedTransaction.amount as number,
       type: updatedTransaction.type as TransactionType,
-      date: new Date(updatedTransaction.date).toLocaleDateString("en-GB"),
+      date: new Date(updatedTransaction.date).toLocaleDateString('en-GB'),
       imageUrl: updatedTransaction.image
         ? storage
             .getFileView(
@@ -369,17 +373,21 @@ export const updateTransactionOnServer = async ({
               updatedTransaction.image as string
             )
             .toString()
-        : undefined,
+        : null,
     };
   } catch (error) {
-    console.error("Error updating transaction:", error);
+    console.error('Error updating transaction:', error);
     return null;
   }
 };
 
-export const deleteTransactionFromServer = async (
-  id: string
-): Promise<boolean> => {
+export const deleteTransactionFromServer = async ({
+  id,
+  deletedAt,
+}: {
+  id: string;
+  deletedAt: number;
+}): Promise<boolean> => {
   try {
     const user = await getCurrentUser();
     if (!user) return false;
@@ -392,12 +400,12 @@ export const deleteTransactionFromServer = async (
     );
 
     if (!transaction) {
-      console.error("Transaction not found");
+      console.error('Transaction not found');
       return false;
     }
 
     if (transaction.user_id !== user.$id) {
-      console.error("Unauthorized access to transaction");
+      console.error('Unauthorized access to transaction');
       return false;
     }
 
@@ -410,12 +418,12 @@ export const deleteTransactionFromServer = async (
     );
 
     if (!wallet) {
-      console.error("Wallet not found");
+      console.error('Wallet not found');
       return false;
     }
 
     if (wallet.user_id !== user.$id) {
-      console.error("Unauthorized access to wallet");
+      console.error('Unauthorized access to wallet');
       return false;
     }
 
@@ -430,7 +438,7 @@ export const deleteTransactionFromServer = async (
     const type = transaction.type as TransactionType;
 
     const newBalance =
-      type === "income" ? currentBalance - amount : currentBalance + amount;
+      type === 'income' ? currentBalance - amount : currentBalance + amount;
 
     await databases.updateDocument(
       config.databaseId,
@@ -447,13 +455,13 @@ export const deleteTransactionFromServer = async (
       config.transactionCollectionId,
       id,
       {
-        deleted_at: new Date().toISOString(),
+        deleted_at: deletedAt,
       }
     );
 
     return true;
   } catch (error) {
-    console.error("Error deleting transaction3:", error);
+    console.error('Error deleting transaction3:', error);
     return false;
   }
 };
@@ -466,14 +474,14 @@ export const getTransactionsFromServer = async (filters?: {
     if (!user) return [];
 
     const queries = [
-      Query.equal("user_id", user.$id),
-      Query.orderDesc("date"),
-      Query.isNull("deleted_at"),
-      Query.orderDesc("$createdAt"),
+      Query.equal('user_id', user.$id),
+      Query.orderDesc('date'),
+      Query.isNull('deleted_at'),
+      Query.orderDesc('$createdAt'),
     ];
 
     if (filters?.type) {
-      queries.push(Query.equal("type", filters.type));
+      queries.push(Query.equal('type', filters.type));
     }
 
     const response = await databases.listDocuments(
@@ -496,14 +504,14 @@ export const getTransactionsFromServer = async (filters?: {
           description: transaction.description as string,
           amount: transaction.amount as number,
           type: transaction.type as TransactionType,
-          date: new Date(transaction.date).toLocaleDateString("en-GB"),
+          date: new Date(transaction.date).toLocaleDateString('en-GB'),
           imageUrl,
         };
       }) as Transaction[]) || [];
 
     return transactions;
   } catch (error) {
-    console.error("Error fetching transactions:", error);
+    console.error('Error fetching transactions:', error);
     return [];
   }
 };
@@ -523,7 +531,7 @@ export const searchTransactionsOnServer = async (
     const response = await databases.listDocuments(
       config.databaseId,
       config.transactionCollectionId,
-      [Query.equal("user_id", user.$id)]
+      [Query.equal('user_id', user.$id)]
     );
 
     // Filter transactions based on search query
@@ -531,10 +539,10 @@ export const searchTransactionsOnServer = async (
     const filteredTransactions =
       response?.documents?.filter((transaction) => {
         const description =
-          (transaction.description as string)?.toLowerCase() || "";
+          (transaction.description as string)?.toLowerCase() || '';
         const category =
-          (transaction.category?.name as string)?.toLowerCase() || "";
-        const amount = (transaction.amount as number)?.toString() || "";
+          (transaction.category?.name as string)?.toLowerCase() || '';
+        const amount = (transaction.amount as number)?.toString() || '';
 
         return (
           description.includes(searchLower) ||
@@ -544,17 +552,18 @@ export const searchTransactionsOnServer = async (
       }) || [];
     return filteredTransactions.map((transaction) => ({
       id: transaction.$id as string,
+      updatedAt: transaction.updatedAt as number,
       walletId: transaction.wallet.$id as string,
       categoryId: transaction.category.$id as string,
       category: transaction.category.name as string,
       description: transaction.description as string,
       amount: transaction.amount as number,
       type: transaction.type as TransactionType,
-      date: new Date(transaction.date).toLocaleDateString("en-GB"),
+      date: new Date(transaction.date).toLocaleDateString('en-GB'),
       imageUrl: transaction.image as string,
     }));
   } catch (error) {
-    console.error("Error searching transactions:", error);
+    console.error('Error searching transactions:', error);
     return [];
   }
 };

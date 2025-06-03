@@ -17,6 +17,8 @@ const TransactionList = ({ transactions }: { transactions: Transaction[] }) => {
             amount={transaction.amount}
             type={transaction.type}
             date={transaction.date}
+            updatedAt={transaction.updatedAt}
+            imageUrl={transaction.imageUrl}
           />
         ))}
       </View>
