@@ -1,21 +1,57 @@
 import { transactionLocalStorage } from "@/lib/storage/transactionLocalStorage";
 import { walletLocalStorage } from "@/lib/storage/walletLocalStorage";
-import { upsertTransactionOnServer, upsertWalletOnServer } from "../../appwrite";
+import {
+  getTransactionsFromServer,
+  getWalletsFromServer,
+  upsertTransactionOnServer,
+  upsertWalletOnServer,
+} from '../../appwrite';
 
 export const syncTransactions = async (): Promise<number> => {
-  console.log("Syncing transactions...");
+  console.log('Syncing transactions...');
   const localTransactions =
     await transactionLocalStorage.getTransactionsStorage();
   const pendingTransactions = localTransactions.filter(
-    (transaction) => transaction.syncStatus === "pending"
+    (transaction) => transaction.syncStatus === 'pending'
   );
 
+  // Uploading pending transactions to the server
   for (const transaction of pendingTransactions) {
     try {
       await upsertTransactionOnServer(transaction);
-      await transactionLocalStorage.updateSyncStatus(transaction.id, "synced");
+      await transactionLocalStorage.updateSyncStatus(transaction.id, 'synced');
     } catch (error) {
-      console.error("Error syncing transaction:", error);
+      console.error('Error syncing transaction:', error);
+    }
+  }
+
+  // Getting transactions from the server to save them locally (only if does not exist or updatedAt is newer)
+  const serverTransactions = await getTransactionsFromServer();
+  for (const serverTransaction of serverTransactions) {
+    const localTransaction = localTransactions.find(
+      (transaction) => transaction.id === serverTransaction.id
+    );
+
+    const localUpdatedAt = new Date(localTransaction?.updatedAt || 0);
+    const serverUpdatedAt = new Date(serverTransaction.updatedAt);
+
+    if (!localTransaction) {
+      // If the transaction does not exist locally, save it
+      await transactionLocalStorage.createTransaction(serverTransaction);
+      await transactionLocalStorage.updateSyncStatus(
+        serverTransaction.id,
+        'synced'
+      );
+    } else if (serverUpdatedAt > localUpdatedAt) {
+      // If the server transaction is newer, update the local storage
+      await transactionLocalStorage.updateTransaction({
+        id: serverTransaction.id,
+        data: serverTransaction,
+      });
+      await transactionLocalStorage.updateSyncStatus(
+        serverTransaction.id,
+        'synced'
+      );
     }
   }
 
@@ -24,16 +60,43 @@ export const syncTransactions = async (): Promise<number> => {
 
 export const syncWallets = async (): Promise<number> => {
   const localWallets = await walletLocalStorage.getWalletsStorage();
+  console.log('localWallets:', localWallets);
   const pendingWallets = localWallets.filter(
-    (wallet) => wallet.syncStatus === "pending"
+    (wallet) => wallet.syncStatus === 'pending'
   );
 
   for (const wallet of pendingWallets) {
     try {
       await upsertWalletOnServer(wallet);
-      await walletLocalStorage.updateSyncStatus(wallet.id, "synced");
+      await walletLocalStorage.updateSyncStatus(wallet.id, 'synced');
     } catch (error) {
-      console.error("Error syncing wallet:", error);
+      console.error('Error syncing wallet:', error);
+    }
+  }
+
+  // Getting wallets from the server to save them locally (only if does not exist or updatedAt is newer)
+  const serverWallets = await getWalletsFromServer();
+  console.log('serverWallets:', serverWallets);
+
+  for (const serverWallet of serverWallets) {
+    const localWallet = localWallets.find(
+      (wallet) => wallet.id === serverWallet.id
+    );
+
+    const localUpdatedAt = new Date(localWallet?.updatedAt || 0);
+    const serverUpdatedAt = new Date(serverWallet.updatedAt);
+
+    if (!localWallet) {
+      // If the wallet does not exist locally, save it
+      await walletLocalStorage.createWallet(serverWallet);
+      await walletLocalStorage.updateSyncStatus(serverWallet.id, 'synced');
+    } else if (serverUpdatedAt > localUpdatedAt) {
+      // If the server wallet is newer, update the local storage
+      await walletLocalStorage.updateWallet({
+        id: serverWallet.id,
+        data: serverWallet,
+      });
+      await walletLocalStorage.updateSyncStatus(serverWallet.id, 'synced');
     }
   }
 

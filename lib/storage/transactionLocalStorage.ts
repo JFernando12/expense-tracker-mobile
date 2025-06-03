@@ -3,7 +3,6 @@ import { Transaction, TransactionType } from "@/types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from 'expo-file-system';
 import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid';
 
 const TRANSACTIONS_KEY = 'transactions';
 export interface StoredTransaction extends Transaction {
@@ -106,20 +105,16 @@ class TransactionLocalStorage {
   }
 
   async createTransaction(
-    transaction: Omit<Transaction, 'id' | 'updatedAt'>
-  ): Promise<{ localId: string; updatedAt: number }> {
-    const localId = uuidv4();
-    const updatedAt = Date.now();
+    transaction: Transaction
+  ): Promise<{ success: boolean }> {
     const storedTransaction: StoredTransaction = {
       ...transaction,
-      id: localId,
       syncStatus: 'pending',
-      updatedAt,
     };
 
     await this.upsertTransaction(storedTransaction);
 
-    return { localId, updatedAt };
+    return { success: true };
   }
 
   async updateTransaction({

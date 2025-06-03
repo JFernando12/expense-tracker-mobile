@@ -21,6 +21,7 @@ export interface Wallet {
   description: string;
   initialBalance: number;
   currentBalance: number;
+  updatedAt: number;
 }
 
 export interface Category {

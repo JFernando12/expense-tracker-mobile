@@ -4,6 +4,56 @@ import { getCurrentUser } from "./auth";
 import { config, databases, storage } from "./client";
 import { deleteImage, uploadImage } from "./storage";
 
+export const getTransactionsFromServer = async (filters?: {
+  type?: TransactionType;
+}): Promise<Transaction[]> => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return [];
+
+    const queries = [
+      Query.equal('user_id', user.$id),
+      Query.orderDesc('date'),
+      Query.isNull('deleted_at'),
+      Query.orderDesc('$createdAt'),
+    ];
+
+    if (filters?.type) {
+      queries.push(Query.equal('type', filters.type));
+    }
+
+    const response = await databases.listDocuments(
+      config.databaseId,
+      config.transactionCollectionId,
+      queries
+    );
+
+    const transactions =
+      (response?.documents?.map((transaction) => {
+        const imageUrl = transaction.image
+          ? storage
+              .getFileView(config.storageBucketId, transaction.image as string)
+              .toString()
+          : null;
+        return {
+          id: transaction.$id as string,
+          walletId: transaction.wallet.$id as string,
+          categoryId: transaction.category as string,
+          description: transaction.description as string,
+          amount: transaction.amount as number,
+          type: transaction.type as TransactionType,
+          date: new Date(transaction.date).toLocaleDateString('en-GB'),
+          imageUrl,
+        };
+      }) as Transaction[]) || [];
+
+    return transactions;
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    return [];
+  }
+};
+
 export const upsertTransactionOnServer = async ({
   id,
   walletId,
@@ -463,107 +513,5 @@ export const deleteTransactionFromServer = async ({
   } catch (error) {
     console.error('Error deleting transaction3:', error);
     return false;
-  }
-};
-
-export const getTransactionsFromServer = async (filters?: {
-  type?: TransactionType;
-}): Promise<Transaction[]> => {
-  try {
-    const user = await getCurrentUser();
-    if (!user) return [];
-
-    const queries = [
-      Query.equal('user_id', user.$id),
-      Query.orderDesc('date'),
-      Query.isNull('deleted_at'),
-      Query.orderDesc('$createdAt'),
-    ];
-
-    if (filters?.type) {
-      queries.push(Query.equal('type', filters.type));
-    }
-
-    const response = await databases.listDocuments(
-      config.databaseId,
-      config.transactionCollectionId,
-      queries
-    );
-
-    const transactions =
-      (response?.documents?.map((transaction) => {
-        const imageUrl = transaction.image
-          ? storage
-              .getFileView(config.storageBucketId, transaction.image as string)
-              .toString()
-          : null;
-        return {
-          id: transaction.$id as string,
-          walletId: transaction.wallet.$id as string,
-          categoryId: transaction.category as string,
-          description: transaction.description as string,
-          amount: transaction.amount as number,
-          type: transaction.type as TransactionType,
-          date: new Date(transaction.date).toLocaleDateString('en-GB'),
-          imageUrl,
-        };
-      }) as Transaction[]) || [];
-
-    return transactions;
-  } catch (error) {
-    console.error('Error fetching transactions:', error);
-    return [];
-  }
-};
-
-export const searchTransactionsOnServer = async (
-  searchQuery: string
-): Promise<Transaction[]> => {
-  try {
-    const user = await getCurrentUser();
-    if (!user) return [];
-
-    if (!searchQuery.trim()) {
-      return await getTransactionsFromServer();
-    }
-
-    // Get all user's transactions first
-    const response = await databases.listDocuments(
-      config.databaseId,
-      config.transactionCollectionId,
-      [Query.equal('user_id', user.$id)]
-    );
-
-    // Filter transactions based on search query
-    const searchLower = searchQuery.toLowerCase();
-    const filteredTransactions =
-      response?.documents?.filter((transaction) => {
-        const description =
-          (transaction.description as string)?.toLowerCase() || '';
-        const category =
-          (transaction.category?.name as string)?.toLowerCase() || '';
-        const amount = (transaction.amount as number)?.toString() || '';
-
-        return (
-          description.includes(searchLower) ||
-          category.includes(searchLower) ||
-          amount.includes(searchLower)
-        );
-      }) || [];
-    return filteredTransactions.map((transaction) => ({
-      id: transaction.$id as string,
-      updatedAt: transaction.updatedAt as number,
-      walletId: transaction.wallet.$id as string,
-      categoryId: transaction.category.$id as string,
-      category: transaction.category.name as string,
-      description: transaction.description as string,
-      amount: transaction.amount as number,
-      type: transaction.type as TransactionType,
-      date: new Date(transaction.date).toLocaleDateString('en-GB'),
-      imageUrl: transaction.image as string,
-    }));
-  } catch (error) {
-    console.error('Error searching transactions:', error);
-    return [];
   }
 };

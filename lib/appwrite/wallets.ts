@@ -60,7 +60,8 @@ export const createWalletOnServer = async ({
   name,
   description,
   initialBalance,
-}: Omit<Wallet, 'currentBalance'>): Promise<boolean> => {
+  currentBalance,
+}: Wallet): Promise<boolean> => {
   try {
     const user = await getCurrentUser();
     if (!user) return false;
@@ -73,7 +74,7 @@ export const createWalletOnServer = async ({
         name,
         description,
         initial_balance: initialBalance,
-        current_balance: initialBalance,
+        current_balance: currentBalance,
         user_id: user.$id,
       }
     );
@@ -152,6 +153,7 @@ export const getWalletsFromServer = async (): Promise<Wallet[]> => {
     return (
       response?.documents?.map((wallet) => ({
         id: wallet.$id as string,
+        updatedAt: wallet.updatedAt,
         name: wallet.name as string,
         description: wallet.description as string,
         initialBalance: wallet.initial_balance as number,
@@ -164,7 +166,13 @@ export const getWalletsFromServer = async (): Promise<Wallet[]> => {
   }
 };
 
-export const deleteWalletFromServer = async (id: string): Promise<boolean> => {
+export const deleteWalletFromServer = async ({
+  id,
+  updatedAt,
+}: {
+  id: string;
+  updatedAt: number;
+}): Promise<boolean> => {
   try {
     const user = await getCurrentUser();
     if (!user) return false;
@@ -205,6 +213,7 @@ export const deleteWalletFromServer = async (id: string): Promise<boolean> => {
       id,
       {
         deleted_at: new Date().toISOString(),
+        updated_at: updatedAt,
       }
     );
 

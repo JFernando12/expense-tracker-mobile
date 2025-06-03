@@ -1,12 +1,14 @@
 import { transactionLocalStorage } from "@/lib/storage/transactionLocalStorage";
 import { walletLocalStorage } from "@/lib/storage/walletLocalStorage";
 import { Transaction } from "@/types/types";
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 import {
   createTransactionOnServer,
   deleteTransactionFromServer,
   getTransactionsFromServer,
   updateTransactionOnServer,
-} from "../../appwrite";
+} from '../../appwrite';
 
 export const createTransaction = async ({
   isOnlineMode,
@@ -16,8 +18,14 @@ export const createTransaction = async ({
   data: Omit<Transaction, 'id' | 'updatedAt'>;
 }): Promise<boolean> => {
   console.log('Creating transaction', data);
-  const { localId, updatedAt } =
-    await transactionLocalStorage.createTransaction(data);
+  const id = uuidv4();
+  const updatedAt = Date.now();
+
+  const { success } = await transactionLocalStorage.createTransaction({
+    ...data,
+    id,
+    updatedAt,
+  });
 
   // Update Wallets' current balance
   await walletLocalStorage.addToBalance({
@@ -26,12 +34,12 @@ export const createTransaction = async ({
     type: data.type,
   });
 
-  if (!isOnlineMode) return !!localId;
+  if (!isOnlineMode) return success;
 
-  await createTransactionOnServer({ ...data, id: localId, updatedAt });
-  await transactionLocalStorage.updateSyncStatus(localId, 'synced');
+  await createTransactionOnServer({ ...data, id, updatedAt });
+  await transactionLocalStorage.updateSyncStatus(id, 'synced');
 
-  return !!localId;
+  return success;
 };
 
 export const updateTransaction = async ({
