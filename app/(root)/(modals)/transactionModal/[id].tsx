@@ -1,8 +1,8 @@
 import CustomField from "@/components/CustomField";
 import { CATEGORIES } from '@/constants/categories';
 import icons from '@/constants/icons';
-import { deleteTransaction, updateTransaction } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
+import { deleteTransaction, updateTransaction } from "@/lib/services/fetchData/transactions";
 import { TransactionType } from '@/types/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';

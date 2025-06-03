@@ -22,6 +22,24 @@ class TransactionLocalStorage {
       return [];
     }
   }
+
+  async getTransaction(id: string): Promise<Transaction | null> {
+    const transactions = await this.getTransactionsStorage();
+    const transaction = transactions.find((t) => t.id === id);
+    if (!transaction || transaction.deleteAt) return null;
+
+    return {
+      id: transaction.id,
+      walletId: transaction.walletId,
+      categoryId: transaction.categoryId,
+      amount: transaction.amount,
+      type: transaction.type,
+      date: new Date(transaction.date).toLocaleDateString('en-GB'),
+      description: transaction.description,
+      imageUrl: transaction.imageUrl,
+    };
+  }
+  
   async getTransactions(): Promise<Transaction[]> {
     const transactions = await this.getTransactionsStorage();
     const transactionsNotDeleted = transactions.filter(
@@ -238,6 +256,16 @@ class TransactionLocalStorage {
       categoryId,
       total,
     }));
+  }
+
+  async clearTransactions(): Promise<boolean> {
+    try {
+      await AsyncStorage.removeItem(TRANSACTIONS_KEY);
+      return true;
+    } catch (error) {
+      console.error('Error clearing transactions from storage:', error);
+      return false;
+    }
   }
 }
 

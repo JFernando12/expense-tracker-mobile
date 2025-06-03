@@ -1,4 +1,4 @@
-import { Wallet } from "@/types/types";
+import { TransactionType, Wallet } from "@/types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
@@ -22,12 +22,13 @@ class WalletLocalStorage {
     }
   }
 
-  async saveWallets(wallets: StoredWallet[]): Promise<void> {
+  async saveWallets(wallets: StoredWallet[]): Promise<boolean> {
     try {
       await AsyncStorage.setItem(WALLETS_KEY, JSON.stringify(wallets));
+      return true;
     } catch (error) {
       console.error("Error saving wallets to storage:", error);
-      throw error;
+      return false;
     }
   }
 
@@ -125,6 +126,41 @@ class WalletLocalStorage {
   async getTotalBalance(): Promise<number> {
     const wallets = await this.getWallets();
     return wallets.reduce((total, wallet) => total + wallet.currentBalance, 0);
+  }
+
+  async addToBalance({
+    id,
+    amount,
+    type,
+  }: {
+    id: string;
+    amount: number;
+    type: TransactionType
+  }): Promise<boolean> {
+    const wallets = await this.getWalletsStorage();
+    const walletIndex = wallets.findIndex((w) => w.id === id);
+    if (walletIndex < 0) return false;
+
+    const wallet = wallets[walletIndex];
+    const newBalance =
+      type === TransactionType.INCOME
+        ? wallet.currentBalance + amount
+        : wallet.currentBalance - amount;
+
+    wallets[walletIndex].currentBalance = newBalance;
+    await this.saveWallets(wallets);
+    await this.updateSyncStatus(id, "pending");
+    return true;
+  }
+
+  async clearWallets(): Promise<boolean> {
+    try {
+      await AsyncStorage.removeItem(WALLETS_KEY);
+      return true;
+    } catch (error) {
+      console.error("Error clearing wallets from storage:", error);
+      return false;
+    }
   }
 }
 

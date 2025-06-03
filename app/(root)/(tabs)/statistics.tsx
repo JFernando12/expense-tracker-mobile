@@ -42,7 +42,7 @@ const Statistics = () => {
   ): ExtendedCategoryData[] => {
     return data.map((item) => ({
       ...item,
-      value: item.totalAmount,
+      value: item.total,
       text: `${item.percentage.toFixed(1)}%`,
       name: item.categoryName,
     }));

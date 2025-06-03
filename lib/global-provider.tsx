@@ -1,18 +1,11 @@
 import { CategoryExpenseData, PeriodTypes } from '@/constants/interfaces';
 import { Transaction, Wallet } from '@/types/types';
 import { createContext, useContext, useEffect } from 'react';
-import {
-  getCurrentUser,
-  getTotalBalance,
-  getTransactions,
-  getWallets,
-} from './appwrite';
-import {
-  getExpensesByCategory,
-  getTotalExpenses,
-  getTotalIncomes,
-} from './appwrite/statistics';
-import { syncTransactions, syncWallets } from './services/syncData';
+import { getCurrentUser } from './appwrite';
+import { getExpensesByCategory, getTotalExpenses, getTotalIncomes } from './services/fetchData/statistics';
+import { getTransactions } from './services/fetchData/transactions';
+import { getTotalBalance, getWallets } from './services/fetchData/wallets';
+import { syncTransactions, syncWallets } from './services/syncData/syncData';
 import { useAppwrite } from './useAppwrite';
 
 interface User {

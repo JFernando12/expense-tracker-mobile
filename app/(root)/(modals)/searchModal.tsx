@@ -1,7 +1,7 @@
 import TransactionList from '@/components/TransactionList';
 import icons from '@/constants/icons';
-import { searchTransactions } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
+import { searchTransactions } from '@/lib/services/fetchData/transactions';
 import { Transaction } from '@/types/types';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';

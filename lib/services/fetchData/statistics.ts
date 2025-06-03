@@ -1,6 +1,6 @@
 import { CATEGORIES } from '@/constants/categories';
 import { CategoryExpenseData, PeriodTypes } from '@/constants/interfaces';
-import { transactionLocalStorage } from '../storage/transactionLocalStorage';
+import { transactionLocalStorage } from '@/lib/storage/transactionLocalStorage';
 
 export const getTotalIncomes = async ({
   period,

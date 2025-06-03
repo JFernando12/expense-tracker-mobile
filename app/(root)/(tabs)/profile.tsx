@@ -2,6 +2,7 @@ import SectionButton from '@/components/SectionButton';
 import icons from '@/constants/icons';
 import { logout } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
+import { clearLocalData } from '@/lib/services/syncData/clearData';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
@@ -70,6 +71,12 @@ const Profile = () => {
     {
       title: 'Política de privacidad',
       onPress: () => console.log('Privacy Policy Pressed'),
+      icon: icons.shield,
+      iconBgColor: 'bg-accent-200',
+    },
+    {
+      title: 'Eliminar datos',
+      onPress: () => clearLocalData(),
       icon: icons.shield,
       iconBgColor: 'bg-accent-200',
     },

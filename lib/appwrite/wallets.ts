@@ -1,6 +1,5 @@
 import { Wallet } from '@/types/types';
 import { Query } from 'react-native-appwrite';
-import { walletLocalStorage } from '../storage/walletLocalStorage';
 import { getCurrentUser } from './auth';
 import { config, databases } from './client';
 
@@ -24,13 +23,30 @@ export const upsertWalletOnServer = async ({
       user_id: user.$id,
     };
 
-    const response = await databases.upsertDocument(
+    // Check if the wallet already exists
+    const existingWallet = await databases.getDocument(
       config.databaseId,
       config.walletCollectionId,
-      id,
-      walletData
-    );
-    if (!response.$id) return false;
+      id
+    ).catch(() => null);
+
+    if (existingWallet) {
+      // Update existing wallet
+      await databases.updateDocument(
+        config.databaseId,
+        config.walletCollectionId,
+        id,
+        walletData
+      );
+    } else {
+      // Create new wallet
+      await databases.createDocument(
+        config.databaseId,
+        config.walletCollectionId,
+        id,
+        walletData
+      );
+    }
 
     return true;
   } catch (error) {
@@ -67,23 +83,6 @@ export const createWalletOnServer = async ({
     console.error('Error creating wallet:', error);
     return false;
   }
-};
-
-// Enhanced functions that work offline (using local storage and sync service)
-export const createWallet = async ({
-  isOnlineMode,
-  data,
-}: {
-  isOnlineMode: boolean;
-  data: Omit<Wallet, 'id' | 'currentBalance'>;
-}): Promise<boolean> => {
-  const { localId } = await walletLocalStorage.createWallet(data);
-  if (!isOnlineMode) return !!localId;
-
-  await createWalletOnServer({ ...data, id: localId });
-  await walletLocalStorage.updateSyncStatus(localId, 'synced');
-
-  return !!localId;
 };
 
 export const updateWalletOnServer = async ({
@@ -133,25 +132,6 @@ export const updateWalletOnServer = async ({
   }
 };
 
-export const updateWallet = async ({
-  input: { id, data },
-  isOnlineMode,
-}: {
-  input: {
-    id: string;
-    data: Omit<Wallet, 'id' | 'currentBalance'>;
-  };
-  isOnlineMode: boolean;
-}): Promise<boolean> => {
-  const result = await walletLocalStorage.updateWallet(id, data);
-  if (!isOnlineMode) return result;
-
-  await updateWalletOnServer({ id, data });
-  await walletLocalStorage.updateSyncStatus(id, 'synced');
-
-  return result;
-};
-
 export const getWalletsFromServer = async (): Promise<Wallet[]> => {
   try {
     const user = await getCurrentUser();
@@ -181,59 +161,6 @@ export const getWalletsFromServer = async (): Promise<Wallet[]> => {
   } catch (error) {
     console.error('Error fetching wallets:', error);
     return [];
-  }
-};
-
-export const getWallets = async ({
-  isOnlineMode,
-}: {
-  isOnlineMode: boolean;
-}): Promise<Wallet[]> => {
-  const localWallets = await walletLocalStorage.getWallets();
-  if (!isOnlineMode) return localWallets;
-
-  const serverWallets = await getWalletsFromServer();
-
-  const totalWallets = [...localWallets];
-  for (const serverWallet of serverWallets) {
-    const existingWallet = totalWallets.find(
-      (wallet) => wallet.id === serverWallet.id
-    );
-    if (existingWallet) {
-      Object.assign(existingWallet, serverWallet);
-    } else {
-      totalWallets.push(serverWallet);
-    }
-  }
-
-  return totalWallets;
-};
-
-const getWalletFromServer = async (id: string): Promise<Wallet | null> => {
-  try {
-    const user = await getCurrentUser();
-    if (!user) return null;
-
-    const queries = [Query.isNull('deleted_at')];
-    const wallet = await databases.getDocument(
-      config.databaseId,
-      config.walletCollectionId,
-      id,
-      queries
-    );
-
-    if (!wallet || wallet.user_id !== user.$id) return null;
-
-    return {
-      id: wallet.$id as string,
-      name: wallet.name as string,
-      description: wallet.description as string,
-      initialBalance: wallet.initial_balance as number,
-      currentBalance: wallet.current_balance as number,
-    };
-  } catch (error) {
-    console.error('Error fetching wallet:', error);
-    return null;
   }
 };
 
@@ -286,23 +213,4 @@ export const deleteWalletFromServer = async (id: string): Promise<boolean> => {
     console.error('Error deleting wallet:', error);
     return false;
   }
-};
-
-export const deleteWallet = async ({
-  id,
-  isOnlineMode,
-}: {
-  id: string;
-  isOnlineMode: boolean;
-}): Promise<boolean> => {
-  const result = await walletLocalStorage.deleteWallet(id);
-  if (!isOnlineMode) return result;
-
-  await deleteWalletFromServer(id);
-  await walletLocalStorage.updateSyncStatus(id, 'synced');
-  return result;
-};
-
-export const getTotalBalance = async (): Promise<number> => {
-  return await walletLocalStorage.getTotalBalance();
 };

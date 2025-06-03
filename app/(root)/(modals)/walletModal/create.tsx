@@ -1,7 +1,7 @@
 import CustomField from '@/components/CustomField';
 import icons from '@/constants/icons';
-import { createWallet } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
+import { createWallet } from '@/lib/services/fetchData/wallets';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
