@@ -28,7 +28,6 @@ export const getExpensesByCategory = async ({
   const result = await transactionLocalStorage.getExpensesByCategory({
     period,
   });
-  console.log('getExpensesByCategory result:', result);
 
   const colors = [
     '#FF5733', // Red
