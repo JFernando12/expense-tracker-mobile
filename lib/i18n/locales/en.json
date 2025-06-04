@@ -1,0 +1,50 @@
+{
+  "home": {
+    "greeting": "Hello,",
+    "guestUser": "User",
+    "totalBalance": "Total Balance",
+    "income": "Income",
+    "expenses": "Expenses",
+    "recent": "Recent"
+  },  "profile": {
+    "localUser": "Local User",
+    "editProfile": "Edit Profile",
+    "login": "Log In",
+    "syncData": "Sync Data",
+    "syncing": "Syncing...",
+    "privacyPolicy": "Privacy Policy",
+    "deleteData": "Delete Data",
+    "logout": "Log Out",
+    "logoutFailed": "Logout Failed",
+    "logoutSuccess": "Logout Successful",
+    "syncConfirmTitle": "Sync Data",
+    "syncConfirmMessage": "This will upload your local data to the cloud. Local data will remain available. Continue?",
+    "syncDataLoginPrompt": "Sync data"
+  },  "statistics": {
+    "title": "Statistics",
+    "sevenDays": "7 Days",
+    "thirtyDays": "30 Days",
+    "total": "Total",
+    "expensesByCategory": "Expenses by Category"
+  },
+  "wallet": {
+    "title": "My Accounts",
+    "totalBalance": "Total Balance",
+    "allAccounts": "All accounts",
+    "create": "Create"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "success": "Success",
+    "failed": "Failed",
+    "continue": "Continue",
+    "language": "Language"
+  }
+}

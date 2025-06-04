@@ -1,7 +1,9 @@
+import LanguageSelector from '@/components/LanguageSelector';
 import SectionButton from '@/components/SectionButton';
 import icons from '@/constants/icons';
 import { logout } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 import { clearLocalData } from '@/lib/services/syncData/clearData';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -10,16 +12,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Profile = () => {
   const { user, refetchUser, isLoggedIn, isOnlineMode } = useGlobalContext();
+  const { t } = useTranslation();
   const [isSyncing, setIsSyncing] = useState(false);
-
   const handleLogout = async () => {
     const result = await logout();
     if (!result) {
-      Alert.alert('Fallido', 'Cierre de sesión fallido');
+      Alert.alert(t('common.failed'), t('profile.logoutFailed'));
       return;
     }
     await refetchUser();
-    Alert.alert('Éxito', 'Cierre de sesión exitoso');
+    Alert.alert(t('common.success'), t('profile.logoutSuccess'));
   };
 
   const handleLoginToSync = () => {
@@ -28,12 +30,12 @@ const Profile = () => {
   const handleSync = async () => {
     // Show confirmation dialog
     Alert.alert(
-      'Sincronizar Datos',
-      'Esto subirá tus datos locales a la nube. Los datos locales se mantendrán disponibles. ¿Continuar?',
+      t('profile.syncConfirmTitle'),
+      t('profile.syncConfirmMessage'),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Sincronizar',
+          text: t('profile.syncData'),
           onPress: async () => {
             console.log('Syncing data...');
           },
@@ -41,19 +43,18 @@ const Profile = () => {
       ]
     );
   };
-
   const sections = [
     // Show different sections based on login status
     ...(isLoggedIn
       ? [
           {
-            title: 'Editar Perfil',
+            title: t('profile.editProfile'),
             onPress: () => router.push('/(root)/(modals)/profileModal'),
             icon: icons.person,
             iconBgColor: 'bg-accent-200',
           },
           {
-            title: isSyncing ? 'Sincronizando...' : 'Sincronizar Datos',
+            title: isSyncing ? t('profile.syncing') : t('profile.syncData'),
             onPress: isSyncing ? () => {} : handleSync,
             icon: icons.wifi,
             iconBgColor: isSyncing ? 'bg-gray-500' : 'bg-blue-500',
@@ -62,20 +63,20 @@ const Profile = () => {
         ]
       : [
           {
-            title: 'Sincronizar datos',
+            title: t('profile.syncDataLoginPrompt'),
             onPress: handleLoginToSync,
             icon: icons.wifi,
             iconBgColor: 'bg-green-500',
           },
         ]),
     {
-      title: 'Política de privacidad',
+      title: t('profile.privacyPolicy'),
       onPress: () => console.log('Privacy Policy Pressed'),
       icon: icons.shield,
       iconBgColor: 'bg-accent-200',
     },
     {
-      title: 'Eliminar datos',
+      title: t('profile.deleteData'),
       onPress: () => clearLocalData(),
       icon: icons.shield,
       iconBgColor: 'bg-accent-200',
@@ -83,7 +84,7 @@ const Profile = () => {
     ...(isLoggedIn
       ? [
           {
-            title: 'Cerrar sesión',
+            title: t('profile.logout'),
             onPress: handleLogout,
             icon: icons.logout,
             iconBgColor: 'bg-red-500',
@@ -104,7 +105,7 @@ const Profile = () => {
           )}
         </View>
         <Text className="text-white text-3xl font-bold mb-1">
-          {isLoggedIn ? user?.name : 'Usuario Local'}
+          {isLoggedIn ? user?.name : t('profile.localUser')}
         </Text>
         <Text className="text-neutral-300 text-lg">
           {isLoggedIn && user?.email}
@@ -119,10 +120,16 @@ const Profile = () => {
           className="bg-accent-200 rounded-xl py-4 px-16 mt-8"
         >
           <Text className="text-primary-100 font-bold text-xl">
-            {isLoggedIn ? 'Editar Perfil' : 'Iniciar Sesión'}
+            {isLoggedIn ? t('profile.editProfile') : t('profile.login')}
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Language Selector */}
+      <View className="px-5 pb-6">
+        <LanguageSelector />
+      </View>
+
       {/* Section Buttons */}
       <View className="rounded-t-3xl flex-1 -mb-5 px-5">
         {sections.slice(isLoggedIn ? 1 : 0).map((section, index) => (

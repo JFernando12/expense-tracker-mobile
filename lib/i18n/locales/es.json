@@ -1,0 +1,50 @@
+{
+  "home": {
+    "greeting": "Hola,",
+    "guestUser": "Usuario",
+    "totalBalance": "Balance Total",
+    "income": "Ingresos",
+    "expenses": "Gastos",
+    "recent": "Recientes"
+  },  "profile": {
+    "localUser": "Usuario Local",
+    "editProfile": "Editar Perfil",
+    "login": "Iniciar Sesión",
+    "syncData": "Sincronizar Datos",
+    "syncing": "Sincronizando...",
+    "privacyPolicy": "Política de privacidad",
+    "deleteData": "Eliminar datos",
+    "logout": "Cerrar sesión",
+    "logoutFailed": "Cierre de sesión fallido",
+    "logoutSuccess": "Cierre de sesión exitoso",
+    "syncConfirmTitle": "Sincronizar Datos",
+    "syncConfirmMessage": "Esto subirá tus datos locales a la nube. Los datos locales se mantendrán disponibles. ¿Continuar?",
+    "syncDataLoginPrompt": "Sincronizar datos"
+  },  "statistics": {
+    "title": "Estadísticas",
+    "sevenDays": "7 Días",
+    "thirtyDays": "30 Días",
+    "total": "Total",
+    "expensesByCategory": "Gastos por Categoría"
+  },
+  "wallet": {
+    "title": "Mis Cuentas",
+    "totalBalance": "Balance Total",
+    "allAccounts": "Todas las cuentas",
+    "create": "Crear"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "retry": "Reintentar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "success": "Éxito",
+    "failed": "Fallido",
+    "continue": "Continuar",
+    "language": "Idioma"
+  }
+}

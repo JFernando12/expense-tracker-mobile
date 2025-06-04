@@ -4,6 +4,7 @@ import {
   ExtendedCategoryData,
 } from '@/constants/interfaces';
 import { useGlobalContext } from '@/lib/global-provider';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -24,6 +25,8 @@ const Statistics = () => {
     categoryExpensesYear,
     isOnlineMode,
   } = useGlobalContext();
+
+  const { t } = useTranslation();
   const [categoryData, setCategoryData] = useState<ExtendedCategoryData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState<
@@ -92,17 +95,16 @@ const Statistics = () => {
     totalIncomes,
     totalExpenses,
   ]);
-
   const handleSegmentChange = (label: string) => {
     let period: '7days' | '30days' | 'total';
     switch (label) {
-      case '7 Dias':
+      case t('statistics.sevenDays'):
         period = '7days';
         break;
-      case '30 Dias':
+      case t('statistics.thirtyDays'):
         period = '30days';
         break;
-      case 'Total':
+      case t('statistics.total'):
         period = 'total';
         break;
       default:
@@ -115,7 +117,9 @@ const Statistics = () => {
     <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-20">
       {/* Header */}
       <View className="flex-row items-center justify-start">
-        <Text className="text-white text-2xl font-bold">Estadísticas</Text>
+        <Text className="text-white text-2xl font-bold">
+          {t('statistics.title')}
+        </Text>
         <TouchableOpacity
           onPress={() => router.push('/(root)/(modals)/profileModal')}
           className="absolute right-0 top-0 size-12 rounded-full overflow-hidden bg-accent-200"
@@ -132,7 +136,11 @@ const Statistics = () => {
       {/* Segmented Control */}
       <View className="mt-8">
         <SegmentedControl
-          values={['7 Dias', '30 Dias', 'Total']}
+          values={[
+            t('statistics.sevenDays'),
+            t('statistics.thirtyDays'),
+            t('statistics.total'),
+          ]}
           selectedIndex={
             selectedPeriod === '7days' ? 0 : selectedPeriod === '30days' ? 1 : 2
           }
@@ -156,7 +164,7 @@ const Statistics = () => {
         {/* Expenses Category Distribution */}
         <View className="mt-6">
           <Text className="text-white text-xl font-bold mb-4">
-            Gastos por Categoría
+            {t('statistics.expensesByCategory')}
           </Text>
           <CategoryDistribution categoryData={categoryData} loading={loading} />
         </View>

@@ -1,6 +1,7 @@
 import TransactionList from '@/components/TransactionList';
 import icons from '@/constants/icons';
 import { useGlobalContext } from '@/lib/global-provider';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 import { router } from 'expo-router';
 import {
   ActivityIndicator,
@@ -28,6 +29,8 @@ export default function Index() {
     syncDataLoading,
   } = useGlobalContext();
 
+  const { t } = useTranslation();
+
   if (
     syncDataLoading ||
     transactionsLoading ||
@@ -48,9 +51,9 @@ export default function Index() {
       {/* Header */}
       <View className="relative flex-row items-center justify-start mb-6">
         <View>
-          <Text className="text-neutral-200 text-lg">Hola,</Text>
+          <Text className="text-neutral-200 text-lg">{t('home.greeting')}</Text>
           <Text className="text-white text-2xl font-bold">
-            {isLoggedIn ? user?.name : 'Usuario'}
+            {isLoggedIn ? user?.name : t('home.guestUser')}
           </Text>
         </View>
         <TouchableOpacity
@@ -70,7 +73,9 @@ export default function Index() {
       </View>
       {/* Balance Section */}
       <View className="bg-primary-300 p-6 rounded-3xl mb-6 shadow-lg">
-        <Text className="text-neutral-200 text-lg mb-1">Balance Total</Text>
+        <Text className="text-neutral-200 text-lg mb-1">
+          {t('home.totalBalance')}
+        </Text>
         <Text className="text-white text-4xl font-bold mb-6">
           ${totalBalance?.toFixed(2) || '0.00'}
         </Text>
@@ -84,7 +89,7 @@ export default function Index() {
               />
             </View>
             <View>
-              <Text className="text-neutral-200">Ingresos</Text>
+              <Text className="text-neutral-200">{t('home.income')}</Text>
               <Text className="text-white text-lg font-bold">
                 ${totalIncomes?.toFixed(2) || '0.00'}
               </Text>
@@ -99,7 +104,7 @@ export default function Index() {
               />
             </View>
             <View>
-              <Text className="text-neutral-200">Gastos</Text>
+              <Text className="text-neutral-200">{t('home.expenses')}</Text>
               <Text className="text-danger font-bold text-lg">
                 ${totalExpenses?.toFixed(2) || '0.00'}
               </Text>
@@ -109,7 +114,9 @@ export default function Index() {
       </View>
       {/* Today's Transactions Section */}
       <View className="flex-row items-center justify-between">
-        <Text className="text-white text-2xl font-bold">Recientes</Text>
+        <Text className="text-white text-2xl font-bold">
+          {t('home.recent')}
+        </Text>
         <TouchableOpacity
           onPress={() => router.push('/(root)/(modals)/searchModal')}
           className="h-10 w-10 bg-primary-300 rounded-full items-center justify-center"
