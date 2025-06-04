@@ -1,11 +1,12 @@
 import icons from "@/constants/icons";
-import React from "react";
-import { Image, ImagePropsBase, Text, View } from "react-native";
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import React from 'react';
+import { Image, ImagePropsBase, Text, View } from 'react-native';
 
 type SummaryCardsProps = {
   totalExpenses: number | undefined | null;
   totalIncomes: number | undefined | null;
-  period?: "7days" | "30days" | "total";
+  period?: '7days' | '30days' | 'total';
 };
 
 const SummaryCards = ({
@@ -13,16 +14,18 @@ const SummaryCards = ({
   totalIncomes,
   period,
 }: SummaryCardsProps) => {
+  const { t } = useTranslation();
+
   const getPeriodText = () => {
     switch (period) {
-      case "7days":
-        return "últimos 7 días";
-      case "30days":
-        return "últimos 30 días";
-      case "total":
-        return "total acumulado";
+      case '7days':
+        return t('periods.last7Days');
+      case '30days':
+        return t('periods.last30Days');
+      case 'total':
+        return t('periods.totalAccumulated');
       default:
-        return "este período";
+        return t('periods.thisPeriod');
     }
   };
 
@@ -30,9 +33,9 @@ const SummaryCards = ({
     <View className="flex-row justify-between">
       <View className="bg-primary-300 p-4 rounded-xl w-[48%] flex-row items-center justify-between">
         <View>
-          <Text className="text-neutral-200 text-base">Ingresos</Text>
+          <Text className="text-neutral-200 text-base">{t('home.income')}</Text>
           <Text className="text-white text-xl font-bold">
-            ${totalIncomes ? totalIncomes.toFixed(2) : "0.00"}
+            ${totalIncomes ? totalIncomes.toFixed(2) : '0.00'}
           </Text>
           <View className="flex-row items-center mt-1">
             <Text className="text-neutral-200 text-xs">{getPeriodText()}</Text>
@@ -48,9 +51,11 @@ const SummaryCards = ({
       </View>
       <View className="bg-primary-300 p-4 rounded-xl w-[48%] flex-row items-center justify-between">
         <View>
-          <Text className="text-neutral-200 text-base">Gastos</Text>
+          <Text className="text-neutral-200 text-base">
+            {t('home.expenses')}
+          </Text>
           <Text className="text-danger font-bold text-xl">
-            ${totalExpenses ? totalExpenses.toFixed(2) : "0.00"}
+            ${totalExpenses ? totalExpenses.toFixed(2) : '0.00'}
           </Text>
           <View className="flex-row items-center mt-1">
             <Text className="text-neutral-200 text-xs">{getPeriodText()}</Text>

@@ -6,7 +6,8 @@
     "income": "Ingresos",
     "expenses": "Gastos",
     "recent": "Recientes"
-  },  "profile": {
+  },
+  "profile": {
     "localUser": "Usuario Local",
     "editProfile": "Editar Perfil",
     "login": "Iniciar Sesión",
@@ -19,8 +20,11 @@
     "logoutSuccess": "Cierre de sesión exitoso",
     "syncConfirmTitle": "Sincronizar Datos",
     "syncConfirmMessage": "Esto subirá tus datos locales a la nube. Los datos locales se mantendrán disponibles. ¿Continuar?",
-    "syncDataLoginPrompt": "Sincronizar datos"
-  },  "statistics": {
+    "syncDataLoginPrompt": "Sincronizar datos",
+    "autoSyncEnabled": "Auto Sincronización Activada",
+    "autoSyncDisabled": "Auto Sincronización Desactivada"
+  },
+  "statistics": {
     "title": "Estadísticas",
     "sevenDays": "7 Días",
     "thirtyDays": "30 Días",
@@ -32,6 +36,82 @@
     "totalBalance": "Balance Total",
     "allAccounts": "Todas las cuentas",
     "create": "Crear"
+  },
+  "transactions": {
+    "expense": "Gasto",
+    "income": "Ingreso"
+  },
+  "fields": {
+    "selectDate": "Seleccionar fecha",
+    "selectOption": "Seleccionar opción"
+  },
+  "offline": {
+    "message": "📱 Modo sin conexión - Los cambios se sincronizarán cuando vuelvas a conectarte"
+  },
+  "categories": {
+    "loadingData": "Cargando datos de categorías...",
+    "noDataAvailable": "No hay datos de categorías disponibles",
+    "food": "Comida",
+    "transport": "Transporte",
+    "entertainment": "Entretenimiento",
+    "shopping": "Compras",
+    "health": "Salud",
+    "utilities": "Servicios",
+    "travel": "Viajes",
+    "education": "Educación",
+    "other_expense": "Otros",
+    "salary": "Salario",
+    "bonus": "Bonificación",
+    "investment": "Inversión",
+    "gift": "Regalo",
+    "other_income": "Otros"
+  },
+  "periods": {
+    "last7Days": "últimos 7 días",
+    "last30Days": "últimos 30 días",
+    "totalAccumulated": "total acumulado",
+    "thisPeriod": "este período"
+  },
+  "forms": {
+    "name": "Nombre",
+    "description": "Descripción",
+    "amount": "Monto",
+    "initialBalance": "Balance Inicial",
+    "enterName": "Ingresa tu nombre",
+    "enterEmail": "Ingresa tu correo electrónico",
+    "enterPassword": "Ingresa tu contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "saving": "Guardando...",
+    "deleting": "Eliminando...",
+    "editProfile": "Editar Perfil",
+    "createAccount": "Crear Cuenta",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "signUp": "Registrarse",
+    "signIn": "Iniciar Sesión"
+  },
+  "auth": {
+    "completeAllFields": "Por favor completa todos los campos",
+    "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+    "invalidEmail": "Por favor ingresa una dirección de correo válida",
+    "unexpectedError": "Ocurrió un error inesperado",
+    "emailAndPasswordRequired": "Por favor ingresa tu correo y contraseña"
+  },
+  "subscription": {
+    "monthlyPlan": "Plan Mensual",
+    "yearlyPlan": "Plan Anual",
+    "perfectToStart": "Perfecto para comenzar",
+    "save33Popular": "Ahorra 33% - ¡Más popular!",
+    "unlimitedExpenses": "Gastos ilimitados",
+    "multipleWallets": "Múltiples carteras",
+    "basicStatistics": "Estadísticas básicas",
+    "everythingMonthly": "Todo del plan mensual",
+    "advancedStatistics": "Estadísticas avanzadas",
+    "exportReports": "Exportar reportes",
+    "prioritySupport": "Soporte prioritario",
+    "simulatedSubscription": "Suscripción Simulada",
+    "selectedPlan": "Has seleccionado el",
+    "realAppPayment": "En una app real, esto procesaría el pago."
   },
   "common": {
     "loading": "Cargando...",

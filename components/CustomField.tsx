@@ -1,17 +1,18 @@
-import React from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
-import { Dropdown } from "react-native-element-dropdown";
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import React from 'react';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 
 enum fieldTypes {
-  TEXT = "text",
-  NUMBER = "number",
-  DATE = "date",
-  SELECT = "select",
+  TEXT = 'text',
+  NUMBER = 'number',
+  DATE = 'date',
+  SELECT = 'select',
 }
 
 export const transactionTypes = [
-  { label: "Expense", value: "expense" },
-  { label: "Income", value: "income" },
+  { label: 'transactions.expense', value: 'expense' },
+  { label: 'transactions.income', value: 'income' },
 ];
 
 const CustomField = ({
@@ -29,6 +30,7 @@ const CustomField = ({
   options?: { label: string; value: string }[];
   onChangeText: (text: string) => void;
 }) => {
+  const { t } = useTranslation();
   return (
     <View className="py-3">
       <Text className="text-neutral-200 text-sm mb-1">{label}</Text>
@@ -51,50 +53,55 @@ const CustomField = ({
           />
         )}
         {type === fieldTypes.DATE && (
-          <TouchableOpacity onPress={() => console.log("Open date picker")}>
+          <TouchableOpacity onPress={() => console.log('Open date picker')}>
             <Text className="text-white text-base">
-              {value || "Select date"}
+              {value || t('fields.selectDate')}
             </Text>
           </TouchableOpacity>
         )}
         {type === fieldTypes.SELECT && (
           <Dropdown
             style={{
-              backgroundColor: "transparent",
+              backgroundColor: 'transparent',
               paddingVertical: 0,
               paddingHorizontal: 12,
               borderWidth: 0,
             }}
-            activeColor={"#666876"}
+            activeColor={'#666876'}
             selectedTextStyle={{
-              color: 'white'
+              color: 'white',
             }}
             itemTextStyle={{
-              color: "white",
+              color: 'white',
               fontSize: 14,
             }}
             itemContainerStyle={{
-              backgroundColor: "transparent",
+              backgroundColor: 'transparent',
               borderBottomWidth: 1,
               borderRadius: 10,
             }}
-            data={options}
+            data={options.map((option) => ({
+              ...option,
+              label: option.label.includes('.')
+                ? t(option.label as any)
+                : option.label,
+            }))}
             maxHeight={250}
             labelField="label"
             valueField="value"
-            placeholder="Seleccionar opción"
+            placeholder={t('fields.selectOption')}
             placeholderStyle={{
-              color: "white",
+              color: 'white',
               fontSize: 14,
             }}
             value={value}
             containerStyle={{
-              backgroundColor: "#2A2D3E",
+              backgroundColor: '#2A2D3E',
               borderWidth: 0,
               borderRadius: 10,
               top: 24,
-              borderColor: "white",
-              shadowColor: "black",
+              borderColor: 'white',
+              shadowColor: 'black',
               shadowOffset: { width: 0, height: 5 },
               shadowOpacity: 1,
               shadowRadius: 15,

@@ -1,3 +1,4 @@
+import { useTranslation } from '@/lib/i18n/useTranslation';
 import { networkService } from '@/lib/services/networkService';
 import React, { useEffect, useState } from 'react';
 import { Animated, Text } from 'react-native';
@@ -5,6 +6,7 @@ import { Animated, Text } from 'react-native';
 const OfflineIndicator: React.FC = () => {
   const [isOffline, setIsOffline] = useState(false);
   const [slideAnim] = useState(new Animated.Value(-50));
+  const { t } = useTranslation();
 
   useEffect(() => {
     const checkInitialStatus = async () => {
@@ -52,7 +54,7 @@ const OfflineIndicator: React.FC = () => {
       className="bg-red-500 px-4 py-2 mx-4 mt-2 rounded-lg"
     >
       <Text className="text-white text-center text-sm font-medium">
-        📱 Modo sin conexión - Los cambios se sincronizarán cuando vuelvas a conectarte
+        {t('offline.message')}
       </Text>
     </Animated.View>
   );

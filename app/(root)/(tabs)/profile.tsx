@@ -1,4 +1,3 @@
-import LanguageSelector from '@/components/LanguageSelector';
 import SectionButton from '@/components/SectionButton';
 import icons from '@/constants/icons';
 import { logout } from '@/lib/appwrite';
@@ -7,13 +6,21 @@ import { useTranslation } from '@/lib/i18n/useTranslation';
 import { clearLocalData } from '@/lib/services/syncData/clearData';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  Image,
+  ImageSourcePropType,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Profile = () => {
   const { user, refetchUser, isLoggedIn, isOnlineMode } = useGlobalContext();
   const { t } = useTranslation();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
   const handleLogout = async () => {
     const result = await logout();
     if (!result) {
@@ -25,125 +32,144 @@ const Profile = () => {
   };
 
   const handleLoginToSync = () => {
-    router.push('/login');
+    router.push('/(root)/(modals)/loginModal');
   };
-  const handleSync = async () => {
-    // Show confirmation dialog
-    Alert.alert(
-      t('profile.syncConfirmTitle'),
-      t('profile.syncConfirmMessage'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('profile.syncData'),
-          onPress: async () => {
-            console.log('Syncing data...');
-          },
-        },
-      ]
-    );
+
+  const handleAutoSyncToggle = (value: boolean) => {
+    setAutoSyncEnabled(value);
+    if (value) {
+      Alert.alert(
+        t('profile.autoSyncEnabled'),
+        'Auto sync has been enabled. Your data will sync automatically when connected to the internet.',
+        [{ text: 'OK' }]
+      );
+    } else {
+      Alert.alert(
+        t('profile.autoSyncDisabled'),
+        'Auto sync has been disabled. You can still manually sync your data.',
+        [{ text: 'OK' }]
+      );
+    }
   };
+
   const sections = [
-    // Show different sections based on login status
-    ...(isLoggedIn
-      ? [
-          {
-            title: t('profile.editProfile'),
-            onPress: () => router.push('/(root)/(modals)/profileModal'),
-            icon: icons.person,
-            iconBgColor: 'bg-accent-200',
-          },
-          {
-            title: isSyncing ? t('profile.syncing') : t('profile.syncData'),
-            onPress: isSyncing ? () => {} : handleSync,
-            icon: icons.wifi,
-            iconBgColor: isSyncing ? 'bg-gray-500' : 'bg-blue-500',
-            showLoading: isSyncing,
-          },
-        ]
-      : [
-          {
-            title: t('profile.syncDataLoginPrompt'),
-            onPress: handleLoginToSync,
-            icon: icons.wifi,
-            iconBgColor: 'bg-green-500',
-          },
-        ]),
     {
-      title: t('profile.privacyPolicy'),
-      onPress: () => console.log('Privacy Policy Pressed'),
-      icon: icons.shield,
+      title: t('profile.editProfile'),
+      onPress: () => router.push('/(root)/(modals)/profileModal'),
+      icon: icons.person,
       iconBgColor: 'bg-accent-200',
+      needLogin: true,
+    },
+    {
+      title: isSyncing ? t('profile.syncing') : 'Auto Sync Data',
+      onPress: isSyncing ? () => {} : undefined,
+      icon: icons.wifi,
+      iconBgColor: isSyncing ? 'bg-black-200' : 'bg-accent-200',
+      showLoading: isSyncing,
+      showToggle: !isSyncing,
+      showArrow: false,
+      toggleValue: autoSyncEnabled,
+      onToggleChange: handleLoginToSync,
+      needLogin: false,
     },
     {
       title: t('profile.deleteData'),
       onPress: () => clearLocalData(),
-      icon: icons.shield,
-      iconBgColor: 'bg-accent-200',
+      icon: icons.trashCan,
+      iconBgColor: 'bg-danger-100',
+      needLogin: false,
     },
-    ...(isLoggedIn
-      ? [
-          {
-            title: t('profile.logout'),
-            onPress: handleLogout,
-            icon: icons.logout,
-            iconBgColor: 'bg-red-500',
-          },
-        ]
-      : []),
+    {
+      title: t('profile.logout'),
+      onPress: handleLogout,
+      icon: icons.logout,
+      iconBgColor: 'bg-danger-100',
+      needLogin: true,
+    },
   ];
 
   return (
-    <SafeAreaView className="bg-primary-100 h-full -pb-safe-offset-14">
-      {/* Profile Section */}
-      <View className="items-center pt-10 pb-6">
-        <View className="size-36 rounded-full overflow-hidden mb-6 bg-secondary-100 items-center justify-center">
-          {isLoggedIn && user?.avatar ? (
-            <Image source={{ uri: user.avatar }} className="h-full w-full" />
-          ) : (
-            <Text className="text-4xl">👤</Text>
-          )}
+    <SafeAreaView className="bg-primary-100 h-full">
+      {/* Header Section */}
+      <View className="bg-primary-200 px-5 pt-4 pb-8">
+        <View className="flex-row items-center justify-between mb-6">
+          <Text className="text-white text-2xl font-bold">Profile</Text>
+          <TouchableOpacity className="bg-white/20 rounded-full p-2">
+            <Text className="text-white text-lg">⚙️</Text>
+          </TouchableOpacity>
         </View>
-        <Text className="text-white text-3xl font-bold mb-1">
-          {isLoggedIn ? user?.name : t('profile.localUser')}
-        </Text>
-        <Text className="text-neutral-300 text-lg">
-          {isLoggedIn && user?.email}
-        </Text>
-        {/* Edit Profile Button or Login Button */}
-        <TouchableOpacity
-          onPress={
-            isLoggedIn
-              ? () => router.push('/(root)/(modals)/profileModal')
-              : handleLoginToSync
-          }
-          className="bg-accent-200 rounded-xl py-4 px-16 mt-8"
-        >
-          <Text className="text-primary-100 font-bold text-xl">
-            {isLoggedIn ? t('profile.editProfile') : t('profile.login')}
+        {/* Profile Info */}
+        <View className="items-center">
+          <View className="size-24 rounded-full overflow-hidden mb-4 bg-white/20 items-center justify-center border-4 border-white/30">
+            {isLoggedIn && user?.avatar ? (
+              <Image source={{ uri: user.avatar }} className="h-full w-full" />
+            ) : (
+              <Text className="text-3xl">👤</Text>
+            )}
+          </View>
+          <Text className="text-white text-xl font-bold mb-1">
+            {isLoggedIn ? user?.name || 'User' : t('profile.localUser')}
           </Text>
-        </TouchableOpacity>
+          <Text className="text-neutral-200 text-base">
+            {isLoggedIn && user?.email ? user.email : 'Welcome to your profile'}
+          </Text>
+        </View>
       </View>
-
-      {/* Language Selector */}
-      <View className="px-5 pb-6">
-        <LanguageSelector />
-      </View>
-
-      {/* Section Buttons */}
-      <View className="rounded-t-3xl flex-1 -mb-5 px-5">
-        {sections.slice(isLoggedIn ? 1 : 0).map((section, index) => (
-          <SectionButton
-            key={index}
-            onPress={section.onPress}
-            icon={section.icon}
-            className="bg-secondary-100 p-5 rounded-xl mb-3"
-            iconBgColor={section.iconBgColor}
-            showLoading={section.showLoading || false}
+      {/* Content Section */}
+      <View className="flex-1 px-4 -mt-4">
+        {/* Personal Information Card */}
+        <View className="bg-secondary-100 rounded-xl p-4 mb-4">
+          <TouchableOpacity
+            onPress={
+              isLoggedIn
+                ? () => router.push('/(root)/(modals)/profileModal')
+                : handleLoginToSync
+            }
+            className="flex-row items-center justify-between"
+            activeOpacity={0.7}
           >
-            {section.title}
-          </SectionButton>
-        ))}
+            <View>
+              <Text className="text-white text-lg font-semibold mb-1">
+                Personal Information
+              </Text>
+              <Text className="text-neutral-200 text-sm">
+                {isLoggedIn
+                  ? 'Update your profile details'
+                  : 'Log in to sync your data'}
+              </Text>
+            </View>
+            <View className="bg-accent-200 size-10 rounded-full items-center justify-center">
+              <Image
+                source={icons.rightArrow as ImageSourcePropType}
+                tintColor="white"
+                className="size-4"
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+        {/* Menu Items */}
+        <View className="space-y-1">
+          {sections
+            .filter((section) => !section.needLogin || isLoggedIn)
+            .map((section, index) => (
+              <SectionButton
+                key={index}
+                onPress={section.onPress}
+                icon={section.icon}
+                className="bg-secondary-100 p-4 rounded-xl mb-2"
+                iconBgColor={section.iconBgColor}
+                showLoading={section.showLoading || false}
+                showToggle={section.showToggle || false}
+                showArrow={section.showArrow !== false}
+                toggleValue={section.toggleValue || false}
+                onToggleChange={section.onToggleChange}
+              >
+                {section.title}
+              </SectionButton>
+            ))}
+        </View>
+        {/* Footer spacing */}
+        <View className="h-8" />
       </View>
     </SafeAreaView>
   );

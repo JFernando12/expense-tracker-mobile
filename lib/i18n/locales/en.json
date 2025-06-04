@@ -6,7 +6,8 @@
     "income": "Income",
     "expenses": "Expenses",
     "recent": "Recent"
-  },  "profile": {
+  },
+  "profile": {
     "localUser": "Local User",
     "editProfile": "Edit Profile",
     "login": "Log In",
@@ -19,8 +20,11 @@
     "logoutSuccess": "Logout Successful",
     "syncConfirmTitle": "Sync Data",
     "syncConfirmMessage": "This will upload your local data to the cloud. Local data will remain available. Continue?",
-    "syncDataLoginPrompt": "Sync data"
-  },  "statistics": {
+    "syncDataLoginPrompt": "Sync data",
+    "autoSyncEnabled": "Auto Sync Enabled",
+    "autoSyncDisabled": "Auto Sync Disabled"
+  },
+  "statistics": {
     "title": "Statistics",
     "sevenDays": "7 Days",
     "thirtyDays": "30 Days",
@@ -32,6 +36,82 @@
     "totalBalance": "Total Balance",
     "allAccounts": "All accounts",
     "create": "Create"
+  },
+  "transactions": {
+    "expense": "Expense",
+    "income": "Income"
+  },
+  "fields": {
+    "selectDate": "Select date",
+    "selectOption": "Select option"
+  },
+  "offline": {
+    "message": "📱 Offline mode - Changes will sync when you reconnect"
+  },
+  "categories": {
+    "loadingData": "Loading category data...",
+    "noDataAvailable": "No category data available",
+    "food": "Food",
+    "transport": "Transport",
+    "entertainment": "Entertainment",
+    "shopping": "Shopping",
+    "health": "Health",
+    "utilities": "Utilities",
+    "travel": "Travel",
+    "education": "Education",
+    "other_expense": "Other",
+    "salary": "Salary",
+    "bonus": "Bonus",
+    "investment": "Investment",
+    "gift": "Gift",
+    "other_income": "Other"
+  },
+  "periods": {
+    "last7Days": "last 7 days",
+    "last30Days": "last 30 days",
+    "totalAccumulated": "total accumulated",
+    "thisPeriod": "this period"
+  },
+  "forms": {
+    "name": "Name",
+    "description": "Description",
+    "amount": "Amount",
+    "initialBalance": "Initial Balance",
+    "enterName": "Enter your name",
+    "enterEmail": "Enter your email",
+    "enterPassword": "Enter your password",
+    "forgotPassword": "Forgot your password?",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "editProfile": "Edit Profile",
+    "createAccount": "Create Account",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "signUp": "Sign Up",
+    "signIn": "Sign In"
+  },
+  "auth": {
+    "completeAllFields": "Please complete all fields",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "invalidEmail": "Please enter a valid email address",
+    "unexpectedError": "An unexpected error occurred",
+    "emailAndPasswordRequired": "Please enter your email and password"
+  },
+  "subscription": {
+    "monthlyPlan": "Monthly Plan",
+    "yearlyPlan": "Yearly Plan",
+    "perfectToStart": "Perfect to get started",
+    "save33Popular": "Save 33% - Most popular!",
+    "unlimitedExpenses": "Unlimited expenses",
+    "multipleWallets": "Multiple wallets",
+    "basicStatistics": "Basic statistics",
+    "everythingMonthly": "Everything from monthly plan",
+    "advancedStatistics": "Advanced statistics",
+    "exportReports": "Export reports",
+    "prioritySupport": "Priority support",
+    "simulatedSubscription": "Simulated Subscription",
+    "selectedPlan": "You have selected the",
+    "realAppPayment": "In a real app, this would process the payment."
   },
   "common": {
     "loading": "Loading...",

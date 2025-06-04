@@ -1,0 +1,25 @@
+import { useGlobalContext } from '@/lib/global-provider';
+import { Redirect } from 'expo-router';
+import React from 'react';
+import { ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const Index = () => {
+  const { userLoading, isLoggedIn } = useGlobalContext();
+
+  if (userLoading) {
+    return (
+      <SafeAreaView className="bg-primary-100 h-full flex justify-center items-center">
+        <ActivityIndicator className="text-primary-300" size="large" />
+      </SafeAreaView>
+    );
+  }
+
+  if (isLoggedIn) {
+    return <Redirect href="/(root)/(tabs)" />;
+  }
+
+  return <Redirect href="/welcome" />;
+};
+
+export default Index;

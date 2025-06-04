@@ -1,13 +1,14 @@
 import icons from "@/constants/icons";
-import { Transaction, TransactionType } from "@/types/types";
-import { router } from "expo-router";
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import { Transaction, TransactionType } from '@/types/types';
+import { router } from 'expo-router';
 import {
   Image,
   ImagePropsBase,
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
+} from 'react-native';
 
 const TransactionItem = ({
   id,
@@ -17,6 +18,18 @@ const TransactionItem = ({
   type,
   date,
 }: Transaction) => {
+  const { t } = useTranslation();
+
+  // Function to get translated category name
+  const getCategoryName = (categoryId: string) => {
+    const categoryKey = `categories.${categoryId}` as any;
+    try {
+      return t(categoryKey);
+    } catch {
+      // Fallback to the original categoryId if translation not found
+      return categoryId;
+    }
+  };
   return (
     <TouchableOpacity
       onPress={() =>
@@ -48,7 +61,9 @@ const TransactionItem = ({
           />
         </View>
         <View>
-          <Text className="text-white text-lg font-bold">{categoryId}</Text>
+          <Text className="text-white text-lg font-bold">
+            {getCategoryName(categoryId)}
+          </Text>
           <Text className="text-neutral-200">{description}</Text>
         </View>
       </View>

@@ -55,6 +55,12 @@ const RootLayout = () => {
             presentation: 'modal',
           }}
         />
+        <Stack.Screen
+          name="(modals)/loginModal"
+          options={{
+            presentation: 'modal',
+          }}
+        />
       </Stack>
     </View>
   );
