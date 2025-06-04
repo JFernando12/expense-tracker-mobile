@@ -1,8 +1,8 @@
-import { Transaction, TransactionType } from "@/types/types";
-import { Query } from "react-native-appwrite";
-import { getCurrentUser } from "./auth";
-import { config, databases, storage } from "./client";
-import { deleteImage, uploadImage } from "./storage";
+import { Transaction, TransactionType } from '@/types/types';
+import { Query } from 'react-native-appwrite';
+import { getCurrentUser } from './auth';
+import { config, databases, storage } from './client';
+import { deleteImage, uploadImage } from './storage';
 
 export const getTransactionsFromServer = async (filters?: {
   type?: TransactionType;
@@ -28,24 +28,26 @@ export const getTransactionsFromServer = async (filters?: {
       queries
     );
 
-    const transactions =
-      (response?.documents?.map((transaction) => {
-        const imageUrl = transaction.image
-          ? storage
-              .getFileView(config.storageBucketId, transaction.image as string)
-              .toString()
-          : null;
-        return {
-          id: transaction.$id as string,
-          walletId: transaction.wallet.$id as string,
-          categoryId: transaction.category as string,
-          description: transaction.description as string,
-          amount: transaction.amount as number,
-          type: transaction.type as TransactionType,
-          date: new Date(transaction.date).toLocaleDateString('en-GB'),
-          imageUrl,
-        };
-      }) as Transaction[]) || [];
+    const docs = response?.documents || [];
+    const transactions = docs.map((t) => {
+      const imageUrl = t.image
+        ? storage
+            .getFileView(config.storageBucketId, t.image as string)
+            .toString()
+        : null;
+
+      return {
+        id: t.$id as string,
+        updatedAt: t.updated_at as string,
+        walletId: t.wallet.$id as string,
+        categoryId: t.category as string,
+        description: t.description as string,
+        amount: t.amount as number,
+        type: t.type as TransactionType,
+        date: new Date(t.date).toLocaleDateString('en-GB'),
+        imageUrl,
+      };
+    });
 
     return transactions;
   } catch (error) {
@@ -114,7 +116,7 @@ export const upsertTransactionOnServer = async ({
 
     return true;
   } catch (error) {
-    console.error("Error upserting transaction:", error);
+    console.error('Error upserting transaction:', error);
     return false;
   }
 };
@@ -129,10 +131,10 @@ export const createTransactionOnServer = async ({
   date,
   imageUrl,
   updatedAt,
-}: Transaction): Promise<Transaction | null> => {
+}: Transaction): Promise<boolean> => {
   try {
     const user = await getCurrentUser();
-    if (!user) return null;
+    if (!user) return false;
 
     // Upload image if provided
     let imageId: string | null = null;
@@ -149,12 +151,12 @@ export const createTransactionOnServer = async ({
 
     if (!wallet) {
       console.error('Wallet not found');
-      return null;
+      return false;
     }
 
     if (wallet.user_id !== user.$id) {
       console.error('Unauthorized access to wallet');
-      return null;
+      return false;
     }
 
     // Create the transaction
@@ -181,7 +183,7 @@ export const createTransactionOnServer = async ({
       transactionData
     );
 
-    if (!response.$id) return null;
+    if (!response.$id) return false;
 
     // Update wallet balance
     const currentBalance = wallet.current_balance as number;
@@ -197,34 +199,10 @@ export const createTransactionOnServer = async ({
       }
     );
 
-    // Return the created transaction
-    const createdTransaction = await databases.getDocument(
-      config.databaseId,
-      config.transactionCollectionId,
-      response.$id
-    );
-
-    return {
-      id: createdTransaction.$id as string,
-      updatedAt: createdTransaction.updatedAt as number,
-      walletId: createdTransaction.wallet.$id as string,
-      categoryId: createdTransaction.category.$id as string,
-      description: createdTransaction.description as string,
-      amount: createdTransaction.amount as number,
-      type: createdTransaction.type as TransactionType,
-      date: new Date(createdTransaction.date).toLocaleDateString('en-GB'),
-      imageUrl: createdTransaction.image
-        ? storage
-            .getFileView(
-              config.storageBucketId,
-              createdTransaction.image as string
-            )
-            .toString()
-        : null,
-    };
+    return true;
   } catch (error) {
     console.error('Error creating transaction:', error);
-    return null;
+    return false;
   }
 };
 
@@ -409,7 +387,7 @@ export const updateTransactionOnServer = async ({
 
     return {
       id: updatedTransaction.$id as string,
-      updatedAt: updatedTransaction.updatedAt as number,
+      updatedAt: updatedTransaction.updatedAt as string,
       walletId: updatedTransaction.wallet.$id as string,
       categoryId: updatedTransaction.category.$id as string,
       description: updatedTransaction.description as string,
@@ -434,9 +412,11 @@ export const updateTransactionOnServer = async ({
 export const deleteTransactionFromServer = async ({
   id,
   deletedAt,
+  updatedAt,
 }: {
   id: string;
-  deletedAt: number;
+  deletedAt: string;
+  updatedAt: string;
 }): Promise<boolean> => {
   try {
     const user = await getCurrentUser();
@@ -506,6 +486,7 @@ export const deleteTransactionFromServer = async ({
       id,
       {
         deleted_at: deletedAt,
+        updated_at: updatedAt,
       }
     );
 

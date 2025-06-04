@@ -12,7 +12,8 @@ export interface Transaction {
   date: string;
   description: string | null;
   imageUrl: string | null;
-  updatedAt: number;
+  updatedAt: string;
+  deletedAt?: string;
 }
 
 export interface Wallet {
@@ -21,7 +22,8 @@ export interface Wallet {
   description: string;
   initialBalance: number;
   currentBalance: number;
-  updatedAt: number;
+  updatedAt: string;
+  deletedAt?: string;
 }
 
 export interface Category {

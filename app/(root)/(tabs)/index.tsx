@@ -15,21 +15,25 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function Index() {
   const {
     user,
+    userLoading,
     transactions,
     transactionsLoading,
     totalBalance,
+    totalBalanceLoading,
     totalIncomes,
+    totalIncomesLoading,
     totalExpenses,
-    refetchResources,
+    totalExpensesLoading,
     isLoggedIn,
-    isOnlineMode,
   } = useGlobalContext();
 
-  const handleSyncComplete = () => {
-    // Refresh data after sync
-    refetchResources();
-  };
-  if (transactionsLoading) {
+  if (
+    transactionsLoading ||
+    userLoading ||
+    totalBalanceLoading ||
+    totalIncomesLoading ||
+    totalExpensesLoading
+  ) {
     return (
       <SafeAreaView className="bg-primary-100 h-full flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="white" />

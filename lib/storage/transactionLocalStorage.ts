@@ -7,8 +7,6 @@ import 'react-native-get-random-values';
 const TRANSACTIONS_KEY = 'transactions';
 export interface StoredTransaction extends Transaction {
   syncStatus: 'synced' | 'pending' | 'conflict';
-  updatedAt: number;
-  deleteAt?: number;
 }
 
 class TransactionLocalStorage {
@@ -26,7 +24,7 @@ class TransactionLocalStorage {
   async getTransaction(id: string): Promise<Transaction | null> {
     const transactions = await this.getTransactionsStorage();
     const transaction = transactions.find((t) => t.id === id);
-    if (!transaction || transaction.deleteAt) return null;
+    if (!transaction || transaction.deletedAt) return null;
 
     return {
       id: transaction.id,
@@ -44,7 +42,7 @@ class TransactionLocalStorage {
   async getTransactions(): Promise<Transaction[]> {
     const transactions = await this.getTransactionsStorage();
     const transactionsNotDeleted = transactions.filter(
-      (transaction) => !transaction.deleteAt
+      (transaction) => !transaction.deletedAt
     );
 
     return transactionsNotDeleted.map((transaction) => ({
@@ -123,19 +121,17 @@ class TransactionLocalStorage {
     removeImage,
   }: {
     id: string;
-    data: Omit<Transaction, 'id' | 'updatedAt'>;
+    data: Omit<Transaction, 'id'>;
     removeImage?: boolean;
-  }): Promise<{ success: boolean; updatedAt: number }> {
-    const updatedAt = Date.now();
+  }): Promise<{ success: boolean }> {
     const storedTransaction: StoredTransaction = {
       ...data,
       id,
       syncStatus: 'pending',
-      updatedAt,
     };
 
     const oldTransaction = await this.getTransaction(id);
-    if (!oldTransaction) return { success: false, updatedAt: 0 };
+    if (!oldTransaction) return { success: false };
 
     // If the image is removed, remove it from the filesystem
     if (removeImage && oldTransaction.imageUrl) {
@@ -151,19 +147,25 @@ class TransactionLocalStorage {
 
     await this.upsertTransaction(storedTransaction);
 
-    return { success: true, updatedAt };
+    return { success: true };
   }
 
-  async deleteTransaction(
-    id: string
-  ): Promise<{ success: boolean; deletedAt: number }> {
+  async deleteTransaction({
+    id,
+    deletedAt,
+    updatedAt,
+  }: {
+    id: string;
+    deletedAt: string;
+    updatedAt: string;
+  }): Promise<{ success: boolean }> {
     const transactions = await this.getTransactionsStorage();
     const transaction = transactions.find((t) => t.id === id);
-    if (!transaction) return { success: false, deletedAt: 0 };
-    const deletedAt = Date.now();
-    transaction.deleteAt = deletedAt;
+    if (!transaction) return { success: false };
+    transaction.deletedAt = deletedAt;
+    transaction.updatedAt = updatedAt;
     await this.upsertTransaction(transaction);
-    return { success: true, deletedAt };
+    return { success: true };
   }
 
   async searchTransactions(query: string): Promise<Transaction[]> {

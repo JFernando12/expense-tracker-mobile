@@ -17,7 +17,7 @@ export const createWallet = async ({
   data: Omit<Wallet, 'id' | 'currentBalance' | 'updatedAt'>;
 }): Promise<boolean> => {
   const id = uuidv4();
-  const updatedAt = Date.now();
+  const updatedAt = new Date().toISOString();
   const currentBalance = data.initialBalance || 0;
 
   const { success } = await walletLocalStorage.createWallet({
@@ -44,9 +44,16 @@ export const updateWallet = async ({
   };
   isOnlineMode: boolean;
 }): Promise<boolean> => {
-  const { success, updatedAt } = await walletLocalStorage.updateWallet({
+  const updatedAt = new Date().toISOString();
+  const oldWallet = await walletLocalStorage.getWallet({ id });
+  if (!oldWallet) return false;
+
+  const currentBalance =
+    oldWallet.currentBalance - oldWallet.initialBalance + data.initialBalance;
+
+  const { success } = await walletLocalStorage.updateWallet({
     id,
-    data,
+    data: { ...data, currentBalance, updatedAt },
   });
   if (!isOnlineMode) return success;
 
@@ -88,10 +95,17 @@ export const deleteWallet = async ({
   id: string;
   isOnlineMode: boolean;
 }): Promise<boolean> => {
-  const { success, updatedAt } = await walletLocalStorage.deleteWallet({ id });
+  const deletedAt = new Date().toISOString();
+  const updatedAt = new Date().toISOString();
+
+  const { success } = await walletLocalStorage.deleteWallet({
+    id,
+    deletedAt,
+    updatedAt,
+  });
   if (!isOnlineMode) return success;
 
-  await deleteWalletFromServer({ id, updatedAt });
+  await deleteWalletFromServer({ id, updatedAt, deletedAt });
   await walletLocalStorage.updateSyncStatus(id, 'synced');
   return success;
 };

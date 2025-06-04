@@ -153,7 +153,7 @@ export const getWalletsFromServer = async (): Promise<Wallet[]> => {
     return (
       response?.documents?.map((wallet) => ({
         id: wallet.$id as string,
-        updatedAt: wallet.updatedAt,
+        updatedAt: wallet.updated_at as string,
         name: wallet.name as string,
         description: wallet.description as string,
         initialBalance: wallet.initial_balance as number,
@@ -169,9 +169,11 @@ export const getWalletsFromServer = async (): Promise<Wallet[]> => {
 export const deleteWalletFromServer = async ({
   id,
   updatedAt,
+  deletedAt,
 }: {
   id: string;
-  updatedAt: number;
+  updatedAt: string;
+  deletedAt: string;
 }): Promise<boolean> => {
   try {
     const user = await getCurrentUser();
@@ -212,7 +214,7 @@ export const deleteWalletFromServer = async ({
       config.walletCollectionId,
       id,
       {
-        deleted_at: new Date().toISOString(),
+        deleted_at: deletedAt,
         updated_at: updatedAt,
       }
     );

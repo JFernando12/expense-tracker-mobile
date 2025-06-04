@@ -8,7 +8,6 @@ import {
 } from '../../appwrite';
 
 export const syncTransactions = async (): Promise<number> => {
-  console.log('Syncing transactions...');
   const localTransactions =
     await transactionLocalStorage.getTransactionsStorage();
   const pendingTransactions = localTransactions.filter(
@@ -60,7 +59,7 @@ export const syncTransactions = async (): Promise<number> => {
 
 export const syncWallets = async (): Promise<number> => {
   const localWallets = await walletLocalStorage.getWalletsStorage();
-  console.log('localWallets:', localWallets);
+  console.log('Local wallets:', localWallets);
   const pendingWallets = localWallets.filter(
     (wallet) => wallet.syncStatus === 'pending'
   );
@@ -76,7 +75,7 @@ export const syncWallets = async (): Promise<number> => {
 
   // Getting wallets from the server to save them locally (only if does not exist or updatedAt is newer)
   const serverWallets = await getWalletsFromServer();
-  console.log('serverWallets:', serverWallets);
+  console.log('Server wallets:', serverWallets);
 
   for (const serverWallet of serverWallets) {
     const localWallet = localWallets.find(

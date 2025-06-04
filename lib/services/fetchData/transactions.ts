@@ -17,9 +17,8 @@ export const createTransaction = async ({
   isOnlineMode: boolean;
   data: Omit<Transaction, 'id' | 'updatedAt'>;
 }): Promise<boolean> => {
-  console.log('Creating transaction', data);
   const id = uuidv4();
-  const updatedAt = Date.now();
+  const updatedAt = new Date().toISOString();
 
   const { success } = await transactionLocalStorage.createTransaction({
     ...data,
@@ -53,7 +52,7 @@ export const updateTransaction = async ({
   };
   isOnlineMode: boolean;
 }): Promise<boolean> => {
-  console.log('Updating transaction', id, data);
+  const updatedAt = new Date().toISOString();
   const oldTransaction = await transactionLocalStorage.getTransaction(id);
   if (!oldTransaction) return false;
 
@@ -71,12 +70,11 @@ export const updateTransaction = async ({
     type: data.type,
   });
 
-  const { success, updatedAt } =
-    await transactionLocalStorage.updateTransaction({
-      id,
-      data,
-      removeImage,
-    });
+  const { success } = await transactionLocalStorage.updateTransaction({
+    id,
+    data: { ...data, updatedAt },
+    removeImage,
+  });
 
   if (!isOnlineMode) return success;
 
@@ -97,11 +95,16 @@ export const deleteTransaction = async ({
   id: string;
   isOnlineMode: boolean;
 }): Promise<boolean> => {
-  const { success, deletedAt } =
-    await transactionLocalStorage.deleteTransaction(id);
+  const deletedAt = new Date().toISOString();
+  const updatedAt = new Date().toISOString();
+  const { success } = await transactionLocalStorage.deleteTransaction({
+    id,
+    deletedAt,
+    updatedAt,
+  });
   if (!isOnlineMode) return success;
 
-  await deleteTransactionFromServer({ id, deletedAt });
+  await deleteTransactionFromServer({ id, deletedAt, updatedAt });
   await transactionLocalStorage.updateSyncStatus(id, 'synced');
 
   return success;

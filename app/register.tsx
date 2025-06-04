@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { register } from '../lib/appwrite';
 
 const Register = () => {
-  const { refetchUser, refetchResources } = useGlobalContext();
+  const { refetchUser } = useGlobalContext();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,7 +43,6 @@ const Register = () => {
 
       if (success) {
         await refetchUser();
-        await refetchResources(); // Fetch all resources after registration
         router.replace('/(root)/(tabs)');
       } else {
         Alert.alert(

@@ -13,8 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { login } from '../lib/appwrite';
 
 const Login = () => {
-  const { refetchUser, refetchResources, userLoading, isLoggedIn } =
-    useGlobalContext();
+  const { refetchUser, userLoading, isLoggedIn } = useGlobalContext();
 
   if (!userLoading && isLoggedIn) return <Redirect href="/" />;
 
@@ -41,7 +40,6 @@ const Login = () => {
 
       if (success) {
         await refetchUser();
-        await refetchResources(); // Fetch all resources after login
       } else {
         Alert.alert(
           'Inicio de sesión fallido',
@@ -55,6 +53,7 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+  
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5">
       <View className="mt-20">
