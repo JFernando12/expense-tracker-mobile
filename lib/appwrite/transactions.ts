@@ -58,6 +58,7 @@ export const getTransactionsFromServer = async (filters?: {
 
 export const upsertTransactionOnServer = async ({
   id,
+  updatedAt,
   walletId,
   categoryId,
   description,
@@ -85,6 +86,7 @@ export const upsertTransactionOnServer = async ({
       type,
       date: date,
       user_id: user.$id,
+      updated_at: updatedAt,
     };
 
     // Add image URL if available

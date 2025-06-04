@@ -27,12 +27,9 @@ const syncWallets = async (): Promise<number> => {
   );
 
   for (const wallet of pendingWallets) {
-    try {
-      await upsertWalletOnServer(wallet);
-      await walletLocalStorage.updateSyncStatus(wallet.id, 'synced');
-    } catch (error) {
-      console.error('Error syncing wallet:', error);
-    }
+    const result = await upsertWalletOnServer(wallet);
+    if (!result) continue;
+    await walletLocalStorage.updateSyncStatus(wallet.id, 'synced');
   }
 
   // Getting wallets from the server to save them locally (only if does not exist or updatedAt is newer)
@@ -71,12 +68,9 @@ const syncTransactions = async (): Promise<number> => {
 
   // Uploading pending transactions to the server
   for (const transaction of pendingTransactions) {
-    try {
-      await upsertTransactionOnServer(transaction);
-      await transactionLocalStorage.updateSyncStatus(transaction.id, 'synced');
-    } catch (error) {
-      console.error('Error syncing transaction:', error);
-    }
+    const result = await upsertTransactionOnServer(transaction);
+    if (!result) continue;
+    await transactionLocalStorage.updateSyncStatus(transaction.id, 'synced');
   }
 
   // Getting transactions from the server to save them locally (only if does not exist or updatedAt is newer)
