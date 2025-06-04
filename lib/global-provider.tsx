@@ -2,10 +2,14 @@ import { CategoryExpenseData, PeriodTypes } from '@/constants/interfaces';
 import { Transaction, Wallet } from '@/types/types';
 import { createContext, useContext, useEffect } from 'react';
 import { getCurrentUser } from './appwrite';
-import { getExpensesByCategory, getTotalExpenses, getTotalIncomes } from './services/fetchData/statistics';
+import {
+  getExpensesByCategory,
+  getTotalExpenses,
+  getTotalIncomes,
+} from './services/fetchData/statistics';
 import { getTransactions } from './services/fetchData/transactions';
 import { getTotalBalance, getWallets } from './services/fetchData/wallets';
-import { syncTransactions, syncWallets } from './services/syncData/syncData';
+import { syncData } from './services/syncData/syncData';
 import { useAppwrite } from './useAppwrite';
 
 interface User {
@@ -50,6 +54,11 @@ interface GlobalContextType {
   categoryExpensesThirtyDaysLoading: boolean;
   categoryExpensesYear: CategoryExpenseData[] | null;
   categoryExpensesYearLoading: boolean;
+  // Function to refetch sync data
+  refetchSyncData: (
+    newParams?: Record<string, string | number>
+  ) => Promise<void>;
+  syncDataLoading: boolean;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -76,9 +85,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     refetch: refetchWallets,
   } = useAppwrite({
     fn: getWallets,
-    params: {
-      isOnlineMode,
-    },
+    params: {},
   });
 
   const {
@@ -87,9 +94,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     refetch: refetchTransactions,
   } = useAppwrite({
     fn: getTransactions,
-    params: {
-      isOnlineMode,
-    },
+    params: {},
   });
 
   const {
@@ -186,6 +191,16 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     params: { period: PeriodTypes.ALL_TIME },
   });
 
+  const {
+    data: syncedData,
+    refetch: refetchSyncData,
+    loading: syncDataLoading,
+  } = useAppwrite({
+    fn: syncData,
+    params: {},
+    skip: true,
+  });
+
   const refetchResources = async () => {
     console.log('Refetching resources...');
     await Promise.all([refetchWallets(), refetchTransactions()]);
@@ -206,21 +221,22 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     ]);
   };
 
-  const syncData = async () => {
-    if (isOnlineMode) {
-      await syncWallets();
-      await syncTransactions();
-      await refetchResources();
-      await refetchStatistics();
-    }
+  const refetchSyncedData = async () => {
+    await refetchSyncData();
+    await refetchResources();
+    await refetchStatistics();
   };
 
   useEffect(() => {
     console.log('useEffect: syncData');
     if (isOnlineMode) {
-      syncData();
+      refetchSyncedData()
+        .then(() => console.log('Data synced successfully'))
+        .catch((error) => console.error('Error syncing data:', error));
     }
   }, [isOnlineMode]);
+
+  useEffect(() => {}, [syncedData]);
 
   useEffect(() => {
     console.log('useEffect: statistics');
@@ -261,6 +277,8 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         categoryExpensesThirtyDaysLoading,
         categoryExpensesYear,
         categoryExpensesYearLoading,
+        refetchSyncData,
+        syncDataLoading,
       }}
     >
       {children}

@@ -141,7 +141,6 @@ class WalletLocalStorage {
 
   async getTotalBalance(): Promise<number> {
     const wallets = await this.getWallets();
-    console.log('Total wallets:', wallets);
     return wallets.reduce((total, wallet) => total + wallet.currentBalance, 0);
   }
 

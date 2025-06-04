@@ -44,7 +44,7 @@ export const getTransactionsFromServer = async (filters?: {
         description: t.description as string,
         amount: t.amount as number,
         type: t.type as TransactionType,
-        date: new Date(t.date).toLocaleDateString('en-GB'),
+        date: t.date as string,
         imageUrl,
       };
     });

@@ -25,9 +25,11 @@ export default function Index() {
     totalExpenses,
     totalExpensesLoading,
     isLoggedIn,
+    syncDataLoading,
   } = useGlobalContext();
 
   if (
+    syncDataLoading ||
     transactionsLoading ||
     userLoading ||
     totalBalanceLoading ||

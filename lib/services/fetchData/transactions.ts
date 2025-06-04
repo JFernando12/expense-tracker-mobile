@@ -6,7 +6,6 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   createTransactionOnServer,
   deleteTransactionFromServer,
-  getTransactionsFromServer,
   updateTransactionOnServer,
 } from '../../appwrite';
 
@@ -110,29 +109,9 @@ export const deleteTransaction = async ({
   return success;
 };
 
-export const getTransactions = async ({
-  isOnlineMode,
-}: {
-  isOnlineMode: boolean;
-}): Promise<Transaction[]> => {
+export const getTransactions = async (): Promise<Transaction[]> => {
   const localTransactions = await transactionLocalStorage.getTransactions();
-  if (!isOnlineMode) return localTransactions;
-
-  const serverTransactions = await getTransactionsFromServer();
-
-  const totalTransactions = [...localTransactions];
-  for (const serverTransaction of serverTransactions) {
-    const existingWallet = totalTransactions.find(
-      (wallet) => wallet.id === serverTransaction.id
-    );
-    if (existingWallet) {
-      Object.assign(existingWallet, serverTransaction);
-    } else {
-      totalTransactions.push(serverTransaction);
-    }
-  }
-
-  return totalTransactions;
+  return localTransactions;
 };
 
 export const searchTransactions = async (

@@ -61,6 +61,7 @@ export const createWalletOnServer = async ({
   description,
   initialBalance,
   currentBalance,
+  updatedAt,
 }: Wallet): Promise<boolean> => {
   try {
     const user = await getCurrentUser();
@@ -76,6 +77,7 @@ export const createWalletOnServer = async ({
         initial_balance: initialBalance,
         current_balance: currentBalance,
         user_id: user.$id,
+        updated_at: updatedAt,
       }
     );
 

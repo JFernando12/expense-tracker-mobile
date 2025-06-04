@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   createWalletOnServer,
   deleteWalletFromServer,
-  getWalletsFromServer,
   updateWalletOnServer,
 } from '../../appwrite';
 
@@ -63,29 +62,9 @@ export const updateWallet = async ({
   return success;
 };
 
-export const getWallets = async ({
-  isOnlineMode,
-}: {
-  isOnlineMode: boolean;
-}): Promise<Wallet[]> => {
+export const getWallets = async (): Promise<Wallet[]> => {
   const localWallets = await walletLocalStorage.getWallets();
-  if (!isOnlineMode) return localWallets;
-
-  const serverWallets = await getWalletsFromServer();
-
-  const totalWallets = [...localWallets];
-  for (const serverWallet of serverWallets) {
-    const existingWallet = totalWallets.find(
-      (wallet) => wallet.id === serverWallet.id
-    );
-    if (existingWallet) {
-      Object.assign(existingWallet, serverWallet);
-    } else {
-      totalWallets.push(serverWallet);
-    }
-  }
-
-  return totalWallets;
+  return localWallets;
 };
 
 export const deleteWallet = async ({
