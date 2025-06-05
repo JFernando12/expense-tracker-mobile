@@ -17,6 +17,21 @@ import { register } from '../lib/appwrite';
 // Mock subscription plans
 const subscriptionPlans = [
   {
+    id: 'trial',
+    title: 'Free Trial',
+    price: 'Free',
+    period: '/7 days',
+    description: 'Try all premium features',
+    features: [
+      'Sincronización automática en la nube',
+      'Respaldo seguro de tus datos',
+      'Actualizaciones en tiempo real',
+      'Todas las funciones premium',
+    ],
+    popular: false,
+    isTrial: true,
+  },
+  {
     id: 'monthly',
     title: 'Plan Mensual',
     price: '$4.99',
@@ -62,59 +77,69 @@ const SuscriptionModal = ({
   password,
   name,
 }: SuscriptionModalProps) => {
-  const [selectedPlan, setSelectedPlan] = useState('monthly');
+  const [selectedPlan, setSelectedPlan] = useState('trial');
   const [isLoading, setIsLoading] = useState(false);
 
-  const { refetchUser } = useGlobalContext();
+  const { refetchUser, upgradeToPremium, startTrial } = useGlobalContext();
   const handleSubscription = async (planId: string) => {
     setIsLoading(true);
 
-    // Simulate subscription process
-    setTimeout(async () => {
-      try {
-        const selectedPlanInfo = subscriptionPlans.find((p) => p.id === planId);
-        const planName = selectedPlanInfo?.title || 'Plan seleccionado';
+    try {
+      const selectedPlanInfo = subscriptionPlans.find((p) => p.id === planId);
+      const planName = selectedPlanInfo?.title || 'Plan seleccionado';
 
+      // First register the user
+      const success = await register(email, password, name);
+
+      if (!success) {
         Alert.alert(
-          selectedPlanInfo?.isTrial
-            ? 'Prueba Gratuita Activada'
-            : 'Suscripción Confirmada',
-          selectedPlanInfo?.isTrial
-            ? `¡Perfecto! Has activado tu prueba gratuita de 7 días. Disfruta de todas las funciones premium sin costo.`
-            : `Has seleccionado el ${planName}. En una app real, esto procesaría el pago.`,
+          'Error de Registro',
+          'No se pudo registrar. Por favor intenta de nuevo.'
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      // Then set up the subscription
+      if (selectedPlanInfo?.isTrial) {
+        await startTrial();
+        Alert.alert(
+          'Prueba Gratuita Activada',
+          '¡Perfecto! Has activado tu prueba gratuita de 7 días. Disfruta de todas las funciones premium sin costo.',
           [
             {
               text: 'Continuar',
               onPress: async () => {
-                // Proceed with registration after "successful" subscription
-                const success = await register(email, password, name);
-
-                if (success) {
-                  await refetchUser();
-                  onClose();
-                  router.back();
-                } else {
-                  Alert.alert(
-                    'Error de Registro',
-                    'No se pudo registrar. Por favor intenta de nuevo.'
-                  );
-                }
+                await refetchUser();
+                onClose();
+                router.back();
               },
-            },
-            {
-              text: 'Cancelar',
-              style: 'cancel',
-              onPress: () => setIsLoading(false),
             },
           ]
         );
-      } catch (error) {
-        Alert.alert('Error', 'Ocurrió un error inesperado.');
-        console.error(error);
-      } finally {
-        setIsLoading(false);
+      } else if (planId === 'monthly' || planId === 'yearly') {
+        await upgradeToPremium(planId as 'monthly' | 'yearly');
+        Alert.alert(
+          'Suscripción Confirmada',
+          `Has seleccionado el ${planName}. En una app real, esto procesaría el pago.`,
+          [
+            {
+              text: 'Continuar',
+              onPress: async () => {
+                await refetchUser();
+                onClose();
+                router.back();
+              },
+            },
+          ]
+        );
       }
-    }, 1000);
+    } catch (error) {
+      Alert.alert('Error', 'Ocurrió un error inesperado.');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

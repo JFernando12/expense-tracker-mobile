@@ -1,6 +1,6 @@
 import { CategoryExpenseData, PeriodTypes } from '@/constants/interfaces';
 import { Transaction, Wallet } from '@/types/types';
-import { createContext, useContext, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { getCurrentUser } from './appwrite';
 import {
   getExpensesByCategory,
@@ -9,6 +9,11 @@ import {
 } from './services/fetchData/statistics';
 import { getTransactions } from './services/fetchData/transactions';
 import { getTotalBalance, getWallets } from './services/fetchData/wallets';
+import {
+  AppMode,
+  subscriptionService,
+  UserSubscription,
+} from './services/subscriptionService';
 import { syncData } from './services/syncData/syncData';
 import { useAppwrite } from './useAppwrite';
 
@@ -59,6 +64,18 @@ interface GlobalContextType {
     newParams?: Record<string, string | number>
   ) => Promise<void>;
   syncDataLoading: boolean;
+  // Subscription management
+  subscription: UserSubscription;
+  subscriptionLoading: boolean;
+  appMode: AppMode;
+  canAccessCloudSync: boolean;
+  canAccessPremiumFeatures: boolean;
+  isTrialActive: boolean;
+  daysUntilExpiry: number | null;
+  upgradeToPremium: (planType: 'monthly' | 'yearly') => Promise<void>;
+  startTrial: () => Promise<void>;
+  toggleCloudSync: (enabled: boolean) => Promise<void>;
+  resetToFreeMode: () => Promise<void>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -68,6 +85,11 @@ interface GlobalProviderProps {
 }
 
 export const GlobalProvider = ({ children }: GlobalProviderProps) => {
+  const [subscription, setSubscription] = useState<UserSubscription | null>(
+    null
+  );
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+
   const {
     data: user,
     loading: userLoading,
@@ -75,9 +97,9 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   } = useAppwrite({
     fn: getCurrentUser,
   });
-
   const isLoggedIn = !!user;
-  const isOnlineMode = isLoggedIn;
+  const isOnlineMode =
+    subscription?.syncMode === 'cloud' && subscription?.mode === 'premium';
 
   const {
     data: wallets,
@@ -220,12 +242,66 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
       refetchCategoryExpensesYear(),
     ]);
   };
-
   const refetchSyncedData = async () => {
     await refetchSyncData();
     await refetchResources();
     await refetchStatistics();
   };
+
+  // Subscription management functions
+  const initializeSubscription = async () => {
+    setSubscriptionLoading(true);
+    try {
+      const sub = await subscriptionService.initialize();
+      setSubscription(sub);
+    } catch (error) {
+      console.error('Error initializing subscription:', error);
+    } finally {
+      setSubscriptionLoading(false);
+    }
+  };
+
+  const upgradeToPremium = async (planType: 'monthly' | 'yearly') => {
+    await subscriptionService.upgradeToPremium(planType);
+    const updatedSubscription = subscriptionService.getSubscription();
+    setSubscription(updatedSubscription);
+  };
+
+  const startTrial = async () => {
+    await subscriptionService.startTrial();
+    const updatedSubscription = subscriptionService.getSubscription();
+    setSubscription(updatedSubscription);
+  };
+
+  const toggleCloudSync = async (enabled: boolean) => {
+    try {
+      await subscriptionService.toggleCloudSync(enabled);
+      const updatedSubscription = subscriptionService.getSubscription();
+      setSubscription(updatedSubscription);
+    } catch (error) {
+      throw error; // Re-throw to handle in UI
+    }
+  };
+
+  const resetToFreeMode = async () => {
+    await subscriptionService.resetToFreeMode();
+    const updatedSubscription = subscriptionService.getSubscription();
+    setSubscription(updatedSubscription);
+  };
+
+  // Initialize subscription on component mount
+  useEffect(() => {
+    initializeSubscription();
+  }, []);
+
+  // Update subscription service when user login state changes
+  useEffect(() => {
+    if (!subscriptionLoading && subscription) {
+      subscriptionService.setUserLoggedIn(isLoggedIn);
+      const updatedSubscription = subscriptionService.getSubscription();
+      setSubscription(updatedSubscription);
+    }
+  }, [isLoggedIn, subscriptionLoading]);
 
   useEffect(() => {
     console.log('useEffect: syncData');
@@ -243,6 +319,20 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     refetchStatistics();
   }, [wallets, transactions]);
 
+  // Derived values from subscription
+  const appMode = subscription?.mode || 'free';
+  const canAccessCloudSync = subscription
+    ? subscriptionService.canAccessCloudSync()
+    : false;
+  const canAccessPremiumFeatures = subscription
+    ? subscriptionService.canAccessPremiumFeatures()
+    : false;
+  const isTrialActive = subscription
+    ? subscriptionService.isInTrialPeriod()
+    : false;
+  const daysUntilExpiry = subscription
+    ? subscriptionService.getDaysUntilExpiry()
+    : null;
   return (
     <GlobalContext.Provider
       value={{
@@ -279,6 +369,22 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         categoryExpensesYearLoading,
         refetchSyncData,
         syncDataLoading,
+        subscription: subscription || {
+          mode: 'free',
+          syncMode: 'local',
+          isLoggedIn: false,
+          isTrialActive: false,
+        },
+        subscriptionLoading,
+        appMode,
+        canAccessCloudSync,
+        canAccessPremiumFeatures,
+        isTrialActive,
+        daysUntilExpiry,
+        upgradeToPremium,
+        startTrial,
+        toggleCloudSync,
+        resetToFreeMode,
       }}
     >
       {children}
