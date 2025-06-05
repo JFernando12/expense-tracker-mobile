@@ -58,7 +58,6 @@ const LoginModal = () => {
 
       if (success) {
         await refetchUser();
-        router.back();
       } else {
         Alert.alert(
           'Inicio de sesión fallido',
@@ -72,6 +71,7 @@ const LoginModal = () => {
       setIsLoading(false);
     }
   };
+
   const handleRegister = async () => {
     // Basic validation
     if (!name.trim() || !email.trim() || !password.trim()) {
@@ -103,16 +103,16 @@ const LoginModal = () => {
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5">
       {/* Header with close button */}
-      <View className="flex-row justify-between items-center mt-5">
-        <TouchableOpacity onPress={() => router.back()} className="p-2">
-          <Text className="text-neutral-200 text-lg">✕</Text>
+      <View className="relative flex-row justify-center items-center mt-5">
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="absolute left-0 top-0"
+        >
+          <Ionicons name="close-outline" size={24} color="#fff" />
         </TouchableOpacity>
         <Text className="text-white text-lg font-bold">
           Sincronización en la nube
         </Text>
-        <TouchableOpacity className="p-2">
-          <Text className="text-accent-200 text-lg">?</Text>
-        </TouchableOpacity>
       </View>
       {/* Cloud sync icon */}
       <View className="items-center mt-3">
@@ -120,7 +120,7 @@ const LoginModal = () => {
           <Ionicons name="cloud-done-outline" size={30} color="#fff" />
         </View>
         <Text className="text-neutral-200 text-center text-xs px-8">
-          Guardá tus gastos en la nube, accedé desde cualquier dispositivo y
+          Guarda tus gastos en la nube, accedé desde cualquier dispositivo y
           nunca pierdas tu información.
         </Text>
       </View>
@@ -235,7 +235,11 @@ const LoginModal = () => {
             <Text className="text-white text-lg font-bold mr-2">
               {isLoginMode ? 'Sign In' : 'Sign Up'}
             </Text>
-            <Text className="text-white text-lg">🔒</Text>
+            {!isLoginMode ? (
+              <Ionicons name="lock-closed-outline" size={16} color="#fff" />
+            ) : (
+              <Ionicons name="log-in-outline" size={16} color="#fff" />
+            )}
           </View>
         )}
       </TouchableOpacity>

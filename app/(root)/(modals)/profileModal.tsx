@@ -64,13 +64,6 @@ const ProfileModal = () => {
             }
             className="size-40 rounded-full"
           />
-          <TouchableOpacity className="absolute bottom-1 right-3">
-            <Image
-              source={icons.edit as ImagePropsBase}
-              className="size-9"
-              tintColor="white"
-            />
-          </TouchableOpacity>
         </View>
       </View>
       <View className="mt-5 rounded-3xl shadow-lg">

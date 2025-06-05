@@ -1,4 +1,5 @@
 import { useGlobalContext } from '@/lib/global-provider';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -126,17 +127,21 @@ const SuscriptionModal = ({
         <View className="flex-1">
           {/* Header */}
           <View className="px-5 pt-5 pb-2 border-b border-primary-300">
-            <View className="flex-row justify-between items-center">
-              <TouchableOpacity onPress={onClose} className="p-2">
-                <Text className="text-neutral-200 text-lg">✕</Text>
+            <View className="relative flex-row justify-center items-center">
+              <TouchableOpacity
+                onPress={onClose}
+                className="p-2 absolute left-0"
+              >
+                <Ionicons name="close-outline" size={24} color="#fff" />
               </TouchableOpacity>
-              <Text className="text-white text-lg font-bold">Suscripción</Text>
-              <View className="w-8" />
+              <Text className="text-white text-lg font-bold">
+                Suscripción Premium
+              </Text>
             </View>
           </View>
           <ScrollView className="flex-1 px-5">
             {/* Hero Section */}
-            <View className="items-center mt-3">
+            <View className="items-center mt-5">
               <Text className="text-white text-2xl font-bold text-center mb-3">
                 Sincroniza tus Datos en la Nube
               </Text>
@@ -163,14 +168,14 @@ const SuscriptionModal = ({
                     onPress={() => setSelectedPlan(plan.id)}
                   >
                     {plan.popular && (
-                      <View className="absolute -top-1 right-1 bg-gradient-to-r from-accent-200 to-orange-400 px-4 py-1 rounded-full">
+                      <View className="absolute top-1 right-1 bg-gradient-to-r from-accent-200 to-orange-400 px-4 py-1 rounded-full">
                         <Text className="text-white text-xs font-bold">
                           ¡Más Popular!
                         </Text>
                       </View>
                     )}
 
-                    <View className="flex-row justify-between items-start mb-4">
+                    <View className="flex-row justify-between items-start">
                       <View className="flex-1">
                         <Text className="text-white text-xl font-bold mb-1">
                           {plan.title}
@@ -189,7 +194,7 @@ const SuscriptionModal = ({
                       </View>
                     </View>
 
-                    <View className="space-y-2">
+                    <View className="mt-2">
                       {plan.features.map((feature, idx) => (
                         <View key={idx} className="flex-row items-center">
                           <Text className="text-accent-200 text-sm mr-2">
@@ -203,7 +208,7 @@ const SuscriptionModal = ({
                     </View>
 
                     {selectedPlan === plan.id && (
-                      <View className="absolute top-3 right-3">
+                      <View className="absolute top-1 right-1">
                         <View className="w-6 h-6 bg-accent-200 rounded-full items-center justify-center">
                           <Text className="text-white text-xs font-bold">
                             ✓
@@ -215,10 +220,9 @@ const SuscriptionModal = ({
                 ))}
               </View>
             </View>
-          </ScrollView>{' '}
+          </ScrollView>
           {/* Bottom Actions */}
           <View className="px-5 pb-5 border-t border-primary-300/50 pt-5 bg-primary-100">
-            {' '}
             <TouchableOpacity
               className={`py-4 rounded-xl mb-4 ${
                 isLoading ? 'bg-neutral-600' : 'bg-accent-200'

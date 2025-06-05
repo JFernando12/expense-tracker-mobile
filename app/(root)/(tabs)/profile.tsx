@@ -36,20 +36,12 @@ const Profile = () => {
   };
 
   const handleAutoSyncToggle = (value: boolean) => {
-    setAutoSyncEnabled(value);
-    if (value) {
-      Alert.alert(
-        t('profile.autoSyncEnabled'),
-        'Auto sync has been enabled. Your data will sync automatically when connected to the internet.',
-        [{ text: 'OK' }]
-      );
-    } else {
-      Alert.alert(
-        t('profile.autoSyncDisabled'),
-        'Auto sync has been disabled. You can still manually sync your data.',
-        [{ text: 'OK' }]
-      );
+    // If the user is not logged in, move to login modal
+    if (!isLoggedIn) {
+      handleLoginToSync();
+      return;
     }
+    setAutoSyncEnabled(value);
   };
 
   return (
@@ -61,7 +53,10 @@ const Profile = () => {
           <View className="relative">
             <View className="size-28 rounded-full overflow-hidden bg-secondary-100 border border-neutral-500 items-center justify-center">
               {isLoggedIn && user?.avatar ? (
-                <Image source={{ uri: user.avatar }} className="size-20" />
+                <Image
+                  source={{ uri: user.avatar }}
+                  className="size-28 rounded-full"
+                />
               ) : (
                 <Image
                   source={images.avatar as ImageSourcePropType}
@@ -107,15 +102,17 @@ const Profile = () => {
                 <Text className="text-white text-lg font-medium mb-0.5">
                   Personal Information
                 </Text>
-                <Text className="text-neutral-400 text-base">
-                  Sign in to sync your data
-                </Text>
+                {!isLoggedIn && (
+                  <Text className="text-neutral-400 text-base">
+                    Log in to back up your expenses
+                  </Text>
+                )}
               </View>
               <View className="ml-3">
                 <Image
                   source={icons.rightArrow as ImageSourcePropType}
                   tintColor="#6b7280"
-                  className="size-6"
+                  className="size-5"
                 />
               </View>
             </View>
@@ -135,7 +132,7 @@ const Profile = () => {
               <View className="flex-row items-center justify-between">
                 <View className="flex-1">
                   <Text className="text-white text-lg font-medium">
-                    Auto Sync Data
+                    Secure Cloud Sync
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -153,10 +150,8 @@ const Profile = () => {
                 </TouchableOpacity>
               </View>
             </View>
-
             {/* Divider */}
             <View className="h-px bg-neutral-700 mx-4" />
-
             {/* Delete Data */}
             <TouchableOpacity
               onPress={() => clearLocalData()}
@@ -185,13 +180,53 @@ const Profile = () => {
                   <Image
                     source={icons.rightArrow as ImageSourcePropType}
                     tintColor="#6b7280"
-                    className="size-4"
+                    className="size-5"
                   />
                 </View>
               </View>
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Account Actions Section */}
+        {isLoggedIn && (
+          <View className="mb-6">
+            <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
+              ACCOUNT ACTIONS
+            </Text>
+
+            {/* Logout Button */}
+            <TouchableOpacity
+              onPress={handleLogout}
+              className="bg-secondary-100 rounded-2xl p-4"
+              activeOpacity={0.7}
+            >
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center flex-1">
+                  <View className="bg-red-500/20 size-10 rounded-full items-center justify-center mr-3">
+                    <Image
+                      source={icons.logout as ImageSourcePropType}
+                      tintColor="#ef4444"
+                      className="size-6"
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-white text-lg font-medium mb-0.5">
+                      {t('profile.logout')}
+                    </Text>
+                  </View>
+                </View>
+                <View className="ml-3">
+                  <Image
+                    source={icons.rightArrow as ImageSourcePropType}
+                    tintColor="#6b7280"
+                    className="size-5"
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Footer spacing */}
         <View className="h-12" />
