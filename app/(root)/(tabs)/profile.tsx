@@ -1,5 +1,5 @@
-import SectionButton from '@/components/SectionButton';
 import icons from '@/constants/icons';
+import images from '@/constants/images';
 import { logout } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
 import { useTranslation } from '@/lib/i18n/useTranslation';
@@ -52,124 +52,149 @@ const Profile = () => {
     }
   };
 
-  const sections = [
-    {
-      title: t('profile.editProfile'),
-      onPress: () => router.push('/(root)/(modals)/profileModal'),
-      icon: icons.person,
-      iconBgColor: 'bg-accent-200',
-      needLogin: true,
-    },
-    {
-      title: isSyncing ? t('profile.syncing') : 'Auto Sync Data',
-      onPress: isSyncing ? () => {} : undefined,
-      icon: icons.wifi,
-      iconBgColor: isSyncing ? 'bg-black-200' : 'bg-accent-200',
-      showLoading: isSyncing,
-      showToggle: !isSyncing,
-      showArrow: false,
-      toggleValue: autoSyncEnabled,
-      onToggleChange: handleLoginToSync,
-      needLogin: false,
-    },
-    {
-      title: t('profile.deleteData'),
-      onPress: () => clearLocalData(),
-      icon: icons.trashCan,
-      iconBgColor: 'bg-danger-100',
-      needLogin: false,
-    },
-    {
-      title: t('profile.logout'),
-      onPress: handleLogout,
-      icon: icons.logout,
-      iconBgColor: 'bg-danger-100',
-      needLogin: true,
-    },
-  ];
-
   return (
     <SafeAreaView className="bg-primary-100 h-full">
       {/* Header Section */}
-      <View className="bg-primary-200 px-5 pt-4 pb-8">
-        <View className="flex-row items-center justify-between mb-6">
-          <Text className="text-white text-2xl font-bold">Profile</Text>
-          <TouchableOpacity className="bg-white/20 rounded-full p-2">
-            <Text className="text-white text-lg">⚙️</Text>
-          </TouchableOpacity>
-        </View>
-        {/* Profile Info */}
-        <View className="items-center">
-          <View className="size-24 rounded-full overflow-hidden mb-4 bg-white/20 items-center justify-center border-4 border-white/30">
-            {isLoggedIn && user?.avatar ? (
-              <Image source={{ uri: user.avatar }} className="h-full w-full" />
-            ) : (
-              <Text className="text-3xl">👤</Text>
-            )}
+      <View className="px-6 pt-12 pb-8">
+        {/* Profile Avatar */}
+        <View className="items-center mb-6">
+          <View className="relative">
+            <View className="size-28 rounded-full overflow-hidden bg-secondary-100 border border-neutral-500 items-center justify-center">
+              {isLoggedIn && user?.avatar ? (
+                <Image source={{ uri: user.avatar }} className="size-20" />
+              ) : (
+                <Image
+                  source={images.avatar as ImageSourcePropType}
+                  className="size-16"
+                  tintColor={'#6b7280'}
+                />
+              )}
+            </View>
           </View>
-          <Text className="text-white text-xl font-bold mb-1">
+        </View>
+
+        {/* Profile Name */}
+        <View className="items-center">
+          <Text className="text-white text-2xl font-bold mb-1">
             {isLoggedIn ? user?.name || 'User' : t('profile.localUser')}
           </Text>
-          <Text className="text-neutral-200 text-base">
-            {isLoggedIn && user?.email ? user.email : 'Welcome to your profile'}
+          <Text className="text-neutral-400 text-base">
+            All your spending in one place
           </Text>
         </View>
       </View>
+
       {/* Content Section */}
-      <View className="flex-1 px-4 -mt-4">
-        {/* Personal Information Card */}
-        <View className="bg-secondary-100 rounded-xl p-4 mb-4">
+      <View className="flex-1 px-6">
+        {/* Account Settings Section */}
+        <View className="mb-6">
+          <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
+            ACCOUNT SETTINGS
+          </Text>
+
+          {/* Personal Information Card */}
           <TouchableOpacity
             onPress={
               isLoggedIn
                 ? () => router.push('/(root)/(modals)/profileModal')
                 : handleLoginToSync
             }
-            className="flex-row items-center justify-between"
+            className="bg-secondary-100 rounded-2xl p-4"
             activeOpacity={0.7}
           >
-            <View>
-              <Text className="text-white text-lg font-semibold mb-1">
-                Personal Information
-              </Text>
-              <Text className="text-neutral-200 text-sm">
-                {isLoggedIn
-                  ? 'Update your profile details'
-                  : 'Log in to sync your data'}
-              </Text>
-            </View>
-            <View className="bg-accent-200 size-10 rounded-full items-center justify-center">
-              <Image
-                source={icons.rightArrow as ImageSourcePropType}
-                tintColor="white"
-                className="size-4"
-              />
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1">
+                <Text className="text-white text-lg font-medium mb-0.5">
+                  Personal Information
+                </Text>
+                <Text className="text-neutral-400 text-base">
+                  Sign in to sync your data
+                </Text>
+              </View>
+              <View className="ml-3">
+                <Image
+                  source={icons.rightArrow as ImageSourcePropType}
+                  tintColor="#6b7280"
+                  className="size-6"
+                />
+              </View>
             </View>
           </TouchableOpacity>
         </View>
-        {/* Menu Items */}
-        <View className="space-y-1">
-          {sections
-            .filter((section) => !section.needLogin || isLoggedIn)
-            .map((section, index) => (
-              <SectionButton
-                key={index}
-                onPress={section.onPress}
-                icon={section.icon}
-                className="bg-secondary-100 p-4 rounded-xl mb-2"
-                iconBgColor={section.iconBgColor}
-                showLoading={section.showLoading || false}
-                showToggle={section.showToggle || false}
-                showArrow={section.showArrow !== false}
-                toggleValue={section.toggleValue || false}
-                onToggleChange={section.onToggleChange}
-              >
-                {section.title}
-              </SectionButton>
-            ))}
+
+        {/* Data Settings Section */}
+        <View className="mb-6">
+          <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
+            DATA SETTINGS
+          </Text>
+
+          {/* Combined Data Settings Card */}
+          <View className="bg-secondary-100 rounded-2xl overflow-hidden">
+            {/* Auto Sync Data */}
+            <View className="p-4">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1">
+                  <Text className="text-white text-lg font-medium">
+                    Auto Sync Data
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => handleAutoSyncToggle(!autoSyncEnabled)}
+                  className={`w-12 h-6 rounded-full p-0.5 ${
+                    autoSyncEnabled ? 'bg-green-500' : 'bg-neutral-600'
+                  }`}
+                >
+                  <View
+                    className="w-5 h-5 rounded-full bg-white"
+                    style={{
+                      transform: [{ translateX: autoSyncEnabled ? 24 : 0 }],
+                    }}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Divider */}
+            <View className="h-px bg-neutral-700 mx-4" />
+
+            {/* Delete Data */}
+            <TouchableOpacity
+              onPress={() => clearLocalData()}
+              className="p-4"
+              activeOpacity={0.7}
+            >
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center flex-1">
+                  <View className="bg-red-500/20 size-10 rounded-full items-center justify-center mr-3">
+                    <Image
+                      source={icons.trashCan as ImageSourcePropType}
+                      tintColor="#ef4444"
+                      className="size-6"
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-white text-lg font-medium mb-0.5">
+                      {t('profile.deleteData')}
+                    </Text>
+                    <Text className="text-neutral-400 text-base">
+                      This will erase all local information
+                    </Text>
+                  </View>
+                </View>
+                <View className="ml-3">
+                  <Image
+                    source={icons.rightArrow as ImageSourcePropType}
+                    tintColor="#6b7280"
+                    className="size-4"
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
+
         {/* Footer spacing */}
-        <View className="h-8" />
+        <View className="h-12" />
       </View>
     </SafeAreaView>
   );

@@ -1,5 +1,6 @@
 import TransactionList from '@/components/TransactionList';
 import icons from '@/constants/icons';
+import images from '@/constants/images';
 import { useGlobalContext } from '@/lib/global-provider';
 import { useTranslation } from '@/lib/i18n/useTranslation';
 import { router } from 'expo-router';
@@ -49,30 +50,21 @@ export default function Index() {
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-20">
       {/* Header */}
-      <View className="relative flex-row items-center justify-start mb-6">
-        <View>
-          <Text className="text-neutral-200 text-lg">{t('home.greeting')}</Text>
-          <Text className="text-white text-2xl font-bold">
-            {isLoggedIn ? user?.name : t('home.guestUser')}
-          </Text>
-        </View>
+      <View className="flex-row items-center justify-between">
+        <Text className="text-white text-2xl font-bold">Transactions</Text>
         <TouchableOpacity
-          onPress={() =>
-            router.push(
-              isLoggedIn ? '/(root)/(modals)/profileModal' : '/profile'
-            )
-          }
-          className="absolute right-0 top-0 size-12 rounded-full overflow-hidden bg-accent-200 items-center justify-center"
+          onPress={() => router.push('/(root)/(tabs)/profile')}
+          className="size-10 rounded-full overflow-hidden bg-accent-200 flex items-center justify-center"
         >
-          {isLoggedIn && user?.avatar ? (
-            <Image source={{ uri: user.avatar }} className="h-full w-full" />
-          ) : (
-            <Text className="text-primary-100 text-xl">👤</Text>
-          )}
+          <Image
+            source={images.avatar as ImagePropsBase}
+            className="size-5"
+            tintColor="#6b7280"
+          />
         </TouchableOpacity>
       </View>
       {/* Balance Section */}
-      <View className="bg-primary-300 p-6 rounded-3xl mb-6 shadow-lg">
+      <View className="bg-primary-300 p-6 rounded-3xl mt-3 shadow-lg">
         <Text className="text-neutral-200 text-lg mb-1">
           {t('home.totalBalance')}
         </Text>
@@ -113,7 +105,7 @@ export default function Index() {
         </View>
       </View>
       {/* Today's Transactions Section */}
-      <View className="flex-row items-center justify-between">
+      <View className="flex-row items-center justify-between mt-3">
         <Text className="text-white text-2xl font-bold">
           {t('home.recent')}
         </Text>
