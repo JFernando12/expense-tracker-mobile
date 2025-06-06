@@ -45,7 +45,7 @@ const subscriptionPlans = [
   },
 ];
 
-interface SuscriptionModalProps {
+interface SubscriptionModalProps {
   visible: boolean;
   onClose: () => void;
   userData?: {
@@ -55,11 +55,11 @@ interface SuscriptionModalProps {
   };
 }
 
-const SuscriptionModal = ({
+const SubscriptionModal = ({
   visible,
   onClose,
   userData,
-}: SuscriptionModalProps) => {
+}: SubscriptionModalProps) => {
   const [selectedPlan, setSelectedPlan] = useState('monthly');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -264,4 +264,4 @@ const SuscriptionModal = ({
   );
 };
 
-export default SuscriptionModal;
+export default SubscriptionModal;

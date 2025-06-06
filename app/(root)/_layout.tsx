@@ -1,4 +1,4 @@
-import SuscriptionModal from '@/components/SuscriptionModal';
+import SuscriptionModal from '@/components/SubscriptionModal';
 import { useGlobalContext } from '@/lib/global-provider';
 import { Stack } from 'expo-router';
 import React from 'react';

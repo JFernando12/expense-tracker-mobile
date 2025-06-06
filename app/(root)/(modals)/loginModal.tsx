@@ -1,4 +1,4 @@
-import SuscriptionModal from '@/components/SuscriptionModal';
+import SuscriptionModal from '@/components/SubscriptionModal';
 import { login } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
 import Ionicons from '@expo/vector-icons/Ionicons';
