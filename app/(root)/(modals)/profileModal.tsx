@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const ProfileModal = () => {
-  const { userLocal, refetchUser, updateUserName } = useGlobalContext();
+  const { userLocal, updateUserName } = useGlobalContext();
   const [name, setName] = useState(userLocal?.name || "");
   const [isLoading, setIsLoading] = useState(false);
 

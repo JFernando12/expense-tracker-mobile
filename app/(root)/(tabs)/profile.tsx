@@ -18,14 +18,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Profile = () => {
-  const {
-    refetchUser,
-    isLoggedIn,
-    logout,
-    userLocal,
-    isOnlineMode,
-    openSubscriptionModal,
-  } = useGlobalContext();
+  const { isLoggedIn, logout, userLocal, isOnlineMode, openSubscriptionModal } =
+    useGlobalContext();
   const { appMode } = userLocal || {};
   const { t } = useTranslation();
 
@@ -35,7 +29,6 @@ const Profile = () => {
       Alert.alert(t('common.failed'), t('profile.logoutFailed'));
       return;
     }
-    await refetchUser();
     Alert.alert(t('common.success'), t('profile.logoutSuccess'));
   };
 
