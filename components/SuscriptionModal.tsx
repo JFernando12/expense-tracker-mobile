@@ -1,6 +1,6 @@
 import { useGlobalContext } from '@/lib/global-provider';
+import { upgradeToPremium } from '@/lib/services/suscription/subscription';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
@@ -17,21 +17,6 @@ import { register } from '../lib/appwrite';
 // Mock subscription plans
 const subscriptionPlans = [
   {
-    id: 'trial',
-    title: 'Free Trial',
-    price: 'Free',
-    period: '/7 days',
-    description: 'Try all premium features',
-    features: [
-      'Sincronización automática en la nube',
-      'Respaldo seguro de tus datos',
-      'Actualizaciones en tiempo real',
-      'Todas las funciones premium',
-    ],
-    popular: false,
-    isTrial: true,
-  },
-  {
     id: 'monthly',
     title: 'Plan Mensual',
     price: '$4.99',
@@ -43,7 +28,6 @@ const subscriptionPlans = [
       'Actualizaciones en tiempo real',
     ],
     popular: false,
-    isTrial: false,
   },
   {
     id: 'yearly',
@@ -58,29 +42,28 @@ const subscriptionPlans = [
       'Soporte prioritario',
     ],
     popular: true,
-    isTrial: false,
   },
 ];
 
 interface SuscriptionModalProps {
   visible: boolean;
   onClose: () => void;
-  email: string;
-  password: string;
-  name: string;
+  userData?: {
+    email: string;
+    password: string;
+    name: string;
+  };
 }
 
 const SuscriptionModal = ({
   visible,
   onClose,
-  email,
-  password,
-  name,
+  userData,
 }: SuscriptionModalProps) => {
-  const [selectedPlan, setSelectedPlan] = useState('trial');
+  const [selectedPlan, setSelectedPlan] = useState('monthly');
   const [isLoading, setIsLoading] = useState(false);
 
-  const { refetchUser, upgradeToPremium, startTrial } = useGlobalContext();
+  const { refetchUser } = useGlobalContext();
   const handleSubscription = async (planId: string) => {
     setIsLoading(true);
 
@@ -88,36 +71,8 @@ const SuscriptionModal = ({
       const selectedPlanInfo = subscriptionPlans.find((p) => p.id === planId);
       const planName = selectedPlanInfo?.title || 'Plan seleccionado';
 
-      // First register the user
-      const success = await register(email, password, name);
-
-      if (!success) {
-        Alert.alert(
-          'Error de Registro',
-          'No se pudo registrar. Por favor intenta de nuevo.'
-        );
-        setIsLoading(false);
-        return;
-      }
-
       // Then set up the subscription
-      if (selectedPlanInfo?.isTrial) {
-        await startTrial();
-        Alert.alert(
-          'Prueba Gratuita Activada',
-          '¡Perfecto! Has activado tu prueba gratuita de 7 días. Disfruta de todas las funciones premium sin costo.',
-          [
-            {
-              text: 'Continuar',
-              onPress: async () => {
-                await refetchUser();
-                onClose();
-                router.back();
-              },
-            },
-          ]
-        );
-      } else if (planId === 'monthly' || planId === 'yearly') {
+      if (planId === 'monthly' || planId === 'yearly') {
         await upgradeToPremium(planId as 'monthly' | 'yearly');
         Alert.alert(
           'Suscripción Confirmada',
@@ -126,13 +81,27 @@ const SuscriptionModal = ({
             {
               text: 'Continuar',
               onPress: async () => {
-                await refetchUser();
                 onClose();
-                router.back();
               },
             },
           ]
         );
+      }
+
+      if (!userData) return;
+      const success = await register(
+        userData.email,
+        userData.password,
+        userData.name
+      );
+
+      if (!success) {
+        Alert.alert(
+          'Error de Registro',
+          'No se pudo registrar. Por favor intenta de nuevo.'
+        );
+        setIsLoading(false);
+        return;
       }
     } catch (error) {
       Alert.alert('Error', 'Ocurrió un error inesperado.');

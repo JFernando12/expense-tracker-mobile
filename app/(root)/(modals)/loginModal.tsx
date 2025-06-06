@@ -247,9 +247,6 @@ const LoginModal = () => {
       <SuscriptionModal
         visible={showSubscriptionModal}
         onClose={() => setShowSubscriptionModal(false)}
-        email={email}
-        password={password}
-        name={name}
       />
     </SafeAreaView>
   );

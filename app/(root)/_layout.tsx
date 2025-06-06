@@ -1,3 +1,4 @@
+import SuscriptionModal from '@/components/SuscriptionModal';
 import { useGlobalContext } from '@/lib/global-provider';
 import { Stack } from 'expo-router';
 import React from 'react';
@@ -5,7 +6,8 @@ import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const RootLayout = () => {
-  const { userLoading } = useGlobalContext();
+  const { userLoading, subscriptionModal, closeSubscriptionModal } =
+    useGlobalContext();
 
   if (userLoading) {
     return (
@@ -62,6 +64,11 @@ const RootLayout = () => {
           }}
         />
       </Stack>
+      <SuscriptionModal
+        visible={subscriptionModal.visible}
+        onClose={closeSubscriptionModal}
+        userData={subscriptionModal.registrationUserData}
+      />
     </View>
   );
 };

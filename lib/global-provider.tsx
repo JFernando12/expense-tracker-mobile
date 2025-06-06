@@ -1,7 +1,7 @@
 import { CategoryExpenseData, PeriodTypes } from '@/constants/interfaces';
 import { Transaction, Wallet } from '@/types/types';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { getCurrentUser } from './appwrite';
+import { getCurrentUser, logoutServer } from './appwrite';
 import {
   getExpensesByCategory,
   getTotalExpenses,
@@ -9,11 +9,9 @@ import {
 } from './services/fetchData/statistics';
 import { getTransactions } from './services/fetchData/transactions';
 import { getTotalBalance, getWallets } from './services/fetchData/wallets';
-import {
-  AppMode,
-  subscriptionService,
-  UserSubscription,
-} from './services/subscriptionService';
+import { getLoginStatus, updateLoginStatus } from './services/login/login';
+import { getUserSubscription } from './services/suscription/subscription';
+import { UserSubscription } from './services/suscription/subscriptionService';
 import { syncData } from './services/syncData/syncData';
 import { useAppwrite } from './useAppwrite';
 
@@ -24,9 +22,27 @@ interface User {
   avatar: string;
 }
 
+interface RegistrationUserData {
+  name: string;
+  email: string;
+  password: string;
+}
+
 interface GlobalContextType {
-  isLoggedIn: boolean;
+  // Subscription modal state
+  subscriptionModal: {
+    visible: boolean;
+    registrationUserData?: RegistrationUserData;
+  };
+  openSubscriptionModal: (params?: {
+    registrationUserData?: RegistrationUserData;
+  }) => void;
+  closeSubscriptionModal: () => void;
+  // User and login state
+  logout: () => Promise<boolean>; // Function to log out the user
+  isLoggedIn: boolean; // Indicates if the user is logged in
   isOnlineMode: boolean; // Indicates if the app is running in local mode (no user logged in)
+  userSubscription: UserSubscription | null;
   user: User | null | undefined;
   userLoading: boolean;
   refetchUser: (newParams?: Record<string, string | number>) => Promise<void>;
@@ -65,17 +81,6 @@ interface GlobalContextType {
   ) => Promise<void>;
   syncDataLoading: boolean;
   // Subscription management
-  subscription: UserSubscription;
-  subscriptionLoading: boolean;
-  appMode: AppMode;
-  canAccessCloudSync: boolean;
-  canAccessPremiumFeatures: boolean;
-  isTrialActive: boolean;
-  daysUntilExpiry: number | null;
-  upgradeToPremium: (planType: 'monthly' | 'yearly') => Promise<void>;
-  startTrial: () => Promise<void>;
-  toggleCloudSync: (enabled: boolean) => Promise<void>;
-  resetToFreeMode: () => Promise<void>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -85,10 +90,28 @@ interface GlobalProviderProps {
 }
 
 export const GlobalProvider = ({ children }: GlobalProviderProps) => {
-  const [subscription, setSubscription] = useState<UserSubscription | null>(
-    null
-  );
-  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+  const [subscriptionModal, setSubscriptionModal] = useState<{
+    visible: boolean;
+    registrationUserData?: RegistrationUserData;
+  }>({
+    visible: false,
+  });
+
+  const closeSubscriptionModal = () => {
+    setSubscriptionModal({
+      visible: false,
+    });
+  };
+
+  const openSubscriptionModal = (params?: {
+    registrationUserData?: RegistrationUserData;
+  }) => {
+    const registrationUserData = params?.registrationUserData;
+    setSubscriptionModal({
+      visible: true,
+      registrationUserData,
+    });
+  };
 
   const {
     data: user,
@@ -97,9 +120,49 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   } = useAppwrite({
     fn: getCurrentUser,
   });
-  const isLoggedIn = !!user;
+
+  const { data: loginStatus, refetch: refetchLoginStatus } = useAppwrite({
+    fn: getLoginStatus,
+    params: {},
+  });
+
+  const updateIsLoggedIn = async (value: boolean) => {
+    try {
+      await updateLoginStatus(value);
+      await refetchLoginStatus();
+    } catch (error) {
+      console.error('Error updating login status:', error);
+    }
+  };
+
+  const logout = async (): Promise<boolean> => {
+    const result = await logoutServer();
+    if (!result) return false;
+
+    await updateIsLoggedIn(false);
+    return true;
+  };
+
+  useEffect(() => {
+    if (user) {
+      updateIsLoggedIn(true);
+    }
+  }, [user]);
+
+  const {
+    data: userSubscription,
+    loading: userSubscriptionLoading,
+    refetch: refetchUserSubscription,
+  } = useAppwrite({
+    fn: getUserSubscription,
+    params: {},
+  });
+
+  const isLoggedIn = loginStatus || false;
   const isOnlineMode =
-    subscription?.syncMode === 'cloud' && subscription?.mode === 'premium';
+    userSubscription?.mode === 'premium' &&
+    userSubscription.syncMode === 'cloud' &&
+    isLoggedIn;
 
   const {
     data: wallets,
@@ -213,18 +276,13 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     params: { period: PeriodTypes.ALL_TIME },
   });
 
-  const {
-    data: syncedData,
-    refetch: refetchSyncData,
-    loading: syncDataLoading,
-  } = useAppwrite({
+  const { refetch: refetchSyncData, loading: syncDataLoading } = useAppwrite({
     fn: syncData,
     params: {},
     skip: true,
   });
 
   const refetchResources = async () => {
-    console.log('Refetching resources...');
     await Promise.all([refetchWallets(), refetchTransactions()]);
   };
 
@@ -242,69 +300,14 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
       refetchCategoryExpensesYear(),
     ]);
   };
+
   const refetchSyncedData = async () => {
     await refetchSyncData();
     await refetchResources();
     await refetchStatistics();
   };
 
-  // Subscription management functions
-  const initializeSubscription = async () => {
-    setSubscriptionLoading(true);
-    try {
-      const sub = await subscriptionService.initialize();
-      setSubscription(sub);
-    } catch (error) {
-      console.error('Error initializing subscription:', error);
-    } finally {
-      setSubscriptionLoading(false);
-    }
-  };
-
-  const upgradeToPremium = async (planType: 'monthly' | 'yearly') => {
-    await subscriptionService.upgradeToPremium(planType);
-    const updatedSubscription = subscriptionService.getSubscription();
-    setSubscription(updatedSubscription);
-  };
-
-  const startTrial = async () => {
-    await subscriptionService.startTrial();
-    const updatedSubscription = subscriptionService.getSubscription();
-    setSubscription(updatedSubscription);
-  };
-
-  const toggleCloudSync = async (enabled: boolean) => {
-    try {
-      await subscriptionService.toggleCloudSync(enabled);
-      const updatedSubscription = subscriptionService.getSubscription();
-      setSubscription(updatedSubscription);
-    } catch (error) {
-      throw error; // Re-throw to handle in UI
-    }
-  };
-
-  const resetToFreeMode = async () => {
-    await subscriptionService.resetToFreeMode();
-    const updatedSubscription = subscriptionService.getSubscription();
-    setSubscription(updatedSubscription);
-  };
-
-  // Initialize subscription on component mount
   useEffect(() => {
-    initializeSubscription();
-  }, []);
-
-  // Update subscription service when user login state changes
-  useEffect(() => {
-    if (!subscriptionLoading && subscription) {
-      subscriptionService.setUserLoggedIn(isLoggedIn);
-      const updatedSubscription = subscriptionService.getSubscription();
-      setSubscription(updatedSubscription);
-    }
-  }, [isLoggedIn, subscriptionLoading]);
-
-  useEffect(() => {
-    console.log('useEffect: syncData');
     if (isOnlineMode) {
       refetchSyncedData()
         .then(() => console.log('Data synced successfully'))
@@ -312,32 +315,20 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     }
   }, [isOnlineMode]);
 
-  useEffect(() => {}, [syncedData]);
-
   useEffect(() => {
-    console.log('useEffect: statistics');
     refetchStatistics();
   }, [wallets, transactions]);
 
-  // Derived values from subscription
-  const appMode = subscription?.mode || 'free';
-  const canAccessCloudSync = subscription
-    ? subscriptionService.canAccessCloudSync()
-    : false;
-  const canAccessPremiumFeatures = subscription
-    ? subscriptionService.canAccessPremiumFeatures()
-    : false;
-  const isTrialActive = subscription
-    ? subscriptionService.isInTrialPeriod()
-    : false;
-  const daysUntilExpiry = subscription
-    ? subscriptionService.getDaysUntilExpiry()
-    : null;
   return (
     <GlobalContext.Provider
       value={{
+        subscriptionModal,
+        openSubscriptionModal,
+        closeSubscriptionModal,
+        logout,
         isLoggedIn,
         isOnlineMode,
+        userSubscription,
         refetchUser,
         refetchResources,
         refetchTransactions,
@@ -369,22 +360,6 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         categoryExpensesYearLoading,
         refetchSyncData,
         syncDataLoading,
-        subscription: subscription || {
-          mode: 'free',
-          syncMode: 'local',
-          isLoggedIn: false,
-          isTrialActive: false,
-        },
-        subscriptionLoading,
-        appMode,
-        canAccessCloudSync,
-        canAccessPremiumFeatures,
-        isTrialActive,
-        daysUntilExpiry,
-        upgradeToPremium,
-        startTrial,
-        toggleCloudSync,
-        resetToFreeMode,
       }}
     >
       {children}

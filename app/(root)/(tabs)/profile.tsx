@@ -1,12 +1,12 @@
 import SubscriptionStatus from '@/components/SubscriptionStatus';
 import icons from '@/constants/icons';
 import images from '@/constants/images';
-import { logout } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
 import { useTranslation } from '@/lib/i18n/useTranslation';
+import { toggleCloudSync } from '@/lib/services/suscription/subscription';
 import { clearLocalData } from '@/lib/services/syncData/clearData';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Alert,
   Image,
@@ -23,15 +23,14 @@ const Profile = () => {
     user,
     refetchUser,
     isLoggedIn,
-    subscription,
-    appMode,
-    canAccessCloudSync,
-    isTrialActive,
-    daysUntilExpiry,
-    toggleCloudSync,
+    logout,
+    userSubscription,
+    isOnlineMode,
+    openSubscriptionModal,
   } = useGlobalContext();
+  const { mode: appMode } = userSubscription || {};
   const { t } = useTranslation();
-  const [isSyncing, setIsSyncing] = useState(false);
+
   const handleLogout = async () => {
     const result = await logout();
     if (!result) {
@@ -45,21 +44,16 @@ const Profile = () => {
   const handleLoginToSync = () => {
     router.push('/(root)/(modals)/loginModal');
   };
+
   const handleAutoSyncToggle = async (value: boolean) => {
+    if (!isLoggedIn) {
+      router.push('/(root)/(modals)/loginModal');
+      return;
+    }
+
     // Cloud sync requires premium subscription
-    if (!canAccessCloudSync) {
-      Alert.alert(
-        'Premium Feature',
-        'Cloud sync is available only with premium subscription.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Upgrade',
-            onPress: () =>
-              router.push('/(root)/(modals)/loginModal?mode=upgrade'),
-          },
-        ]
-      );
+    if (appMode !== 'premium') {
+      openSubscriptionModal();
       return;
     }
 
@@ -165,11 +159,6 @@ const Profile = () => {
                     <Text className="text-white text-lg font-medium">
                       Secure Cloud Sync
                     </Text>
-                    {isTrialActive && daysUntilExpiry && (
-                      <Text className="text-yellow-400 text-sm">
-                        Trial: {daysUntilExpiry} days left
-                      </Text>
-                    )}
                     {appMode === 'free' && (
                       <Text className="text-neutral-400 text-sm">
                         Premium feature - upgrade required
@@ -177,17 +166,15 @@ const Profile = () => {
                     )}
                   </View>
                   <TouchableOpacity
-                    onPress={() => handleAutoSyncToggle(!canAccessCloudSync)}
+                    onPress={() => handleAutoSyncToggle(!isOnlineMode)}
                     className={`w-12 h-6 rounded-full p-0.5 ${
-                      canAccessCloudSync ? 'bg-green-500' : 'bg-neutral-600'
+                      isOnlineMode ? 'bg-green-500' : 'bg-neutral-600'
                     }`}
                   >
                     <View
                       className="w-5 h-5 rounded-full bg-white"
                       style={{
-                        transform: [
-                          { translateX: canAccessCloudSync ? 24 : 0 },
-                        ],
+                        transform: [{ translateX: isOnlineMode ? 24 : 0 }],
                       }}
                     />
                   </TouchableOpacity>

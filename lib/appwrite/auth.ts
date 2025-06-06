@@ -30,7 +30,7 @@ export const register = async (
   }
 };
 
-export const logout = async () => {
+export const logoutServer = async () => {
   try {
     await account.deleteSession('current');
     // Clear local storage on logout
