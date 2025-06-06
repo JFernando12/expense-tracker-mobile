@@ -4,12 +4,11 @@ import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 const SubscriptionStatus = () => {
-  const { userLocal, openSubscriptionModal, isLoggedIn } =
-    useGlobalContext();
+  const { userLocal, openSubscriptionModal } = useGlobalContext();
   const { appMode, subscriptionType, id } = userLocal || {};
 
   const handleUpgrade = () => {
-    if (!isLoggedIn) {
+    if (!userLocal?.isLoggedIn) {
       router.push('/(root)/(modals)/loginModal');
       return;
     }

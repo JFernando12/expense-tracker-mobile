@@ -1,27 +1,22 @@
 import { Wallet } from '@/types/types';
 import { Query } from 'react-native-appwrite';
-import { getCurrentUser } from './auth';
 import { config, databases } from './client';
 
 export const upsertWalletOnServer = async ({
-  id,
-  name,
-  description,
-  initialBalance,
-  currentBalance,
-  updatedAt,
-}: Wallet): Promise<boolean> => {
+  userId,
+  wallet: { id, name, description, initialBalance, currentBalance, updatedAt },
+}: {
+  userId: string;
+  wallet: Wallet;
+}): Promise<boolean> => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return false;
-
     // Create or update the transaction
     const walletData: any = {
       name,
       description,
       initial_balance: initialBalance,
       current_balance: currentBalance,
-      user_id: user.id,
+      user_id: userId,
       updated_at: updatedAt,
     };
 
@@ -56,17 +51,13 @@ export const upsertWalletOnServer = async ({
 };
 
 export const createWalletOnServer = async ({
-  id,
-  name,
-  description,
-  initialBalance,
-  currentBalance,
-  updatedAt,
-}: Wallet): Promise<boolean> => {
+  userId,
+  wallet: { id, name, description, initialBalance, currentBalance, updatedAt },
+}: {
+  userId: string;
+  wallet: Wallet;
+}): Promise<boolean> => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return false;
-
     const response = await databases.createDocument(
       config.databaseId,
       config.walletCollectionId,
@@ -76,7 +67,7 @@ export const createWalletOnServer = async ({
         description,
         initial_balance: initialBalance,
         current_balance: currentBalance,
-        user_id: user.id,
+        user_id: userId,
         updated_at: updatedAt,
       }
     );
@@ -89,24 +80,23 @@ export const createWalletOnServer = async ({
 };
 
 export const updateWalletOnServer = async ({
-  id,
+  userId,
+  walletId,
   data: { name, description, initialBalance },
 }: {
-  id: string;
+  userId: string;
+  walletId: string;
   data: Omit<Wallet, 'id' | 'currentBalance'>;
 }): Promise<boolean> => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return false;
-
     const wallet = await databases.getDocument(
       config.databaseId,
       config.walletCollectionId,
-      id
+      walletId
     );
     if (!wallet) return false;
 
-    if (wallet.user_id !== user.id)
+    if (wallet.user_id !== userId)
       throw new Error('Unauthorized access to wallet');
 
     const currentBalance = wallet.current_balance as number;
@@ -118,13 +108,13 @@ export const updateWalletOnServer = async ({
     const response = await databases.updateDocument(
       config.databaseId,
       config.walletCollectionId,
-      id,
+      walletId,
       {
         name,
         description,
         initial_balance: initialBalance,
         current_balance: newCurrentBalance,
-        user_id: user.id,
+        user_id: userId,
       }
     );
 
@@ -135,13 +125,14 @@ export const updateWalletOnServer = async ({
   }
 };
 
-export const getWalletsFromServer = async (): Promise<Wallet[]> => {
+export const getWalletsFromServer = async ({
+  userId,
+}: {
+  userId: string;
+}): Promise<Wallet[]> => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return [];
-
     const queries = [
-      Query.equal('user_id', user.id),
+      Query.equal('user_id', userId),
       Query.isNull('deleted_at'),
       Query.orderDesc('$createdAt'),
     ];
@@ -169,23 +160,22 @@ export const getWalletsFromServer = async (): Promise<Wallet[]> => {
 };
 
 export const deleteWalletFromServer = async ({
-  id,
+  userId,
+  walletId,
   updatedAt,
   deletedAt,
 }: {
-  id: string;
+  userId: string;
+  walletId: string;
   updatedAt: string;
   deletedAt: string;
 }): Promise<boolean> => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return false;
-
     // Get the wallet to delete
     const wallet = await databases.getDocument(
       config.databaseId,
       config.walletCollectionId,
-      id
+      walletId
     );
 
     if (!wallet) {
@@ -193,7 +183,7 @@ export const deleteWalletFromServer = async ({
       return false;
     }
 
-    if (wallet.user_id !== user.id) {
+    if (wallet.user_id !== userId) {
       console.error('Unauthorized access to wallet');
       return false;
     }
@@ -202,7 +192,7 @@ export const deleteWalletFromServer = async ({
     const transactions = await databases.listDocuments(
       config.databaseId,
       config.transactionCollectionId,
-      [Query.equal('wallet', id)]
+      [Query.equal('wallet', walletId), Query.isNull('deleted_at')]
     );
 
     if (transactions.documents.length > 0) {
@@ -214,7 +204,7 @@ export const deleteWalletFromServer = async ({
     await databases.updateDocument(
       config.databaseId,
       config.walletCollectionId,
-      id,
+      walletId,
       {
         deleted_at: deletedAt,
         updated_at: updatedAt,

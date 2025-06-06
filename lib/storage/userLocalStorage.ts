@@ -7,82 +7,138 @@ export interface UserLocal {
   id?: string;
   name?: string;
   email?: string;
-  appMode: "free" | "premium";
+  appMode: 'free' | 'premium';
   subscriptionType?: 'monthly' | 'yearly';
   subscriptionExpiration?: Date;
+  isLoggedIn?: boolean;
+}
+
+interface StorageUser extends UserLocal {
+  syncStatus: 'synced' | 'pending' | 'conflict';
 }
 
 const USER_LOCAL_KEY = 'user_subscription';
 
 class UserLocalStorage {
-  async getSubscription(): Promise<UserLocal> {
-    let subscription: UserLocal = this.getDefaultSubscription();
+  async init(): Promise<void> {
     try {
       const storedSubscription = await AsyncStorage.getItem(USER_LOCAL_KEY);
-      if (!storedSubscription) return this.getDefaultSubscription();
-      
-      const parsed: UserLocal = JSON.parse(storedSubscription);
-      if (!parsed.subscriptionExpiration) return await this.resetToFreeMode();
-      
-      // Validate the subscription expiry date
-      const subscriptionExpiration = new Date(parsed.subscriptionExpiration);      
-      const isValid = this.checkExpiration({ expiration: subscriptionExpiration });
-      if (!isValid) return await this.resetToFreeMode();
-      
-      parsed.subscriptionExpiration = subscriptionExpiration;
-      subscription = parsed;
-      await this.saveSubscription(subscription);
+      if (!storedSubscription) {
+        // Initialize with default values if no subscription exists
+        const defaultUser: StorageUser = {
+          appMode: 'free',
+          syncStatus: 'synced',
+        };
+        await this.saveUserLocal(defaultUser);
+      }
+    } catch (error) {
+      console.error('Error initializing user local storage:', error);
+    }
+  }
 
-      return subscription;
+  async registerUserLocal({
+    id,
+    name,
+    email,
+  }: {
+    id: string;
+    name: string;
+    email: string;
+  }): Promise<void> {
+    const userLocal: StorageUser = {
+      id,
+      name,
+      email,
+      appMode: 'free',
+      syncStatus: 'synced',
+      isLoggedIn: true,
+    };
+    await this.saveUserLocal(userLocal);
+  }
+
+  async loginUserLocal(userLocal: UserLocal): Promise<void> {
+    const subscription: StorageUser = {
+      ...userLocal,
+      syncStatus: 'synced',
+      isLoggedIn: true,
+    };
+    await this.saveUserLocal(subscription);
+  }
+
+  async logoutUserLocal(): Promise<void> {
+    const userLocal: StorageUser = {
+      appMode: 'free',
+      syncStatus: 'synced',
+      isLoggedIn: false,
+      subscriptionType: undefined,
+      subscriptionExpiration: undefined,
+      id: undefined,
+    };
+    await this.saveUserLocal(userLocal);
+  }
+
+  async getUserLocalStorage(): Promise<StorageUser | null> {
+    try {
+      const storedSubscription = await AsyncStorage.getItem(USER_LOCAL_KEY);
+      if (!storedSubscription) return null;
+      const parsed: StorageUser = JSON.parse(storedSubscription);
+      return parsed;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getUserLocal(): Promise<UserLocal> {
+    try {
+      const storedSubscription = await AsyncStorage.getItem(USER_LOCAL_KEY);
+      if (!storedSubscription) return { appMode: 'free' };
+
+      const parsed: StorageUser = JSON.parse(storedSubscription);
+      return parsed;
     } catch (error) {
       console.error('Error retrieving subscription:', error);
-      return subscription;
+      return { appMode: 'free' };
     }
   }
 
   // Upgrade to premium mode
   async upgradeToPremium({
     subscriptionType,
+    subscriptionExpiration,
   }: {
     subscriptionType: 'monthly' | 'yearly';
+    subscriptionExpiration: Date;
   }): Promise<void> {
-    const now = new Date();
-    const expiration = new Date(now);
+    const subscription: StorageUser | null = await this.getUserLocalStorage();
+    if (!subscription) return;
 
-    // Set expiry based on plan type
-    if (subscriptionType === 'monthly') {
-      expiration.setMonth(expiration.getMonth() + 1);
-    } else {
-      expiration.setFullYear(expiration.getFullYear() + 1);
-    }
-
-    const subscription: UserLocal = await this.getSubscription();
     subscription.appMode = 'premium';
     subscription.subscriptionType = subscriptionType;
-    subscription.subscriptionExpiration = expiration;
+    subscription.subscriptionExpiration = subscriptionExpiration;
 
-    await this.saveSubscription(subscription);
-  };
-
-  async updateName(name: string): Promise<UserLocal> {
-    const subscription = await this.getSubscription();
-    subscription.name = name;
-    await this.saveSubscription(subscription);
-    return subscription;
+    await this.saveUserLocal(subscription);
   }
 
   // Reset to free mode (for cancellation or expiration)
-  async resetToFreeMode(): Promise<UserLocal> {
-    const subscription = await AsyncStorage.getItem(USER_LOCAL_KEY);
-    if (!subscription) return this.getDefaultSubscription();
+  async resetToFreeMode(): Promise<void> {
+    const userLocal = await this.getUserLocalStorage();
+    if (!userLocal) return;
 
-    const parsedSubscription: UserLocal = JSON.parse(subscription);
-    parsedSubscription.appMode = 'free';
-    parsedSubscription.subscriptionExpiration = undefined;
-    parsedSubscription.subscriptionType = undefined;
+    userLocal.appMode = 'free';
+    userLocal.subscriptionExpiration = undefined;
+    userLocal.subscriptionType = undefined;
 
-    await this.saveSubscription(parsedSubscription);
-    return parsedSubscription;
+    await this.saveUserLocal(userLocal);
+  }
+
+  async updateSyncStatus(
+    status: 'synced' | 'pending' | 'conflict'
+  ): Promise<void> {
+    const subscription = await this.getUserLocalStorage();
+    if (!subscription) return;
+
+    subscription.syncStatus = status;
+    await this.saveUserLocal(subscription);
   }
 
   async updateUser({
@@ -92,56 +148,34 @@ class UserLocalStorage {
     appMode,
     subscriptionType,
     subscriptionExpiration,
-  }: {
-    id?: string;
-    email?: string;
-    name?: string;
-    appMode?: "free" | "premium"; // Optional, defaults to 'free'
-    subscriptionType?: 'monthly' | 'yearly'; // Optional, defaults to 'monthly'
-    subscriptionExpiration?: Date; // Optional, can be null for free users
-  }): Promise<UserLocal> {
-    const subscription = await this.getSubscription();
+  }: UserLocal): Promise<boolean> {
+    this.init(); // Ensure storage is initialized
+    const subscription = await this.getUserLocalStorage();
+    if (!subscription) return false;
+
     if (id) subscription.id = id;
     if (email) subscription.email = email;
     if (name) subscription.name = name;
     if (appMode) subscription.appMode = appMode;
     if (subscriptionType) subscription.subscriptionType = subscriptionType;
-    if (subscriptionExpiration) subscription.subscriptionExpiration = subscriptionExpiration;
+    if (subscriptionExpiration)
+      subscription.subscriptionExpiration = subscriptionExpiration;
+    subscription.syncStatus = 'synced';
 
-    await this.saveSubscription(subscription);
-    return subscription;
+    await this.saveUserLocal(subscription);
+    return true;
   }
 
-  // Check for expiration and handle accordingly
-  private checkExpiration({ expiration }: { expiration: Date }): boolean {
+  checkExpiration({ expiration }: { expiration: Date }): boolean {
     const now = new Date();
     return expiration > now;
   }
 
-  private async saveSubscription(
-    subscription: UserLocal
-  ): Promise<void> {
+  private async saveUserLocal(subscription: StorageUser): Promise<void> {
     await AsyncStorage.setItem(USER_LOCAL_KEY, JSON.stringify(subscription));
   }
 
-  // Clear all subscription data (for testing or data reset)
-  async clearSubscriptionData(): Promise<void> {
-    await AsyncStorage.removeItem(USER_LOCAL_KEY);
-  }
-
-  // Get default subscription state
-  private getDefaultSubscription(): UserLocal {
-    return {
-      appMode: 'free',
-      id: undefined,
-      name: undefined,
-      email: undefined,
-      subscriptionExpiration: undefined,
-      subscriptionType: undefined,
-    };
-  }
-
-  async clearUser(): Promise<void> {
+  async clearUserLocal(): Promise<void> {
     await AsyncStorage.removeItem(USER_LOCAL_KEY);
   }
 }

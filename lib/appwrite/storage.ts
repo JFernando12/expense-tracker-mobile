@@ -1,12 +1,8 @@
 import { ID } from 'react-native-appwrite';
-import { getCurrentUser } from './auth';
 import { config, storage } from './client';
 
 export const uploadImage = async (imageUri: string): Promise<string | null> => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return null;
-
     // Create a file object compatible with React Native Appwrite
     const file = {
       name: `transaction_${Date.now()}.jpg`,
@@ -32,9 +28,6 @@ export const uploadImage = async (imageUri: string): Promise<string | null> => {
 
 export const deleteImage = async (imageId: string): Promise<boolean> => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return false;
-
     await storage.deleteFile(config.storageBucketId, imageId);
     return true;
   } catch (error) {

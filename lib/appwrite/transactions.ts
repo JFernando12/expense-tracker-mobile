@@ -1,18 +1,20 @@
 import { Transaction, TransactionType } from '@/types/types';
 import { Query } from 'react-native-appwrite';
-import { getCurrentUser } from './auth';
 import { config, databases, storage } from './client';
 import { deleteImage, uploadImage } from './storage';
 
-export const getTransactionsFromServer = async (filters?: {
-  type?: TransactionType;
+export const getTransactionsFromServer = async ({
+  userId,
+  filters,
+}: {
+  userId: string;
+  filters?: {
+    type?: TransactionType;
+  };
 }): Promise<Transaction[]> => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return [];
-
     const queries = [
-      Query.equal('user_id', user.id),
+      Query.equal('user_id', userId),
       Query.orderDesc('date'),
       Query.isNull('deleted_at'),
       Query.orderDesc('$createdAt'),
@@ -57,20 +59,23 @@ export const getTransactionsFromServer = async (filters?: {
 };
 
 export const upsertTransactionOnServer = async ({
-  id,
-  updatedAt,
-  walletId,
-  categoryId,
-  description,
-  amount,
-  type,
-  date,
-  imageUrl,
-}: Transaction): Promise<boolean> => {
+  userId,
+  transaction: {
+    id,
+    updatedAt,
+    walletId,
+    categoryId,
+    description,
+    amount,
+    type,
+    date,
+    imageUrl,
+  },
+}: {
+  userId: string;
+  transaction: Transaction;
+}): Promise<boolean> => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return false;
-
     // Upload image if provided
     let imageId: string | null = null;
     if (imageUrl) {
@@ -85,7 +90,7 @@ export const upsertTransactionOnServer = async ({
       amount,
       type,
       date: date,
-      user_id: user.id,
+      user_id: userId,
       updated_at: updatedAt,
     };
 
@@ -124,20 +129,23 @@ export const upsertTransactionOnServer = async ({
 };
 
 export const createTransactionOnServer = async ({
-  id,
-  walletId,
-  categoryId,
-  description,
-  amount,
-  type,
-  date,
-  imageUrl,
-  updatedAt,
-}: Transaction): Promise<boolean> => {
+  userId,
+  transaction: {
+    id,
+    walletId,
+    categoryId,
+    description,
+    amount,
+    type,
+    date,
+    imageUrl,
+    updatedAt,
+  },
+}: {
+  userId: string;
+  transaction: Transaction;
+}): Promise<boolean> => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return false;
-
     // Upload image if provided
     let imageId: string | null = null;
     if (imageUrl) {
@@ -156,7 +164,7 @@ export const createTransactionOnServer = async ({
       return false;
     }
 
-    if (wallet.user_id !== user.id) {
+    if (wallet.user_id !== userId) {
       console.error('Unauthorized access to wallet');
       return false;
     }
@@ -170,7 +178,7 @@ export const createTransactionOnServer = async ({
       amount,
       type,
       date: date,
-      user_id: user.id,
+      user_id: userId,
     };
 
     // Add image URL if available
@@ -209,23 +217,22 @@ export const createTransactionOnServer = async ({
 };
 
 export const updateTransactionOnServer = async ({
-  id,
+  userId,
+  transactionId,
   data: { walletId, categoryId, description, amount, type, date, imageUrl },
   removeImage,
 }: {
-  id: string;
+  userId: string;
+  transactionId: string;
   data: Omit<Transaction, 'id'>;
   removeImage?: boolean;
 }): Promise<Transaction | null> => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return null;
-
     // Get the current transaction to check ownership
     const transaction = await databases.getDocument(
       config.databaseId,
       config.transactionCollectionId,
-      id
+      transactionId
     );
 
     if (!transaction) {
@@ -233,7 +240,7 @@ export const updateTransactionOnServer = async ({
       return null;
     }
 
-    if (transaction.user_id !== user.id) {
+    if (transaction.user_id !== userId) {
       console.error('Unauthorized access to transaction');
       return null;
     }
@@ -276,7 +283,7 @@ export const updateTransactionOnServer = async ({
       return null;
     }
 
-    if (oldWallet.user_id !== user.id) {
+    if (oldWallet.user_id !== userId) {
       console.error('Unauthorized access to old wallet');
       return null;
     }
@@ -293,7 +300,7 @@ export const updateTransactionOnServer = async ({
       return null;
     }
 
-    if (newWallet.user_id !== user.id) {
+    if (newWallet.user_id !== userId) {
       console.error('Unauthorized access to new wallet');
       return null;
     }
@@ -307,13 +314,13 @@ export const updateTransactionOnServer = async ({
       type,
       date: date,
       image: imageId,
-      user_id: user.id,
+      user_id: userId,
     };
 
     const response = await databases.updateDocument(
       config.databaseId,
       config.transactionCollectionId,
-      id,
+      transactionId,
       updateData
     );
 
@@ -384,7 +391,7 @@ export const updateTransactionOnServer = async ({
     const updatedTransaction = await databases.getDocument(
       config.databaseId,
       config.transactionCollectionId,
-      id
+      transactionId
     );
 
     return {
@@ -412,23 +419,22 @@ export const updateTransactionOnServer = async ({
 };
 
 export const deleteTransactionFromServer = async ({
-  id,
+  userId,
+  transactionId,
   deletedAt,
   updatedAt,
 }: {
-  id: string;
+  userId: string;
+  transactionId: string;
   deletedAt: string;
   updatedAt: string;
 }): Promise<boolean> => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return false;
-
     // Get the transaction to delete
     const transaction = await databases.getDocument(
       config.databaseId,
       config.transactionCollectionId,
-      id
+      transactionId
     );
 
     if (!transaction) {
@@ -436,7 +442,7 @@ export const deleteTransactionFromServer = async ({
       return false;
     }
 
-    if (transaction.user_id !== user.id) {
+    if (transaction.user_id !== userId) {
       console.error('Unauthorized access to transaction');
       return false;
     }
@@ -454,7 +460,7 @@ export const deleteTransactionFromServer = async ({
       return false;
     }
 
-    if (wallet.user_id !== user.id) {
+    if (wallet.user_id !== userId) {
       console.error('Unauthorized access to wallet');
       return false;
     }
@@ -485,7 +491,7 @@ export const deleteTransactionFromServer = async ({
     await databases.updateDocument(
       config.databaseId,
       config.transactionCollectionId,
-      id,
+      transactionId,
       {
         deleted_at: deletedAt,
         updated_at: updatedAt,

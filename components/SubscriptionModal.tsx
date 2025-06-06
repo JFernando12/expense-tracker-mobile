@@ -1,4 +1,3 @@
-import { useGlobalContext } from '@/lib/global-provider';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useState } from 'react';
 import {
@@ -7,7 +6,7 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -67,15 +66,14 @@ const SubscriptionModal = ({
   onClose,
   userData,
 }: SubscriptionModalProps) => {
-  const { register, upgradeToPremium, userLocal, isLoggedIn } = useGlobalContext();
-  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>(
+    'monthly'
+  );
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubscription = async (planId: 'monthly' | 'yearly' ) => {
+  const handleSubscription = async (planId: 'monthly' | 'yearly') => {
     // Here suscription IOS logic will be implemented
-
     // Here the registration or upgrade in db logic
-    await upgradeToPremium({ subscriptionType: planId })
   };
 
   return (

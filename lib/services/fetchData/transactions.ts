@@ -8,6 +8,7 @@ import {
   deleteTransactionFromServer,
   updateTransactionOnServer,
 } from '../../appwrite';
+import { getUser } from '../user/user';
 
 export const createTransaction = async ({
   isOnlineMode,
@@ -16,6 +17,12 @@ export const createTransaction = async ({
   isOnlineMode: boolean;
   data: Omit<Transaction, 'id' | 'updatedAt'>;
 }): Promise<boolean> => {
+  const user = await getUser();
+  if (!user.id) {
+    console.error('User not found, cannot create transaction');
+    return false;
+  }
+
   const id = uuidv4();
   const updatedAt = new Date().toISOString();
 
@@ -34,25 +41,36 @@ export const createTransaction = async ({
 
   if (!isOnlineMode) return success;
 
-  await createTransactionOnServer({ ...data, id, updatedAt });
+  await createTransactionOnServer({
+    userId: user.id,
+    transaction: { ...data, id, updatedAt },
+  });
   await transactionLocalStorage.updateSyncStatus(id, 'synced');
 
   return success;
 };
 
 export const updateTransaction = async ({
-  input: { id, data, removeImage },
+  input: { transactionId, data, removeImage },
   isOnlineMode,
 }: {
   input: {
-    id: string;
+    transactionId: string;
     data: Omit<Transaction, 'id' | 'updatedAt'>;
     removeImage: boolean;
   };
   isOnlineMode: boolean;
 }): Promise<boolean> => {
+  const user = await getUser();
+  if (!user.id) {
+    console.error('User not found, cannot update transaction');
+    return false;
+  }
+
   const updatedAt = new Date().toISOString();
-  const oldTransaction = await transactionLocalStorage.getTransaction(id);
+  const oldTransaction = await transactionLocalStorage.getTransaction(
+    transactionId
+  );
   if (!oldTransaction) return false;
 
   // Revert old transaction amount from wallet balance
@@ -70,7 +88,7 @@ export const updateTransaction = async ({
   });
 
   const { success } = await transactionLocalStorage.updateTransaction({
-    id,
+    id: transactionId,
     data: { ...data, updatedAt },
     removeImage,
   });
@@ -78,33 +96,45 @@ export const updateTransaction = async ({
   if (!isOnlineMode) return success;
 
   await updateTransactionOnServer({
-    id,
+    userId: user.id,
+    transactionId,
     data: { ...data, updatedAt },
     removeImage,
   });
-  await transactionLocalStorage.updateSyncStatus(id, 'synced');
+  await transactionLocalStorage.updateSyncStatus(transactionId, 'synced');
 
   return success;
 };
 
 export const deleteTransaction = async ({
-  id,
+  transactionId,
   isOnlineMode,
 }: {
-  id: string;
+  transactionId: string;
   isOnlineMode: boolean;
 }): Promise<boolean> => {
+  const user = await getUser();
+  if (!user.id) {
+    console.error('User not found, cannot delete transaction');
+    return false;
+  }
+
   const deletedAt = new Date().toISOString();
   const updatedAt = new Date().toISOString();
   const { success } = await transactionLocalStorage.deleteTransaction({
-    id,
+    id: transactionId,
     deletedAt,
     updatedAt,
   });
   if (!isOnlineMode) return success;
 
-  await deleteTransactionFromServer({ id, deletedAt, updatedAt });
-  await transactionLocalStorage.updateSyncStatus(id, 'synced');
+  await deleteTransactionFromServer({
+    userId: user.id,
+    transactionId,
+    deletedAt,
+    updatedAt,
+  });
+  await transactionLocalStorage.updateSyncStatus(transactionId, 'synced');
 
   return success;
 };

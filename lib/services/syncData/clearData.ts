@@ -15,7 +15,7 @@ export const clearLocalData = async (): Promise<void> => {
 
 export const clearLocalUser = async (): Promise<void> => {
     // Clear user-related data
-    await userLocalStorage.clearUser();
+    await userLocalStorage.clearUserLocal();
     await loginLocalStorage.clearLoginStatus();
     console.log("Local user cleared successfully.");
 }

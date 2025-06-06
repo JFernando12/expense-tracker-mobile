@@ -7,6 +7,7 @@ import {
   deleteWalletFromServer,
   updateWalletOnServer,
 } from '../../appwrite';
+import { getUser } from '../user/user';
 
 export const createWallet = async ({
   isOnlineMode,
@@ -15,6 +16,11 @@ export const createWallet = async ({
   isOnlineMode: boolean;
   data: Omit<Wallet, 'id' | 'currentBalance' | 'updatedAt'>;
 }): Promise<boolean> => {
+  const user = await getUser();
+  if (!user.id) {
+    console.error('User not found, cannot create wallet');
+    return false;
+  }
   const id = uuidv4();
   const updatedAt = new Date().toISOString();
   const currentBalance = data.initialBalance || 0;
@@ -27,37 +33,50 @@ export const createWallet = async ({
   });
   if (!isOnlineMode) return success;
 
-  await createWalletOnServer({ ...data, id, updatedAt, currentBalance });
+  await createWalletOnServer({
+    userId: user.id,
+    wallet: { ...data, id, updatedAt, currentBalance },
+  });
   await walletLocalStorage.updateSyncStatus(id, 'synced');
 
   return success;
 };
 
 export const updateWallet = async ({
-  input: { id, data },
+  input: { walletId, data },
   isOnlineMode,
 }: {
   input: {
-    id: string;
+    walletId: string;
     data: Omit<Wallet, 'id' | 'currentBalance' | 'updatedAt'>;
   };
   isOnlineMode: boolean;
 }): Promise<boolean> => {
+  const user = await getUser();
+  if (!user.id) {
+    console.error('User not found, cannot update wallet');
+    return false;
+  }
+
   const updatedAt = new Date().toISOString();
-  const oldWallet = await walletLocalStorage.getWallet({ id });
+  const oldWallet = await walletLocalStorage.getWallet({ id: walletId });
   if (!oldWallet) return false;
 
   const currentBalance =
     oldWallet.currentBalance - oldWallet.initialBalance + data.initialBalance;
 
   const { success } = await walletLocalStorage.updateWallet({
-    id,
+    id: walletId,
     data: { ...data, currentBalance, updatedAt },
   });
   if (!isOnlineMode) return success;
 
-  await updateWalletOnServer({ id, data: { ...data, updatedAt } });
-  await walletLocalStorage.updateSyncStatus(id, 'synced');
+  await updateWalletOnServer({
+    userId: user.id,
+    walletId,
+    data: { ...data, updatedAt },
+  });
+  await walletLocalStorage.updateSyncStatus(walletId, 'synced');
 
   return success;
 };
@@ -68,24 +87,35 @@ export const getWallets = async (): Promise<Wallet[]> => {
 };
 
 export const deleteWallet = async ({
-  id,
+  walletId,
   isOnlineMode,
 }: {
-  id: string;
+  walletId: string;
   isOnlineMode: boolean;
 }): Promise<boolean> => {
+  const user = await getUser();
+  if (!user.id) {
+    console.error('User not found, cannot delete wallet');
+    return false;
+  }
+
   const deletedAt = new Date().toISOString();
   const updatedAt = new Date().toISOString();
 
   const { success } = await walletLocalStorage.deleteWallet({
-    id,
+    id: walletId,
     deletedAt,
     updatedAt,
   });
   if (!isOnlineMode) return success;
 
-  await deleteWalletFromServer({ id, updatedAt, deletedAt });
-  await walletLocalStorage.updateSyncStatus(id, 'synced');
+  await deleteWalletFromServer({
+    userId: user.id,
+    walletId,
+    updatedAt,
+    deletedAt,
+  });
+  await walletLocalStorage.updateSyncStatus(walletId, 'synced');
   return success;
 };
 

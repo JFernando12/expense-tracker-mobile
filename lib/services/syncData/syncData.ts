@@ -6,6 +6,7 @@ import {
   upsertTransactionOnServer,
   upsertWalletOnServer,
 } from '../../appwrite';
+import { getUser } from '../user/user';
 
 export const syncData = async (): Promise<{
   transactionsSynced: number;
@@ -21,19 +22,25 @@ export const syncData = async (): Promise<{
 };
 
 const syncWallets = async (): Promise<number> => {
+  const user = await getUser();
+  if (!user.id) {
+    console.error('User not found, cannot sync wallets');
+    return 0;
+  }
+
   const localWallets = await walletLocalStorage.getWalletsStorage();
   const pendingWallets = localWallets.filter(
     (wallet) => wallet.syncStatus === 'pending'
   );
 
   for (const wallet of pendingWallets) {
-    const result = await upsertWalletOnServer(wallet);
+    const result = await upsertWalletOnServer({ wallet, userId: user.id });
     if (!result) continue;
     await walletLocalStorage.updateSyncStatus(wallet.id, 'synced');
   }
 
   // Getting wallets from the server to save them locally (only if does not exist or updatedAt is newer)
-  const serverWallets = await getWalletsFromServer();
+  const serverWallets = await getWalletsFromServer({ userId: user.id });
   for (const serverWallet of serverWallets) {
     const localWallet = localWallets.find(
       (wallet) => wallet.id === serverWallet.id
@@ -60,6 +67,11 @@ const syncWallets = async (): Promise<number> => {
 };
 
 const syncTransactions = async (): Promise<number> => {
+  const user = await getUser();
+  if (!user.id) {
+    console.error('User not found, cannot sync transactions');
+    return 0;
+  }
   const localTransactions =
     await transactionLocalStorage.getTransactionsStorage();
   const pendingTransactions = localTransactions.filter(
@@ -68,13 +80,18 @@ const syncTransactions = async (): Promise<number> => {
 
   // Uploading pending transactions to the server
   for (const transaction of pendingTransactions) {
-    const result = await upsertTransactionOnServer(transaction);
+    const result = await upsertTransactionOnServer({
+      transaction,
+      userId: user.id,
+    });
     if (!result) continue;
     await transactionLocalStorage.updateSyncStatus(transaction.id, 'synced');
   }
 
   // Getting transactions from the server to save them locally (only if does not exist or updatedAt is newer)
-  const serverTransactions = await getTransactionsFromServer();
+  const serverTransactions = await getTransactionsFromServer({
+    userId: user.id,
+  });
   for (const serverTransaction of serverTransactions) {
     const localTransaction = localTransactions.find(
       (transaction) => transaction.id === serverTransaction.id

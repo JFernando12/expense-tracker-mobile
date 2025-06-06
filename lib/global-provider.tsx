@@ -2,31 +2,24 @@ import { CategoryExpenseData, PeriodTypes } from "@/constants/interfaces";
 import { Transaction, Wallet } from "@/types/types";
 import { createContext, useContext, useEffect, useState } from "react";
 import {
-  getCurrentUser,
-  loginServer,
-  logoutServer,
-  registerServer,
-} from "./appwrite";
-import {
   getExpensesByCategory,
   getTotalExpenses,
   getTotalIncomes,
-} from "./services/fetchData/statistics";
-import { getTransactions } from "./services/fetchData/transactions";
-import { getTotalBalance, getWallets } from "./services/fetchData/wallets";
-import { getLoginStatus, updateLoginStatus } from "./services/login/login";
+} from './services/fetchData/statistics';
+import { getTransactions } from './services/fetchData/transactions';
+import { getTotalBalance, getWallets } from './services/fetchData/wallets';
 
-import { syncData } from "./services/syncData/syncData";
-import { getUserLocal, resetToFreeLocal, updateUserLocal, updateUserNameLocal } from "./services/user/user";
-import { UserLocal } from "./storage/userLocalStorage";
-import { useAppwrite } from "./useAppwrite";
+import { syncData } from './services/syncData/syncData';
+import { getUser } from './services/user/user';
+import { UserLocal } from './storage/userLocalStorage';
+import { useAppwrite } from './useAppwrite';
 
 export interface User {
   id: string;
   name: string;
   email: string;
-  appMode: "free" | "premium";
-  subscriptionType?: "monthly" | "yearly";
+  appMode: 'free' | 'premium';
+  subscriptionType?: 'monthly' | 'yearly';
   subscriptionExpiration?: Date;
 }
 
@@ -34,8 +27,8 @@ interface RegistrationUserData {
   email: string;
   password: string;
   name: string;
-  appMode: "free" | "premium";
-  subscriptionType?: "monthly" | "yearly"; // Optional, defaults to 'monthly'
+  appMode: 'free' | 'premium';
+  subscriptionType?: 'monthly' | 'yearly'; // Optional, defaults to 'monthly'
 }
 
 interface GlobalContextType {
@@ -49,21 +42,10 @@ interface GlobalContextType {
   }) => void;
   closeSubscriptionModal: () => void;
   // User and login state
-  register: (
-    registrationUserData: RegistrationUserData
-  ) => Promise<string | null>;
-  login: (params: { email: string; password: string }) => Promise<void>;
-  logout: () => Promise<boolean>;
-  updateUserName: (name: string) => Promise<void>;
-  userLoading: boolean;
-  isLoggedIn: boolean;
-  isOnlineMode: boolean;
-  // User subscription state
   userLocal: UserLocal | null;
-  upgradeToPremium: (params: {
-    subscriptionType: "monthly" | "yearly";
-    registrationUserData?: RegistrationUserData;
-  }) => Promise<boolean>;
+  userLocalLoading: boolean;
+  refetchUserLocal: () => Promise<void>;
+  isOnlineMode: boolean;
   // Resources state
   wallets: Wallet[] | null;
   transactions: Transaction[] | null;
@@ -133,115 +115,15 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   };
 
   const {
-    data: user,
-    loading: userLoading,
-    refetch: refetchUserServer,
-  } = useAppwrite({
-    fn: getCurrentUser,
-  });
-
-  const { data: loginStatus, refetch: refetchLoginStatus } = useAppwrite({
-    fn: getLoginStatus,
-    params: {},
-  });
-
-  const updateUser = async (data: Partial<User>) => {
-    await updateUserLocal(data);
-    await refetchUserLocal();
-  };
-
-  const updateLogin = async (value: boolean) => {
-    await updateLoginStatus(value);
-    await refetchLoginStatus();
-  };
-
-  const register = async (
-    registrationUserData: RegistrationUserData
-  ): Promise<string | null> => {
-    const id = await registerServer(registrationUserData);
-    if (!id) return null;
-    await updateUserLocal({
-      ...registrationUserData,
-      id,
-    });
-    await updateLogin(true);
-    return id;
-  };
-
-  const loginLocal = async (user: User) => {
-    await updateUserLocal(user);
-    await refetchUserLocal();
-  }
-
-  const login = async ({
-    email,
-    password,
-  }: {
-    email: string;
-    password: string;
-  }) => {
-    try {
-      await loginServer(email, password);
-      await updateLogin(true);
-      await refetchUserServer();
-      if (user) {
-        await loginLocal(user);
-      }
-    } catch (error) {
-      console.error("Error updating login status:", error);
-    }
-  };
-
-  const logout = async (): Promise<boolean> => {
-    const result = await logoutServer();
-    if (!result) return false;
-    await resetToFreeLocal();
-    await updateLogin(false);
-    return true;
-  };
-
-  const updateUserName = async (name: string) => {
-    await updateUserNameLocal(name);
-    await refetchUserLocal();
-  };
-
-  const upgradeToPremium = async ({
-    subscriptionType,
-    registrationUserData,
-  }: {
-    subscriptionType: "monthly" | "yearly";
-    registrationUserData?: RegistrationUserData;
-  }) => {
-    if (!user || !user.id) {
-      if (!registrationUserData) return false;
-      const id = await register({
-        ...registrationUserData,
-        appMode: "premium",
-        subscriptionType,
-      });
-      if (!id) return false;
-      return true;
-    }
-
-    await updateUser({
-      id: user.id,
-      appMode: "premium",
-      subscriptionType,
-    });
-    return true;
-  };
-
-  const {
     data: userLocal,
     loading: userLocalLoading,
     refetch: refetchUserLocal,
   } = useAppwrite({
-    fn: getUserLocal,
-    params: {},
+    fn: getUser,
   });
 
-  const isLoggedIn = loginStatus || false;
-  const isOnlineMode = userLocal?.appMode === "premium" && isLoggedIn;
+  const isOnlineMode =
+    (userLocal?.appMode === 'premium' && userLocal?.isLoggedIn) || false;
 
   const {
     data: wallets,
@@ -389,8 +271,8 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   useEffect(() => {
     if (isOnlineMode) {
       refetchSyncedData()
-        .then(() => console.log("Data synced successfully"))
-        .catch((error) => console.error("Error syncing data:", error));
+        .then(() => console.log('Data synced successfully'))
+        .catch((error) => console.error('Error syncing data:', error));
     }
   }, [isOnlineMode]);
 
@@ -401,18 +283,13 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   return (
     <GlobalContext.Provider
       value={{
+        isOnlineMode,
         subscriptionModal,
         openSubscriptionModal,
         closeSubscriptionModal,
-        userLoading,
-        register,
-        login,
-        logout,
-        updateUserName,
-        isLoggedIn,
-        isOnlineMode,
         userLocal,
-        upgradeToPremium,
+        userLocalLoading,
+        refetchUserLocal,
         refetchResources,
         refetchTransactions,
         wallets,
