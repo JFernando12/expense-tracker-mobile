@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SUBSCRIPTION_KEY = 'user_login';
 
-class LoginService {
+class LoginLocalStorage {
   async updateLoginStatus(isLoggedIn: boolean): Promise<void> {
     try {
       await AsyncStorage.setItem(SUBSCRIPTION_KEY, JSON.stringify({ isLoggedIn }));
@@ -23,6 +23,14 @@ class LoginService {
       return false;
     }
   }
+
+  async clearLoginStatus(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(SUBSCRIPTION_KEY);
+    } catch (error) {
+      console.error('Failed to clear login status:', error);
+    }
+  }
 }
 
-export const loginService = new LoginService();
+export const loginLocalStorage = new LoginLocalStorage();

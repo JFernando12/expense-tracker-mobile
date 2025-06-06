@@ -16,7 +16,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Index() {
   const {
-    user,
     userLoading,
     transactions,
     transactionsLoading,
@@ -26,7 +25,6 @@ export default function Index() {
     totalIncomesLoading,
     totalExpenses,
     totalExpensesLoading,
-    isLoggedIn,
     syncDataLoading,
   } = useGlobalContext();
 

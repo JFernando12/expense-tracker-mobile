@@ -1,31 +1,41 @@
-import { CategoryExpenseData, PeriodTypes } from '@/constants/interfaces';
-import { Transaction, Wallet } from '@/types/types';
-import { createContext, useContext, useEffect, useState } from 'react';
-import { getCurrentUser, logoutServer } from './appwrite';
+import { CategoryExpenseData, PeriodTypes } from "@/constants/interfaces";
+import { Transaction, Wallet } from "@/types/types";
+import { createContext, useContext, useEffect, useState } from "react";
+import {
+  getCurrentUser,
+  loginServer,
+  logoutServer,
+  registerServer,
+} from "./appwrite";
 import {
   getExpensesByCategory,
   getTotalExpenses,
   getTotalIncomes,
-} from './services/fetchData/statistics';
-import { getTransactions } from './services/fetchData/transactions';
-import { getTotalBalance, getWallets } from './services/fetchData/wallets';
-import { getLoginStatus, updateLoginStatus } from './services/login/login';
-import { getUserSubscription } from './services/suscription/subscription';
-import { UserSubscription } from './services/suscription/subscriptionService';
-import { syncData } from './services/syncData/syncData';
-import { useAppwrite } from './useAppwrite';
+} from "./services/fetchData/statistics";
+import { getTransactions } from "./services/fetchData/transactions";
+import { getTotalBalance, getWallets } from "./services/fetchData/wallets";
+import { getLoginStatus, updateLoginStatus } from "./services/login/login";
 
-interface User {
-  $id: string;
+import { syncData } from "./services/syncData/syncData";
+import { getUserLocal, resetToFreeLocal, updateUserLocal, updateUserNameLocal } from "./services/user/user";
+import { UserLocal } from "./storage/userLocalStorage";
+import { useAppwrite } from "./useAppwrite";
+
+export interface User {
+  id: string;
   name: string;
   email: string;
-  avatar: string;
+  appMode: "free" | "premium";
+  subscriptionType?: "monthly" | "yearly";
+  subscriptionExpiration?: Date;
 }
 
 interface RegistrationUserData {
-  name: string;
   email: string;
   password: string;
+  name: string;
+  appMode: "free" | "premium";
+  subscriptionType?: "monthly" | "yearly"; // Optional, defaults to 'monthly'
 }
 
 interface GlobalContextType {
@@ -39,13 +49,22 @@ interface GlobalContextType {
   }) => void;
   closeSubscriptionModal: () => void;
   // User and login state
-  logout: () => Promise<boolean>; // Function to log out the user
-  isLoggedIn: boolean; // Indicates if the user is logged in
-  isOnlineMode: boolean; // Indicates if the app is running in local mode (no user logged in)
-  userSubscription: UserSubscription | null;
-  user: User | null | undefined;
+  register: (
+    registrationUserData: RegistrationUserData
+  ) => Promise<string | null>;
+  login: (params: { email: string; password: string }) => Promise<void>;
+  logout: () => Promise<boolean>;
+  updateUserName: (name: string) => Promise<void>;
   userLoading: boolean;
-  refetchUser: (newParams?: Record<string, string | number>) => Promise<void>;
+  isLoggedIn: boolean;
+  isOnlineMode: boolean;
+  // User subscription state
+  userLocal: UserLocal | null;
+  upgradeToPremium: (params: {
+    subscriptionType: "monthly" | "yearly";
+    registrationUserData?: RegistrationUserData;
+  }) => Promise<boolean>;
+  // Resources state
   wallets: Wallet[] | null;
   transactions: Transaction[] | null;
   walletsLoading: boolean;
@@ -116,7 +135,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   const {
     data: user,
     loading: userLoading,
-    refetch: refetchUser,
+    refetch: refetchUserServer,
   } = useAppwrite({
     fn: getCurrentUser,
   });
@@ -126,43 +145,103 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     params: {},
   });
 
-  const updateIsLoggedIn = async (value: boolean) => {
+  const updateUser = async (data: Partial<User>) => {
+    await updateUserLocal(data);
+    await refetchUserLocal();
+  };
+
+  const updateLogin = async (value: boolean) => {
+    await updateLoginStatus(value);
+    await refetchLoginStatus();
+  };
+
+  const register = async (
+    registrationUserData: RegistrationUserData
+  ): Promise<string | null> => {
+    const id = await registerServer(registrationUserData);
+    if (!id) return null;
+    await updateUserLocal({
+      ...registrationUserData,
+      id,
+    });
+    await updateLogin(true);
+    return id;
+  };
+
+  const loginLocal = async (user: User) => {
+    await updateUserLocal(user);
+    await refetchUserLocal();
+  }
+
+  const login = async ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) => {
     try {
-      await updateLoginStatus(value);
-      await refetchLoginStatus();
+      await loginServer(email, password);
+      await updateLogin(true);
+      await refetchUserServer();
+      if (user) {
+        await loginLocal(user);
+      }
     } catch (error) {
-      console.error('Error updating login status:', error);
+      console.error("Error updating login status:", error);
     }
   };
 
   const logout = async (): Promise<boolean> => {
     const result = await logoutServer();
     if (!result) return false;
-
-    await updateIsLoggedIn(false);
+    await resetToFreeLocal();
+    await updateLogin(false);
     return true;
   };
 
-  useEffect(() => {
-    if (user) {
-      updateIsLoggedIn(true);
+  const updateUserName = async (name: string) => {
+    await updateUserNameLocal(name);
+    await refetchUserLocal();
+  };
+
+  const upgradeToPremium = async ({
+    subscriptionType,
+    registrationUserData,
+  }: {
+    subscriptionType: "monthly" | "yearly";
+    registrationUserData?: RegistrationUserData;
+  }) => {
+    if (!user || !user.id) {
+      if (!registrationUserData) return false;
+      const id = await register({
+        ...registrationUserData,
+        appMode: "premium",
+        subscriptionType,
+      });
+      if (!id) return false;
+      return true;
     }
-  }, [user]);
+
+    await updateUser({
+      id: user.id,
+      appMode: "premium",
+      subscriptionType,
+    });
+    return true;
+  };
 
   const {
-    data: userSubscription,
-    loading: userSubscriptionLoading,
-    refetch: refetchUserSubscription,
+    data: userLocal,
+    loading: userLocalLoading,
+    refetch: refetchUserLocal,
   } = useAppwrite({
-    fn: getUserSubscription,
+    fn: getUserLocal,
     params: {},
   });
 
   const isLoggedIn = loginStatus || false;
-  const isOnlineMode =
-    userSubscription?.mode === 'premium' &&
-    userSubscription.syncMode === 'cloud' &&
-    isLoggedIn;
+  const isOnlineMode = userLocal?.appMode === "premium" && isLoggedIn;
 
   const {
     data: wallets,
@@ -310,8 +389,8 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   useEffect(() => {
     if (isOnlineMode) {
       refetchSyncedData()
-        .then(() => console.log('Data synced successfully'))
-        .catch((error) => console.error('Error syncing data:', error));
+        .then(() => console.log("Data synced successfully"))
+        .catch((error) => console.error("Error syncing data:", error));
     }
   }, [isOnlineMode]);
 
@@ -325,15 +404,17 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         subscriptionModal,
         openSubscriptionModal,
         closeSubscriptionModal,
+        userLoading,
+        register,
+        login,
         logout,
+        updateUserName,
         isLoggedIn,
         isOnlineMode,
-        userSubscription,
-        refetchUser,
+        userLocal,
+        upgradeToPremium,
         refetchResources,
         refetchTransactions,
-        user,
-        userLoading,
         wallets,
         walletsLoading,
         transactions,
@@ -370,7 +451,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
 export const useGlobalContext = (): GlobalContextType => {
   const context = useContext(GlobalContext);
   if (!context)
-    throw new Error('useGlobalContext must be used within a GlobalProvider');
+    throw new Error("useGlobalContext must be used within a GlobalProvider");
   return context;
 };
 

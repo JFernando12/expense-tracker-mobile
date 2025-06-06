@@ -21,7 +21,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Statistics = () => {
   const {
-    user,
     totalIncomesSevenDays,
     totalExpensesSevenDays,
     totalIncomesThirtyDays,

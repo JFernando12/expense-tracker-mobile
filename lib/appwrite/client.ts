@@ -5,6 +5,7 @@ export const config = {
   projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!,
   endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT!,
   databaseId: process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!,
+  userCollectionId: process.env.EXPO_PUBLIC_APPWRITE_USER_COLLECTION_ID!,
   categoryCollectionId: process.env.EXPO_PUBLIC_APPWRITE_CATEGORY_COLLECTION_ID!,
   walletCollectionId: process.env.EXPO_PUBLIC_APPWRITE_WALLET_COLLECTION_ID!,
   transactionCollectionId: process.env.EXPO_PUBLIC_APPWRITE_TRANSACTION_COLLECTION_ID!,

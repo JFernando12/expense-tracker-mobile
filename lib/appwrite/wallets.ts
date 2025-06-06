@@ -21,7 +21,7 @@ export const upsertWalletOnServer = async ({
       description,
       initial_balance: initialBalance,
       current_balance: currentBalance,
-      user_id: user.$id,
+      user_id: user.id,
       updated_at: updatedAt,
     };
 
@@ -76,7 +76,7 @@ export const createWalletOnServer = async ({
         description,
         initial_balance: initialBalance,
         current_balance: currentBalance,
-        user_id: user.$id,
+        user_id: user.id,
         updated_at: updatedAt,
       }
     );
@@ -106,7 +106,7 @@ export const updateWalletOnServer = async ({
     );
     if (!wallet) return false;
 
-    if (wallet.user_id !== user.$id)
+    if (wallet.user_id !== user.id)
       throw new Error('Unauthorized access to wallet');
 
     const currentBalance = wallet.current_balance as number;
@@ -124,7 +124,7 @@ export const updateWalletOnServer = async ({
         description,
         initial_balance: initialBalance,
         current_balance: newCurrentBalance,
-        user_id: user.$id,
+        user_id: user.id,
       }
     );
 
@@ -141,7 +141,7 @@ export const getWalletsFromServer = async (): Promise<Wallet[]> => {
     if (!user) return [];
 
     const queries = [
-      Query.equal('user_id', user.$id),
+      Query.equal('user_id', user.id),
       Query.isNull('deleted_at'),
       Query.orderDesc('$createdAt'),
     ];
@@ -193,7 +193,7 @@ export const deleteWalletFromServer = async ({
       return false;
     }
 
-    if (wallet.user_id !== user.$id) {
+    if (wallet.user_id !== user.id) {
       console.error('Unauthorized access to wallet');
       return false;
     }

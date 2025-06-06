@@ -1,10 +1,9 @@
-import SuscriptionModal from '@/components/SubscriptionModal';
-import { login } from '@/lib/appwrite';
-import { useGlobalContext } from '@/lib/global-provider';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import SuscriptionModal from "@/components/SubscriptionModal";
+import { useGlobalContext } from "@/lib/global-provider";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -12,26 +11,27 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const LoginModal = () => {
-  const { refetchUser, userLoading, isLoggedIn } = useGlobalContext();
+  const { userLoading, isLoggedIn, login } = useGlobalContext();
   const { mode } = useLocalSearchParams();
 
-  if (!userLoading && isLoggedIn) return <Redirect href="/" />;
-
   const [isLoginMode, setIsLoginMode] = useState(true);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  if (!userLoading && isLoggedIn) return <Redirect href="/" />;
 
   // Set initial mode based on URL parameter
   useEffect(() => {
-    if (mode === 'register') {
+    if (mode === "register") {
       setIsLoginMode(false);
     } else {
       setIsLoginMode(true);
@@ -41,31 +41,22 @@ const LoginModal = () => {
   const handleLogin = async () => {
     // Basic validation
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Por favor ingresa tu correo y contraseña');
+      Alert.alert("Error", "Por favor ingresa tu correo y contraseña");
       return;
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      Alert.alert('Error', 'Por favor ingresa una dirección de correo válida');
+      Alert.alert("Error", "Por favor ingresa una dirección de correo válida");
       return;
     }
 
     setIsLoading(true);
     try {
-      const success = await login(email, password);
-
-      if (success) {
-        await refetchUser();
-      } else {
-        Alert.alert(
-          'Inicio de sesión fallido',
-          'Correo o contraseña inválidos. Por favor intenta de nuevo.'
-        );
-      }
+      await login({ email, password });
     } catch (error) {
-      Alert.alert('Error', 'Ocurrió un error inesperado.');
+      Alert.alert("Error", "Ocurrió un error inesperado.");
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -75,24 +66,24 @@ const LoginModal = () => {
   const handleRegister = async () => {
     // Basic validation
     if (!name.trim() || !email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Por favor completa todos los campos');
+      Alert.alert("Error", "Por favor completa todos los campos");
       return;
     }
 
     if (password.length < 8) {
-      Alert.alert('Error', 'La contraseña debe tener al menos 8 caracteres');
+      Alert.alert("Error", "La contraseña debe tener al menos 8 caracteres");
       return;
     }
 
     // Email validation using regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      Alert.alert('Error', 'Por favor ingresa una dirección de correo válida');
+      Alert.alert("Error", "Por favor ingresa una dirección de correo válida");
       return;
     }
 
     if (!acceptedTerms) {
-      Alert.alert('Error', 'Debes aceptar los términos de uso para continuar');
+      Alert.alert("Error", "Debes aceptar los términos de uso para continuar");
       return;
     }
 
@@ -127,20 +118,21 @@ const LoginModal = () => {
       {/* Segmented Control */}
       <View className="mt-4">
         <SegmentedControl
-          values={['Create new Profile', 'Sign-In']}
+          values={["Create new Profile", "Sign-In"]}
           selectedIndex={isLoginMode ? 1 : 0}
           tintColor="#6B7280"
-          fontStyle={{ color: '#fff' }}
-          activeFontStyle={{ color: '#fff' }}
+          fontStyle={{ color: "#fff" }}
+          activeFontStyle={{ color: "#fff" }}
           onChange={(event) => {
             const selectedValue = event.nativeEvent.value;
-            const newMode = selectedValue === 'Sign-In';
+            const newMode = selectedValue === "Sign-In";
             setIsLoginMode(newMode);
             // Clear form when switching modes
-            setName('');
-            setEmail('');
-            setPassword('');
+            setName("");
+            setEmail("");
+            setPassword("");
             setAcceptedTerms(false);
+            setShowPassword(false);
           }}
         />
       </View>
@@ -148,7 +140,6 @@ const LoginModal = () => {
       <View className="flex-col gap-4 mt-4">
         {!isLoginMode && (
           <View>
-            <Text className="text-neutral-300 mb-2">Name</Text>
             <View className="bg-primary-300 rounded-xl py-4 px-5">
               <TextInput
                 className="text-white"
@@ -161,9 +152,7 @@ const LoginModal = () => {
             </View>
           </View>
         )}
-
         <View>
-          <Text className="text-neutral-300 mb-2">Email</Text>
           <View className="bg-primary-300 rounded-xl py-4 px-5">
             <TextInput
               className="text-white"
@@ -176,24 +165,31 @@ const LoginModal = () => {
             />
           </View>
         </View>
-
         <View>
-          <Text className="text-neutral-300 mb-2">Password</Text>
-          <View className="bg-primary-300 rounded-xl py-4 px-5">
+          <View className="bg-primary-300 rounded-xl py-4 px-5 flex-row items-center">
             <TextInput
-              className="text-white"
+              className="text-white flex-1"
               placeholder="Enter your password"
               placeholderTextColor="#9CA3AF"
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
+              secureTextEntry={!showPassword}
               autoCapitalize="none"
             />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              className="ml-2"
+            >
+              <Ionicons
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                size={20}
+                color="#9CA3AF"
+              />
+            </TouchableOpacity>
           </View>
           {!isLoginMode && (
             <Text className="text-neutral-400 text-xs mt-2 px-1">
-              Password must be at least 8 characters long, contain at least one
-              number, one uppercase, and one lowercase letter
+              Password must be at least 8 characters long
             </Text>
           )}
         </View>
@@ -207,8 +203,8 @@ const LoginModal = () => {
           <View
             className={`w-5 h-5 border-2 rounded mr-3 mt-1 items-center justify-center ${
               acceptedTerms
-                ? 'border-accent-200 bg-accent-200'
-                : 'border-neutral-400'
+                ? "border-accent-200 bg-accent-200"
+                : "border-neutral-400"
             }`}
           >
             {acceptedTerms && (
@@ -216,7 +212,7 @@ const LoginModal = () => {
             )}
           </View>
           <Text className="text-neutral-400 text-sm flex-1">
-            I accept the
+            {`${"I accept the "}`}
             <Text className="text-accent-200 underline">terms of use</Text> of
             the Tracki synchronization service
           </Text>
@@ -233,7 +229,7 @@ const LoginModal = () => {
         ) : (
           <View className="flex-row items-center">
             <Text className="text-white text-lg font-bold mr-2">
-              {isLoginMode ? 'Sign In' : 'Sign Up'}
+              {isLoginMode ? "Sign In" : "Sign Up"}
             </Text>
             {!isLoginMode ? (
               <Ionicons name="lock-closed-outline" size={16} color="#fff" />

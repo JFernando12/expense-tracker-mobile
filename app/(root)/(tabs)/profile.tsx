@@ -3,8 +3,7 @@ import icons from '@/constants/icons';
 import images from '@/constants/images';
 import { useGlobalContext } from '@/lib/global-provider';
 import { useTranslation } from '@/lib/i18n/useTranslation';
-import { toggleCloudSync } from '@/lib/services/suscription/subscription';
-import { clearLocalData } from '@/lib/services/syncData/clearData';
+import { clearLocalData, clearLocalUser } from '@/lib/services/syncData/clearData';
 import { router } from 'expo-router';
 import React from 'react';
 import {
@@ -20,15 +19,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Profile = () => {
   const {
-    user,
     refetchUser,
     isLoggedIn,
     logout,
-    userSubscription,
+    userLocal,
     isOnlineMode,
     openSubscriptionModal,
   } = useGlobalContext();
-  const { mode: appMode } = userSubscription || {};
+  const { appMode } = userLocal || {};
   const { t } = useTranslation();
 
   const handleLogout = async () => {
@@ -58,7 +56,7 @@ const Profile = () => {
     }
 
     try {
-      await toggleCloudSync(value);
+      // await toggleCloudSync(value);
     } catch (error) {
       Alert.alert(
         t('common.failed'),
@@ -75,11 +73,10 @@ const Profile = () => {
           <View className="items-center mb-4">
             <View className="relative">
               <View className="size-28 rounded-full overflow-hidden bg-secondary-100 border border-neutral-500 items-center justify-center">
-                {isLoggedIn && user?.avatar ? (
-                  <Image
-                    source={{ uri: user.avatar }}
-                    className="size-28 rounded-full"
-                  />
+                {isLoggedIn && userLocal?.name ? (
+                  <Text className="text-white text-4xl font-bold">
+                    {userLocal.name.charAt(0).toUpperCase()}
+                  </Text>
                 ) : (
                   <Image
                     source={images.avatar as ImageSourcePropType}
@@ -93,7 +90,7 @@ const Profile = () => {
           {/* Profile Name */}
           <View className="items-center">
             <Text className="text-white text-2xl font-bold mb-1">
-              {isLoggedIn ? user?.name || 'User' : t('profile.localUser')}
+              {isLoggedIn ? userLocal?.name : t('profile.localUser')}
             </Text>
             <Text className="text-neutral-400 text-base">
               All your spending in one place
@@ -184,7 +181,10 @@ const Profile = () => {
               <View className="h-px bg-neutral-700 mx-4" />
               {/* Delete Data */}
               <TouchableOpacity
-                onPress={() => clearLocalData()}
+                onPress={() => {
+                  clearLocalData();
+                  clearLocalUser();
+                }}
                 className="p-4"
                 activeOpacity={0.7}
               >

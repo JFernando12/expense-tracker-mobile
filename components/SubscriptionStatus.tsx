@@ -1,13 +1,12 @@
 import { useGlobalContext } from '@/lib/global-provider';
-import { resetToFreeMode } from '@/lib/services/suscription/subscription';
 import { router } from 'expo-router';
 import React from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 const SubscriptionStatus = () => {
-  const { userSubscription, openSubscriptionModal, isLoggedIn } =
+  const { userLocal, openSubscriptionModal, isLoggedIn } =
     useGlobalContext();
-  const { mode: appMode, planType } = userSubscription || {};
+  const { appMode, subscriptionType, id } = userLocal || {};
 
   const handleUpgrade = () => {
     if (!isLoggedIn) {
@@ -15,30 +14,6 @@ const SubscriptionStatus = () => {
       return;
     }
     openSubscriptionModal();
-  };
-
-  const handleCancelSubscription = () => {
-    Alert.alert(
-      'Cancelar Suscripción',
-      '¿Estás seguro de que quieres cancelar tu suscripción? Perderás acceso a las funciones premium.',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Confirmar',
-          style: 'destructive',
-          onPress: async () => {
-            await resetToFreeMode();
-            Alert.alert(
-              'Suscripción Cancelada',
-              'Tu suscripción ha sido cancelada.'
-            );
-          },
-        },
-      ]
-    );
   };
 
   const getStatusColor = () => {
@@ -49,8 +24,8 @@ const SubscriptionStatus = () => {
   const getStatusText = () => {
     if (appMode === 'free') return 'Modo Gratuito';
 
-    if (planType === 'monthly') return 'Plan Mensual';
-    if (planType === 'yearly') return 'Plan Anual';
+    if (subscriptionType === 'monthly') return 'Plan Mensual';
+    if (subscriptionType === 'yearly') return 'Plan Anual';
     return 'Premium';
   };
 
@@ -96,17 +71,6 @@ const SubscriptionStatus = () => {
           >
             <Text className="text-white text-center font-bold">
               Actualizar a Premium
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {appMode === 'premium' && (
-          <TouchableOpacity
-            onPress={handleCancelSubscription}
-            className="bg-red-500/20 border border-red-500 py-3 px-4 rounded-xl"
-          >
-            <Text className="text-red-400 text-center font-medium">
-              Cancelar Suscripción
             </Text>
           </TouchableOpacity>
         )}

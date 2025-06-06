@@ -1,6 +1,5 @@
 import icons from "@/constants/icons";
 import images from "@/constants/images";
-import { updateUser } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/global-provider";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -17,20 +16,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const ProfileModal = () => {
-  const { user, refetchUser } = useGlobalContext();
-  const [name, setName] = useState(user?.name || "");
+  const { userLocal, refetchUser, updateUserName } = useGlobalContext();
+  const [name, setName] = useState(userLocal?.name || "");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUpdateName = async () => {
     try {
       setIsLoading(true);
-      const result = await updateUser({ name });
-      if (result) {
-        await refetchUser();
-        Alert.alert('Éxito', 'Perfil editado correctamente');
-      } else {
-        Alert.alert('Error', 'Failed to update profile');
-      }
+      await updateUserName(name);
     } catch (error) {
       console.error('Error updating profile:', error);
       Alert.alert('Error', 'An unexpected error occurred');
@@ -56,14 +49,19 @@ const ProfileModal = () => {
       </View>
       <View className="flex-col items-center justify-center">
         <View className="relative">
-          <Image
-            source={
-              user?.avatar
-                ? { uri: user.avatar }
-                : (images.avatar as ImagePropsBase)
-            }
-            className="size-40 rounded-full"
-          />
+          <View className="size-28 rounded-full overflow-hidden bg-secondary-100 border border-neutral-500 items-center justify-center">
+            {userLocal?.name ? (
+              <Text className="text-white text-4xl font-bold">
+                {userLocal.name.charAt(0).toUpperCase()}
+              </Text>
+            ) : (
+              <Image
+                source={images.avatar as ImagePropsBase}
+                className="size-5"
+                tintColor="#6b7280"
+              />
+            )}
+          </View>
         </View>
       </View>
       <View className="mt-5 rounded-3xl shadow-lg">

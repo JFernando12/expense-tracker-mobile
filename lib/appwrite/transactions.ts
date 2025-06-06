@@ -12,7 +12,7 @@ export const getTransactionsFromServer = async (filters?: {
     if (!user) return [];
 
     const queries = [
-      Query.equal('user_id', user.$id),
+      Query.equal('user_id', user.id),
       Query.orderDesc('date'),
       Query.isNull('deleted_at'),
       Query.orderDesc('$createdAt'),
@@ -85,7 +85,7 @@ export const upsertTransactionOnServer = async ({
       amount,
       type,
       date: date,
-      user_id: user.$id,
+      user_id: user.id,
       updated_at: updatedAt,
     };
 
@@ -156,7 +156,7 @@ export const createTransactionOnServer = async ({
       return false;
     }
 
-    if (wallet.user_id !== user.$id) {
+    if (wallet.user_id !== user.id) {
       console.error('Unauthorized access to wallet');
       return false;
     }
@@ -170,7 +170,7 @@ export const createTransactionOnServer = async ({
       amount,
       type,
       date: date,
-      user_id: user.$id,
+      user_id: user.id,
     };
 
     // Add image URL if available
@@ -233,7 +233,7 @@ export const updateTransactionOnServer = async ({
       return null;
     }
 
-    if (transaction.user_id !== user.$id) {
+    if (transaction.user_id !== user.id) {
       console.error('Unauthorized access to transaction');
       return null;
     }
@@ -276,7 +276,7 @@ export const updateTransactionOnServer = async ({
       return null;
     }
 
-    if (oldWallet.user_id !== user.$id) {
+    if (oldWallet.user_id !== user.id) {
       console.error('Unauthorized access to old wallet');
       return null;
     }
@@ -293,7 +293,7 @@ export const updateTransactionOnServer = async ({
       return null;
     }
 
-    if (newWallet.user_id !== user.$id) {
+    if (newWallet.user_id !== user.id) {
       console.error('Unauthorized access to new wallet');
       return null;
     }
@@ -307,7 +307,7 @@ export const updateTransactionOnServer = async ({
       type,
       date: date,
       image: imageId,
-      user_id: user.$id,
+      user_id: user.id,
     };
 
     const response = await databases.updateDocument(
@@ -436,7 +436,7 @@ export const deleteTransactionFromServer = async ({
       return false;
     }
 
-    if (transaction.user_id !== user.$id) {
+    if (transaction.user_id !== user.id) {
       console.error('Unauthorized access to transaction');
       return false;
     }
@@ -454,7 +454,7 @@ export const deleteTransactionFromServer = async ({
       return false;
     }
 
-    if (wallet.user_id !== user.$id) {
+    if (wallet.user_id !== user.id) {
       console.error('Unauthorized access to wallet');
       return false;
     }

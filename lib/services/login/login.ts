@@ -1,10 +1,10 @@
-import { loginService } from "./loginService";
+import { loginLocalStorage } from "@/lib/storage/loginLocalStorage";
 
 export const getLoginStatus = async (): Promise<boolean> => {
-  const loginStatus = await loginService.getLoginStatus();
+  const loginStatus = await loginLocalStorage.getLoginStatus();
   return loginStatus;
 }
 
 export const updateLoginStatus = async (isLoggedIn: boolean): Promise<void> => {
-  await loginService.updateLoginStatus(isLoggedIn);
+  await loginLocalStorage.updateLoginStatus(isLoggedIn);
 }

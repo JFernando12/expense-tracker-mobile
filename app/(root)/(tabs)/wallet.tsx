@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Wallet = () => {
-  const { wallets, totalBalance, user, isOnlineMode } = useGlobalContext();
+  const { wallets, totalBalance } = useGlobalContext();
   const { t } = useTranslation();
 
   return (

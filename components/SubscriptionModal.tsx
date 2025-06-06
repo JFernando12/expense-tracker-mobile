@@ -1,21 +1,28 @@
 import { useGlobalContext } from '@/lib/global-provider';
-import { upgradeToPremium } from '@/lib/services/suscription/subscription';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Modal,
   ScrollView,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { register } from '../lib/appwrite';
+
+interface SubscriptionPlan {
+  id: 'monthly' | 'yearly';
+  title: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  popular: boolean;
+}
 
 // Mock subscription plans
-const subscriptionPlans = [
+const subscriptionPlans: SubscriptionPlan[] = [
   {
     id: 'monthly',
     title: 'Plan Mensual',
@@ -60,55 +67,15 @@ const SubscriptionModal = ({
   onClose,
   userData,
 }: SubscriptionModalProps) => {
-  const [selectedPlan, setSelectedPlan] = useState('monthly');
+  const { register, upgradeToPremium, userLocal, isLoggedIn } = useGlobalContext();
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
   const [isLoading, setIsLoading] = useState(false);
 
-  const { refetchUser } = useGlobalContext();
-  const handleSubscription = async (planId: string) => {
-    setIsLoading(true);
+  const handleSubscription = async (planId: 'monthly' | 'yearly' ) => {
+    // Here suscription IOS logic will be implemented
 
-    try {
-      const selectedPlanInfo = subscriptionPlans.find((p) => p.id === planId);
-      const planName = selectedPlanInfo?.title || 'Plan seleccionado';
-
-      // Then set up the subscription
-      if (planId === 'monthly' || planId === 'yearly') {
-        await upgradeToPremium(planId as 'monthly' | 'yearly');
-        Alert.alert(
-          'Suscripción Confirmada',
-          `Has seleccionado el ${planName}. En una app real, esto procesaría el pago.`,
-          [
-            {
-              text: 'Continuar',
-              onPress: async () => {
-                onClose();
-              },
-            },
-          ]
-        );
-      }
-
-      if (!userData) return;
-      const success = await register(
-        userData.email,
-        userData.password,
-        userData.name
-      );
-
-      if (!success) {
-        Alert.alert(
-          'Error de Registro',
-          'No se pudo registrar. Por favor intenta de nuevo.'
-        );
-        setIsLoading(false);
-        return;
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Ocurrió un error inesperado.');
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+    // Here the registration or upgrade in db logic
+    await upgradeToPremium({ subscriptionType: planId })
   };
 
   return (
