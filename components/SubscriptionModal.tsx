@@ -1,3 +1,5 @@
+import { useGlobalContext } from '@/lib/global-provider';
+import { register, upgradeToPremium } from '@/lib/services/user/user';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useState } from 'react';
 import {
@@ -66,14 +68,31 @@ const SubscriptionModal = ({
   onClose,
   userData,
 }: SubscriptionModalProps) => {
+  const { userLocal, refetchUserLocal } = useGlobalContext();
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>(
     'monthly'
   );
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubscription = async (planId: 'monthly' | 'yearly') => {
-    // Here suscription IOS logic will be implemented
-    // Here the registration or upgrade in db logic
+    setIsLoading(true);
+    await upgradeToPremium({ subscriptionType: planId, networkEnabled: true });
+
+    // If userData is provided and the user is not logged in, register the user
+    if (userData && !userLocal?.isLoggedIn) {
+      await register({
+        networkEnabled: true,
+        input: {
+          email: userData.email,
+          password: userData.password,
+          name: userData.name,
+        },
+      });
+    }
+
+    // Refetch user data to update the local state
+    await refetchUserLocal();
+    setIsLoading(false);
   };
 
   return (

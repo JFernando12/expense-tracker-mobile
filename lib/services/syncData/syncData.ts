@@ -92,6 +92,7 @@ const syncTransactions = async (): Promise<number> => {
   const serverTransactions = await getTransactionsFromServer({
     userId: user.id,
   });
+
   for (const serverTransaction of serverTransactions) {
     const localTransaction = localTransactions.find(
       (transaction) => transaction.id === serverTransaction.id

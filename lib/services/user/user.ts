@@ -83,11 +83,9 @@ export const updateUser = async ({
 };
 
 export const upgradeToPremium = async ({
-  id,
   subscriptionType,
   networkEnabled,
 }: {
-  id: string;
   subscriptionType: 'monthly' | 'yearly';
   networkEnabled: boolean;
 }): Promise<boolean> => {
@@ -102,17 +100,19 @@ export const upgradeToPremium = async ({
     );
   }
 
-  await upgradeToPremiumOnServer({
-    input: {
-      id,
-      subscriptionType,
-      subscriptionExpiration,
-    },
-  });
-
   await userLocalStorage.upgradeToPremium({
     subscriptionType,
     subscriptionExpiration,
   });
+
+  const user = await getUser();
+  const id = user.id;
+  if (!id) return false;
+
+  await upgradeToPremiumOnServer({
+    input: { userId: id, subscriptionType, subscriptionExpiration },
+  });
+  await userLocalStorage.updateSyncStatus('synced');
+
   return true;
 };

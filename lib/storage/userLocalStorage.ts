@@ -115,6 +115,7 @@ class UserLocalStorage {
     subscription.appMode = 'premium';
     subscription.subscriptionType = subscriptionType;
     subscription.subscriptionExpiration = subscriptionExpiration;
+    subscription.syncStatus = 'pending'; // Set to pending until confirmed
 
     await this.saveUserLocal(subscription);
   }

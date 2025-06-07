@@ -7,6 +7,5 @@ export const clearLocalData = async (): Promise<void> => {
     walletLocalStorage.clearWallets(),
     transactionLocalStorage.clearTransactions(),
   ]);
-
   console.log('Local data cleared successfully.');
 };

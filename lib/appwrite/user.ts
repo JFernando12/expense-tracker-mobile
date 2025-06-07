@@ -95,10 +95,10 @@ export const updateUserOnServer = async ({
 };
 
 export const upgradeToPremiumOnServer = async ({
-  input: { id, subscriptionType, subscriptionExpiration },
+  input: { userId, subscriptionType, subscriptionExpiration },
 }: {
   input: {
-    id: string;
+    userId: string;
     subscriptionType: 'monthly' | 'yearly';
     subscriptionExpiration: Date;
   };
@@ -108,10 +108,10 @@ export const upgradeToPremiumOnServer = async ({
     const response = await databases.listDocuments(
       config.databaseId,
       config.userCollectionId,
-      [Query.equal('user_id', id)]
+      [Query.equal('user_id', userId)]
     );
     if (response.documents.length === 0) {
-      console.error('User not found for upgrade:', id);
+      console.error('User not found for upgrade:', userId);
       return false; // User not found
     }
 
