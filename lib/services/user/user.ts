@@ -5,7 +5,6 @@ import {
   updateUserOnServer,
   upgradeToPremiumOnServer,
 } from '@/lib/appwrite/user';
-import { User } from '@/lib/global-provider';
 import { UserLocal, userLocalStorage } from '@/lib/storage/userLocalStorage';
 
 export const register = async ({
@@ -65,18 +64,18 @@ export const getUser = async (): Promise<UserLocal> => {
 };
 
 export const updateUser = async ({
-  input: { id, data },
+  data,
   networkEnabled,
 }: {
-  input: {
-    id?: string;
-    data: Omit<User, 'id'>;
-  };
+  data: Omit<UserLocal, 'id'>;
   networkEnabled: boolean;
 }): Promise<boolean> => {
-  await userLocalStorage.updateUser({ ...data, id });
-  if (!networkEnabled) return false;
+  const user = await getUser();
+  const id = user.id;
   if (!id) return false;
+
+  await userLocalStorage.updateUser({ ...data });
+  if (!networkEnabled) return false;
 
   await updateUserOnServer({ input: { id, data } });
   await userLocalStorage.updateSyncStatus('synced');

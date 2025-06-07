@@ -3,7 +3,8 @@ import icons from '@/constants/icons';
 import images from '@/constants/images';
 import { useGlobalContext } from '@/lib/global-provider';
 import { useTranslation } from '@/lib/i18n/useTranslation';
-import { clearLocalData, clearLocalUser } from '@/lib/services/syncData/clearData';
+import { clearLocalData } from '@/lib/services/syncData/clearData';
+import { logout } from '@/lib/services/user/user';
 import { router } from 'expo-router';
 import React from 'react';
 import {
@@ -18,17 +19,18 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Profile = () => {
-  const { isLoggedIn, logout, userLocal, isOnlineMode, openSubscriptionModal } =
+  const { userLocal, refetchUserLocal, isOnlineMode, openSubscriptionModal } =
     useGlobalContext();
   const { appMode } = userLocal || {};
   const { t } = useTranslation();
 
   const handleLogout = async () => {
-    const result = await logout();
+    const result = await logout({ networkEnabled: true });
     if (!result) {
       Alert.alert(t('common.failed'), t('profile.logoutFailed'));
       return;
     }
+    await refetchUserLocal();
     Alert.alert(t('common.success'), t('profile.logoutSuccess'));
   };
 
@@ -37,7 +39,7 @@ const Profile = () => {
   };
 
   const handleAutoSyncToggle = async (value: boolean) => {
-    if (!isLoggedIn) {
+    if (!userLocal?.isLoggedIn) {
       router.push('/(root)/(modals)/loginModal');
       return;
     }
@@ -66,7 +68,7 @@ const Profile = () => {
           <View className="items-center mb-4">
             <View className="relative">
               <View className="size-28 rounded-full overflow-hidden bg-secondary-100 border border-neutral-500 items-center justify-center">
-                {isLoggedIn && userLocal?.name ? (
+                {userLocal?.isLoggedIn && userLocal?.name ? (
                   <Text className="text-white text-4xl font-bold">
                     {userLocal.name.charAt(0).toUpperCase()}
                   </Text>
@@ -83,7 +85,7 @@ const Profile = () => {
           {/* Profile Name */}
           <View className="items-center">
             <Text className="text-white text-2xl font-bold mb-1">
-              {isLoggedIn ? userLocal?.name : t('profile.localUser')}
+              {userLocal?.isLoggedIn ? userLocal?.name : t('profile.localUser')}
             </Text>
             <Text className="text-neutral-400 text-base">
               All your spending in one place
@@ -105,7 +107,7 @@ const Profile = () => {
             {/* Personal Information Card */}
             <TouchableOpacity
               onPress={
-                isLoggedIn
+                userLocal?.isLoggedIn
                   ? () => router.push('/(root)/(modals)/profileModal')
                   : handleLoginToSync
               }
@@ -117,7 +119,7 @@ const Profile = () => {
                   <Text className="text-white text-lg font-medium mb-0.5">
                     Personal Information
                   </Text>
-                  {!isLoggedIn && (
+                  {!userLocal?.isLoggedIn && (
                     <Text className="text-neutral-400 text-base">
                       Log in to back up your expenses
                     </Text>
@@ -176,7 +178,6 @@ const Profile = () => {
               <TouchableOpacity
                 onPress={() => {
                   clearLocalData();
-                  clearLocalUser();
                 }}
                 className="p-4"
                 activeOpacity={0.7}
@@ -212,7 +213,7 @@ const Profile = () => {
           </View>
 
           {/* Account Actions Section */}
-          {isLoggedIn && (
+          {userLocal?.isLoggedIn && (
             <View className="mt-4">
               <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
                 ACCOUNT ACTIONS

@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const LoginModal = () => {
-  const { userLocalLoading, userLocal } = useGlobalContext();
+  const { userLocalLoading, userLocal, refetchUserLocal } = useGlobalContext();
   const { mode } = useLocalSearchParams();
 
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -56,6 +56,7 @@ const LoginModal = () => {
     setIsLoading(true);
     try {
       await login({ input: { email, password }, networkEnabled: true });
+      await refetchUserLocal();
     } catch (error) {
       Alert.alert('Error', 'Ocurrió un error inesperado.');
       console.error(error);

@@ -24,7 +24,6 @@ export const createUser = async ({
 export const getUser = async (userId: string): Promise<User | null> => {
   try {
     // Get document by user_id (it is not the same as $id)
-    console.log('Fetching user with ID:', userId);
     const response = await databases.listDocuments(
       config.databaseId,
       config.userCollectionId,
@@ -53,7 +52,7 @@ export const updateUserOnServer = async ({
 }: {
   input: {
     id: string;
-    data: Omit<User, 'id'>;
+    data: Omit<UserLocal, 'id'>;
   };
 }): Promise<boolean> => {
   try {

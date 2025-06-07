@@ -12,10 +12,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Welcome = () => {
-  const { userLoading, isLoggedIn } = useGlobalContext();
+  const { userLocalLoading, userLocal } = useGlobalContext();
 
-  if (!userLoading && isLoggedIn) return <Redirect href="/(root)/(tabs)" />;
-  if (userLoading) return null; // Let the loading be handled by the root layout
+  if (!userLocalLoading && userLocal?.isLoggedIn)
+    return <Redirect href="/(root)/(tabs)" />;
+  if (userLocalLoading) return null; // Let the loading be handled by the root layout
 
   return (
     <SafeAreaView className="bg-primary-100 h-full">

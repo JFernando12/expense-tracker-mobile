@@ -238,7 +238,7 @@ const TransactionUpdate = () => {
             try {
               await deleteTransaction({
                 isOnlineMode,
-                id: transactionToEdit.id,
+                transactionId: transactionToEdit.id,
               });
 
               Alert.alert('Éxito', 'Transacción eliminada exitosamente', [
@@ -303,7 +303,7 @@ const TransactionUpdate = () => {
       await updateTransaction({
         isOnlineMode,
         input: {
-          id,
+          transactionId: id,
           data: {
             walletId: formData.walletId,
             categoryId: formData.categoryId,

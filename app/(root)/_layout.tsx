@@ -6,10 +6,10 @@ import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const RootLayout = () => {
-  const { userLoading, subscriptionModal, closeSubscriptionModal } =
+  const { userLocalLoading, subscriptionModal, closeSubscriptionModal } =
     useGlobalContext();
 
-  if (userLoading) {
+  if (userLocalLoading) {
     return (
       <SafeAreaView className="bg-white h-full flex justify-center items-center">
         <ActivityIndicator className="text-primary-300 " size="large" />

@@ -7,7 +7,7 @@ export interface UserLocal {
   id?: string;
   name?: string;
   email?: string;
-  appMode: 'free' | 'premium';
+  appMode?: 'free' | 'premium';
   subscriptionType?: 'monthly' | 'yearly';
   subscriptionExpiration?: Date;
   isLoggedIn?: boolean;
@@ -142,7 +142,6 @@ class UserLocalStorage {
   }
 
   async updateUser({
-    id,
     email,
     name,
     appMode,
@@ -153,14 +152,13 @@ class UserLocalStorage {
     const subscription = await this.getUserLocalStorage();
     if (!subscription) return false;
 
-    if (id) subscription.id = id;
     if (email) subscription.email = email;
     if (name) subscription.name = name;
     if (appMode) subscription.appMode = appMode;
     if (subscriptionType) subscription.subscriptionType = subscriptionType;
     if (subscriptionExpiration)
       subscription.subscriptionExpiration = subscriptionExpiration;
-    subscription.syncStatus = 'synced';
+    subscription.syncStatus = 'pending';
 
     await this.saveUserLocal(subscription);
     return true;

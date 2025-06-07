@@ -1,8 +1,9 @@
 import icons from "@/constants/icons";
 import images from "@/constants/images";
 import { useGlobalContext } from "@/lib/global-provider";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { updateUser } from '@/lib/services/user/user';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -12,18 +13,19 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ProfileModal = () => {
-  const { userLocal, updateUserName } = useGlobalContext();
-  const [name, setName] = useState(userLocal?.name || "");
+  const { userLocal, refetchUserLocal } = useGlobalContext();
+  const [name, setName] = useState(userLocal?.name || '');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUpdateName = async () => {
     try {
       setIsLoading(true);
-      await updateUserName(name);
+      await updateUser({ data: { name }, networkEnabled: true });
+      await refetchUserLocal();
     } catch (error) {
       console.error('Error updating profile:', error);
       Alert.alert('Error', 'An unexpected error occurred');

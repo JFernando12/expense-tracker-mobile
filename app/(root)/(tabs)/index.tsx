@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Index() {
   const {
-    userLoading,
+    userLocalLoading,
     transactions,
     transactionsLoading,
     totalBalance,
@@ -33,7 +33,7 @@ export default function Index() {
   if (
     syncDataLoading ||
     transactionsLoading ||
-    userLoading ||
+    userLocalLoading ||
     totalBalanceLoading ||
     totalIncomesLoading ||
     totalExpensesLoading

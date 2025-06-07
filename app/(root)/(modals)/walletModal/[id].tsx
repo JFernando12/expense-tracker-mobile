@@ -78,29 +78,29 @@ const WalletUpdate = () => {
 
   const handleUpdateWallet = async () => {
     if (!walletToEdit) {
-      Alert.alert("Algo salio mal", "Cartera no encontrada");
+      Alert.alert('Algo salio mal', 'Cartera no encontrada');
       return;
     }
 
     // Validate form
     if (!formData.name.trim()) {
       Alert.alert(
-        "Completo los campos",
-        "El nombre de la cartera es requerido"
+        'Completo los campos',
+        'El nombre de la cartera es requerido'
       );
       return;
     }
 
     if (!formData.initialBalance.trim()) {
-      Alert.alert("Completa los campos", "El saldo inicial es requerido");
+      Alert.alert('Completa los campos', 'El saldo inicial es requerido');
       return;
     }
 
     const initialBalance = parseFloat(formData.initialBalance);
     if (isNaN(initialBalance) || initialBalance < 0) {
       Alert.alert(
-        "Completa los campos",
-        "El saldo inicial debe ser mayor o igual a 0"
+        'Completa los campos',
+        'El saldo inicial debe ser mayor o igual a 0'
       );
       return;
     }
@@ -110,7 +110,7 @@ const WalletUpdate = () => {
       await updateWallet({
         isOnlineMode,
         input: {
-          id: walletToEdit.id,
+          walletId: walletToEdit.id,
           data: {
             name: formData.name,
             description: formData.description,
@@ -121,17 +121,17 @@ const WalletUpdate = () => {
 
       // Refetch resources to update the wallet list
       await refetchResources();
-      Alert.alert("Éxito", "Cartera actualizada exitosamente", [
+      Alert.alert('Éxito', 'Cartera actualizada exitosamente', [
         {
-          text: "OK",
+          text: 'OK',
           onPress: () => router.back(),
         },
       ]);
     } catch (error) {
-      console.error("Error updating wallet:", error);
+      console.error('Error updating wallet:', error);
       Alert.alert(
-        "Algo salio mal",
-        "Ocurrió un error al actualizar la cartera"
+        'Algo salio mal',
+        'Ocurrió un error al actualizar la cartera'
       );
     } finally {
       setIsLoading(false);
@@ -141,24 +141,24 @@ const WalletUpdate = () => {
     if (!walletToEdit) return;
 
     Alert.alert(
-      "Eliminar Cartera",
-      "¿Estás seguro de que quieres eliminar esta cartera? Esta acción no se puede deshacer. La cartera no se puede eliminar si tiene transacciones.",
+      'Eliminar Cartera',
+      '¿Estás seguro de que quieres eliminar esta cartera? Esta acción no se puede deshacer. La cartera no se puede eliminar si tiene transacciones.',
       [
         {
-          text: "Cancelar",
-          style: "cancel",
+          text: 'Cancelar',
+          style: 'cancel',
         },
         {
-          text: "Eliminar",
-          style: "destructive",
+          text: 'Eliminar',
+          style: 'destructive',
           onPress: async () => {
             setIsDeleting(true);
             try {
-              await deleteWallet({ isOnlineMode, id: walletToEdit.id });
+              await deleteWallet({ isOnlineMode, walletId: walletToEdit.id });
 
-              Alert.alert("Éxito", "Cartera eliminada exitosamente", [
+              Alert.alert('Éxito', 'Cartera eliminada exitosamente', [
                 {
-                  text: "OK",
+                  text: 'OK',
                   onPress: () => {
                     refetchResources();
                     router.back();
@@ -166,10 +166,10 @@ const WalletUpdate = () => {
                 },
               ]);
             } catch (error) {
-              console.error("Error deleting wallet:", error);
+              console.error('Error deleting wallet:', error);
               Alert.alert(
-                "Algo salio mal",
-                "Ocurrió un error al eliminar la cartera"
+                'Algo salio mal',
+                'Ocurrió un error al eliminar la cartera'
               );
             } finally {
               setIsDeleting(false);
