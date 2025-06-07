@@ -139,7 +139,6 @@ export const deleteTransaction = async ({
 
 export const getTransactions = async (): Promise<Transaction[]> => {
   const localTransactions = await transactionLocalStorage.getTransactions();
-  console.log('Local transactions:', localTransactions);
   return localTransactions;
 };
 

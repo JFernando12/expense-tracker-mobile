@@ -70,6 +70,7 @@ export const upsertTransactionOnServer = async ({
     type,
     date,
     imageUrl,
+    deletedAt,
   },
 }: {
   userId: string;
@@ -78,7 +79,7 @@ export const upsertTransactionOnServer = async ({
   try {
     // Upload image if provided
     let imageId: string | null = null;
-    if (imageUrl) {
+    if (imageUrl && !deletedAt) {
       imageId = await uploadImage(imageUrl);
     }
 
@@ -92,18 +93,22 @@ export const upsertTransactionOnServer = async ({
       date: date,
       user_id: userId,
       updated_at: updatedAt,
+      deleted_at: deletedAt,
+      image: imageId,
     };
-
-    // Add image URL if available
-    if (imageId) {
-      transactionData.image = imageId;
-    }
 
     // Check if the transaction already exists
     const existingTransaction = await databases
       .getDocument(config.databaseId, config.transactionCollectionId, id)
       .catch(() => null);
+
     if (existingTransaction) {
+      // Delete the old image if it exists and a new image is provided
+      const oldImage = existingTransaction.image as string | null;
+      if (oldImage) {
+        await deleteImage(oldImage);
+      }
+
       // Update existing transaction
       await databases.updateDocument(
         config.databaseId,

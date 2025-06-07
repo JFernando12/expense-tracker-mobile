@@ -4,7 +4,15 @@ import { config, databases } from './client';
 
 export const upsertWalletOnServer = async ({
   userId,
-  wallet: { id, name, description, initialBalance, currentBalance, updatedAt },
+  wallet: {
+    id,
+    name,
+    description,
+    initialBalance,
+    currentBalance,
+    updatedAt,
+    deletedAt,
+  },
 }: {
   userId: string;
   wallet: Wallet;
@@ -18,6 +26,7 @@ export const upsertWalletOnServer = async ({
       current_balance: currentBalance,
       user_id: userId,
       updated_at: updatedAt,
+      deleted_at: deletedAt,
     };
 
     // Check if the wallet already exists

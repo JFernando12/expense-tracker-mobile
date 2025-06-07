@@ -1,5 +1,6 @@
 import { transactionLocalStorage } from '@/lib/storage/transactionLocalStorage';
 import { walletLocalStorage } from '@/lib/storage/walletLocalStorage';
+import { createDownloadResumable, documentDirectory } from 'expo-file-system';
 import {
   getTransactionsFromServer,
   getWalletsFromServer,
@@ -100,15 +101,33 @@ const syncTransactions = async (): Promise<number> => {
 
     const localUpdatedAt = new Date(localTransaction?.updatedAt || 0);
     const serverUpdatedAt = new Date(serverTransaction.updatedAt);
+    const isLocalOutdated = serverUpdatedAt > localUpdatedAt;
+
+    if (
+      !serverTransaction?.deletedAt &&
+      serverTransaction.imageUrl &&
+      (!localTransaction || isLocalOutdated)
+    ) {
+      const fileName = serverTransaction.imageUrl.split('=').pop();
+      const filePath = `${documentDirectory}${fileName}`;
+      const downloadResumable = createDownloadResumable(
+        serverTransaction.imageUrl,
+        filePath
+      );
+      const localImage = await downloadResumable.downloadAsync();
+      console.log('Image downloaded:', localImage?.uri);
+      if (localImage?.uri) {
+        serverTransaction.imageUrl = localImage.uri;
+      }
+    }
 
     if (!localTransaction) {
-      // If the transaction does not exist locally, save it
       await transactionLocalStorage.createTransaction(serverTransaction);
       await transactionLocalStorage.updateSyncStatus(
         serverTransaction.id,
         'synced'
       );
-    } else if (serverUpdatedAt > localUpdatedAt) {
+    } else if (isLocalOutdated) {
       // If the server transaction is newer, update the local storage
       await transactionLocalStorage.updateTransaction({
         id: serverTransaction.id,
