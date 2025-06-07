@@ -17,14 +17,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ProfileModal = () => {
-  const { userLocal, refetchUserLocal } = useGlobalContext();
+  const { isNetworkEnabled, userLocal, refetchUserLocal } = useGlobalContext();
   const [name, setName] = useState(userLocal?.name || '');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUpdateName = async () => {
     try {
       setIsLoading(true);
-      await updateUser({ data: { name }, networkEnabled: true });
+      await updateUser({ data: { name }, networkEnabled: isNetworkEnabled });
       await refetchUserLocal();
     } catch (error) {
       console.error('Error updating profile:', error);

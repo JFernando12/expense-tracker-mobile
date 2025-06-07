@@ -1,6 +1,7 @@
 import { CategoryExpenseData, PeriodTypes } from "@/constants/interfaces";
 import { Transaction, Wallet } from "@/types/types";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useNetworkState } from 'expo-network';
+import { createContext, useContext, useEffect, useState } from 'react';
 import {
   getExpensesByCategory,
   getTotalExpenses,
@@ -32,6 +33,8 @@ interface RegistrationUserData {
 }
 
 interface GlobalContextType {
+  // Network state
+  isNetworkEnabled: boolean;
   // Subscription modal state
   subscriptionModal: {
     visible: boolean;
@@ -91,6 +94,7 @@ interface GlobalProviderProps {
 }
 
 export const GlobalProvider = ({ children }: GlobalProviderProps) => {
+  const networkState = useNetworkState();
   const [subscriptionModal, setSubscriptionModal] = useState<{
     visible: boolean;
     registrationUserData?: RegistrationUserData;
@@ -122,8 +126,14 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     fn: getUser,
   });
 
+  const isNetworkEnabled =
+    (networkState.isConnected && networkState.isInternetReachable) || false;
   const isOnlineMode =
-    (userLocal?.appMode === 'premium' && userLocal?.isLoggedIn) || false;
+    (userLocal?.appMode === 'premium' &&
+      userLocal?.isLoggedIn &&
+      userLocal?.syncMode === 'cloud' &&
+      isNetworkEnabled) ||
+    false;
 
   const {
     data: wallets,
@@ -283,6 +293,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   return (
     <GlobalContext.Provider
       value={{
+        isNetworkEnabled,
         isOnlineMode,
         subscriptionModal,
         openSubscriptionModal,

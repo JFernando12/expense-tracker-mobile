@@ -68,7 +68,7 @@ const SubscriptionModal = ({
   onClose,
   userData,
 }: SubscriptionModalProps) => {
-  const { userLocal, refetchUserLocal } = useGlobalContext();
+  const { isNetworkEnabled, userLocal, refetchUserLocal } = useGlobalContext();
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>(
     'monthly'
   );
@@ -76,12 +76,15 @@ const SubscriptionModal = ({
 
   const handleSubscription = async (planId: 'monthly' | 'yearly') => {
     setIsLoading(true);
-    await upgradeToPremium({ subscriptionType: planId, networkEnabled: true });
+    await upgradeToPremium({
+      subscriptionType: planId,
+      networkEnabled: isNetworkEnabled,
+    });
 
     // If userData is provided and the user is not logged in, register the user
     if (userData && !userLocal?.isLoggedIn) {
       await register({
-        networkEnabled: true,
+        networkEnabled: isNetworkEnabled,
         input: {
           email: userData.email,
           password: userData.password,

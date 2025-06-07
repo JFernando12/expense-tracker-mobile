@@ -4,7 +4,7 @@ import images from '@/constants/images';
 import { useGlobalContext } from '@/lib/global-provider';
 import { useTranslation } from '@/lib/i18n/useTranslation';
 import { clearLocalData } from '@/lib/services/syncData/clearData';
-import { logout } from '@/lib/services/user/user';
+import { logout, updateSyncMode } from '@/lib/services/user/user';
 import { router } from 'expo-router';
 import React from 'react';
 import {
@@ -19,13 +19,20 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Profile = () => {
-  const { userLocal, refetchUserLocal, isOnlineMode, openSubscriptionModal } =
-    useGlobalContext();
+  const {
+    userLocal,
+    refetchUserLocal,
+    isOnlineMode,
+    isNetworkEnabled,
+    openSubscriptionModal,
+  } = useGlobalContext();
+  const syncMode = userLocal?.syncMode || 'local';
+
   const { appMode } = userLocal || {};
   const { t } = useTranslation();
 
   const handleLogout = async () => {
-    const result = await logout({ networkEnabled: true });
+    const result = await logout({ networkEnabled: isNetworkEnabled });
     if (!result) {
       Alert.alert(t('common.failed'), t('profile.logoutFailed'));
       return;
@@ -38,7 +45,7 @@ const Profile = () => {
     router.push('/(root)/(modals)/loginModal');
   };
 
-  const handleAutoSyncToggle = async (value: boolean) => {
+  const handleAutoSyncToggle = async () => {
     if (!userLocal?.isLoggedIn) {
       router.push('/(root)/(modals)/loginModal');
       return;
@@ -51,7 +58,9 @@ const Profile = () => {
     }
 
     try {
-      // await toggleCloudSync(value);
+      const value = syncMode === 'local' ? 'cloud' : 'local';
+      await updateSyncMode({ syncMode: value });
+      await refetchUserLocal();
     } catch (error) {
       Alert.alert(
         t('common.failed'),
@@ -158,15 +167,17 @@ const Profile = () => {
                     )}
                   </View>
                   <TouchableOpacity
-                    onPress={() => handleAutoSyncToggle(!isOnlineMode)}
+                    onPress={() => handleAutoSyncToggle()}
                     className={`w-12 h-6 rounded-full p-0.5 ${
-                      isOnlineMode ? 'bg-green-500' : 'bg-neutral-600'
+                      syncMode === 'cloud' ? 'bg-green-500' : 'bg-neutral-600'
                     }`}
                   >
                     <View
                       className="w-5 h-5 rounded-full bg-white"
                       style={{
-                        transform: [{ translateX: isOnlineMode ? 24 : 0 }],
+                        transform: [
+                          { translateX: syncMode === 'cloud' ? 24 : 0 },
+                        ],
                       }}
                     />
                   </TouchableOpacity>

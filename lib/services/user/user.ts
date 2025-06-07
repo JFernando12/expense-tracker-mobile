@@ -5,7 +5,11 @@ import {
   updateUserOnServer,
   upgradeToPremiumOnServer,
 } from '@/lib/appwrite/user';
-import { UserLocal, userLocalStorage } from '@/lib/storage/userLocalStorage';
+import {
+  SyncMode,
+  UserLocal,
+  userLocalStorage,
+} from '@/lib/storage/userLocalStorage';
 
 export const register = async ({
   input,
@@ -115,4 +119,12 @@ export const upgradeToPremium = async ({
   await userLocalStorage.updateSyncStatus('synced');
 
   return true;
+};
+
+export const updateSyncMode = async ({
+  syncMode,
+}: {
+  syncMode: SyncMode;
+}): Promise<void> => {
+  await userLocalStorage.updateSyncMode(syncMode);
 };

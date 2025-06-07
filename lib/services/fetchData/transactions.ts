@@ -17,12 +17,6 @@ export const createTransaction = async ({
   isOnlineMode: boolean;
   data: Omit<Transaction, 'id' | 'updatedAt'>;
 }): Promise<boolean> => {
-  const user = await getUser();
-  if (!user.id) {
-    console.error('User not found, cannot create transaction');
-    return false;
-  }
-
   const id = uuidv4();
   const updatedAt = new Date().toISOString();
 
@@ -41,10 +35,14 @@ export const createTransaction = async ({
 
   if (!isOnlineMode) return success;
 
-  await createTransactionOnServer({
+  const user = await getUser();
+  if (!user.id) return false;
+
+  const result = await createTransactionOnServer({
     userId: user.id,
     transaction: { ...data, id, updatedAt },
   });
+  if (!result) return false;
   await transactionLocalStorage.updateSyncStatus(id, 'synced');
 
   return success;

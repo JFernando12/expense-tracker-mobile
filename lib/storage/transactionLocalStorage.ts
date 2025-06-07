@@ -45,7 +45,17 @@ class TransactionLocalStorage {
       (transaction) => !transaction.deletedAt
     );
 
-    return transactionsNotDeleted.map((transaction) => ({
+    // Order transactions by date (most recent first) and then by updatedAt
+    const orderedTransactions = transactionsNotDeleted.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      if (dateA.getTime() !== dateB.getTime()) {
+        return dateB.getTime() - dateA.getTime(); // Most recent first
+      }
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+
+    return orderedTransactions.map((transaction) => ({
       id: transaction.id,
       updatedAt: transaction.updatedAt,
       walletId: transaction.walletId,

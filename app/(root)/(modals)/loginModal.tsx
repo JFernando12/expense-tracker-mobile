@@ -3,7 +3,7 @@ import { useGlobalContext } from "@/lib/global-provider";
 import { login } from '@/lib/services/user/user';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const LoginModal = () => {
-  const { userLocalLoading, userLocal, refetchUserLocal } = useGlobalContext();
+  const { isNetworkEnabled, refetchUserLocal } = useGlobalContext();
   const { mode } = useLocalSearchParams();
 
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -27,8 +27,6 @@ const LoginModal = () => {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  if (!userLocalLoading && userLocal?.isLoggedIn) return <Redirect href="/" />;
 
   // Set initial mode based on URL parameter
   useEffect(() => {
@@ -55,8 +53,12 @@ const LoginModal = () => {
 
     setIsLoading(true);
     try {
-      await login({ input: { email, password }, networkEnabled: true });
+      await login({
+        input: { email, password },
+        networkEnabled: isNetworkEnabled,
+      });
       await refetchUserLocal();
+      router.back();
     } catch (error) {
       Alert.alert('Error', 'Ocurrió un error inesperado.');
       console.error(error);

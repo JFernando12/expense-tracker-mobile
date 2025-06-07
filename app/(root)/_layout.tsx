@@ -2,20 +2,19 @@ import SuscriptionModal from '@/components/SubscriptionModal';
 import { useGlobalContext } from '@/lib/global-provider';
 import { Stack } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 
 const RootLayout = () => {
   const { userLocalLoading, subscriptionModal, closeSubscriptionModal } =
     useGlobalContext();
 
-  if (userLocalLoading) {
-    return (
-      <SafeAreaView className="bg-white h-full flex justify-center items-center">
-        <ActivityIndicator className="text-primary-300 " size="large" />
-      </SafeAreaView>
-    );
-  }
+  // if (userLocalLoading) {
+  //   return (
+  //     <SafeAreaView className="bg-white h-full flex justify-center items-center">
+  //       <ActivityIndicator className="text-primary-300 " size="large" />
+  //     </SafeAreaView>
+  //   );
+  // }
 
   return (
     <View style={{ flex: 1 }}>

@@ -11,6 +11,7 @@ export interface UserLocal {
   subscriptionType?: 'monthly' | 'yearly';
   subscriptionExpiration?: Date;
   isLoggedIn?: boolean;
+  syncMode?: SyncMode;
 }
 
 interface StorageUser extends UserLocal {
@@ -120,18 +121,6 @@ class UserLocalStorage {
     await this.saveUserLocal(subscription);
   }
 
-  // Reset to free mode (for cancellation or expiration)
-  async resetToFreeMode(): Promise<void> {
-    const userLocal = await this.getUserLocalStorage();
-    if (!userLocal) return;
-
-    userLocal.appMode = 'free';
-    userLocal.subscriptionExpiration = undefined;
-    userLocal.subscriptionType = undefined;
-
-    await this.saveUserLocal(userLocal);
-  }
-
   async updateSyncStatus(
     status: 'synced' | 'pending' | 'conflict'
   ): Promise<void> {
@@ -139,6 +128,13 @@ class UserLocalStorage {
     if (!subscription) return;
 
     subscription.syncStatus = status;
+    await this.saveUserLocal(subscription);
+  }
+
+  async updateSyncMode(syncMode: SyncMode): Promise<void> {
+    const subscription = await this.getUserLocalStorage();
+    if (!subscription) return;
+    subscription.syncMode = syncMode;
     await this.saveUserLocal(subscription);
   }
 
@@ -163,11 +159,6 @@ class UserLocalStorage {
 
     await this.saveUserLocal(subscription);
     return true;
-  }
-
-  checkExpiration({ expiration }: { expiration: Date }): boolean {
-    const now = new Date();
-    return expiration > now;
   }
 
   private async saveUserLocal(subscription: StorageUser): Promise<void> {
