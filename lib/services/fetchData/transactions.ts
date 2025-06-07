@@ -59,12 +59,6 @@ export const updateTransaction = async ({
   };
   isOnlineMode: boolean;
 }): Promise<boolean> => {
-  const user = await getUser();
-  if (!user.id) {
-    console.error('User not found, cannot update transaction');
-    return false;
-  }
-
   const updatedAt = new Date().toISOString();
   const oldTransaction = await transactionLocalStorage.getTransaction(
     transactionId
@@ -92,6 +86,12 @@ export const updateTransaction = async ({
   });
 
   if (!isOnlineMode) return success;
+
+  const user = await getUser();
+  if (!user.id) {
+    console.error('User not found, cannot update transaction');
+    return false;
+  }
 
   await updateTransactionOnServer({
     userId: user.id,
@@ -139,6 +139,7 @@ export const deleteTransaction = async ({
 
 export const getTransactions = async (): Promise<Transaction[]> => {
   const localTransactions = await transactionLocalStorage.getTransactions();
+  console.log('Local transactions:', localTransactions);
   return localTransactions;
 };
 

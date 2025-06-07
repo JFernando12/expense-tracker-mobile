@@ -152,7 +152,6 @@ class TransactionLocalStorage {
       } catch (error) {
         console.error('Error deleting image file:', error);
       }
-      storedTransaction.imageUrl = null; // Clear the image URL
     }
 
     await this.upsertTransaction(storedTransaction);

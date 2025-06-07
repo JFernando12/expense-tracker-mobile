@@ -245,26 +245,17 @@ export const updateTransactionOnServer = async ({
       return null;
     }
 
-    // Handle image upload/deletion
-    let imageId = transaction.image as string | null;
+    let imageId: string | null = null;
+    const oldImage = transaction.image as string | null;
 
-    let currentImageUri: string | undefined;
-    if (imageId) {
-      currentImageUri = storage
-        .getFileView(config.storageBucketId, imageId)
-        .toString();
+    // If removing the image, delete it from storage
+    if (removeImage && oldImage) {
+      await deleteImage(oldImage as string);
     }
 
-    if (imageUrl && imageUrl !== currentImageUri) {
-      const newImageId = await uploadImage(imageUrl);
-      imageId = newImageId;
-    }
-
-    if (removeImage && imageId) {
-      await deleteImage(transaction.image as string);
-      if (!imageUrl) {
-        imageId = null;
-      }
+    // If there's a new image or if we are removing the old image, upload the new image
+    if ((!oldImage && imageUrl) || (removeImage && imageUrl)) {
+      imageId = await uploadImage(imageUrl);
     }
 
     const oldWalletId = transaction.wallet.$id as string;
@@ -353,7 +344,6 @@ export const updateTransactionOnServer = async ({
       );
     } else {
       // Different wallets - revert from old wallet and apply to new wallet
-
       // Revert the old transaction from the old wallet
       const oldWalletBalance = oldWallet.current_balance as number;
       const oldWalletNewBalance =
