@@ -13,7 +13,6 @@ export enum PeriodTypes {
 }
 
 export interface ExtendedCategoryData extends CategoryExpenseData {
-  color: string;
   value: number;
   text: string;
   name: string;

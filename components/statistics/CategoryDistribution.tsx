@@ -1,9 +1,12 @@
+import { getCategoryById } from '@/constants/categories';
 import { useTranslation } from '@/lib/i18n/useTranslation';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
 
 type CategoryData = {
+  categoryId: string;
   value: number;
   color: string;
   text: string;
@@ -49,35 +52,43 @@ const CategoryDistribution = ({
         <View className="items-center">
           <PieChart data={categoryData} donut innerRadius={0} />
         </View>
-
         <View className="mt-5">
-          {categoryData.map((item, index) => (
-            <View
-              key={index}
-              className="flex-row justify-between items-center mb-3"
-            >
-              <View className="flex-row items-center flex-1">
-                <View
-                  className="w-4 h-4 rounded-sm mr-3"
-                  style={{ backgroundColor: item.color }}
-                />
-                <Text
-                  className="text-white font-normal flex-1"
-                  numberOfLines={1}
-                >
-                  {item.name}
-                </Text>
+          {categoryData.map((item, index) => {
+            const category = getCategoryById(item.categoryId, t);
+
+            return (
+              <View
+                key={index}
+                className="flex-row justify-between items-center mb-3"
+              >
+                <View className="flex-row items-center flex-1">
+                  <View
+                    className="w-4 h-4 rounded-sm mr-3"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  {category && (
+                    <View className="mr-3">
+                      <Ionicons name={category.icon} size={20} color="white" />
+                    </View>
+                  )}
+                  <Text
+                    className="text-white font-normal flex-1"
+                    numberOfLines={1}
+                  >
+                    {item.name}
+                  </Text>
+                </View>
+                <View className="flex-row items-center">
+                  <Text className="text-white font-medium mr-2">
+                    ${item.value.toFixed(2)}
+                  </Text>
+                  <Text className="text-neutral-300 font-medium">
+                    {item.text}
+                  </Text>
+                </View>
               </View>
-              <View className="flex-row items-center">
-                <Text className="text-white font-medium mr-2">
-                  ${item.value.toFixed(2)}
-                </Text>
-                <Text className="text-neutral-300 font-medium">
-                  {item.text}
-                </Text>
-              </View>
-            </View>
-          ))}
+            );
+          })}
         </View>
       </View>
     </View>
