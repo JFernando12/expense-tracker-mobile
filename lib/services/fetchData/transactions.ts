@@ -100,6 +100,7 @@ export const updateTransaction = async ({
     removeImage,
   });
   await transactionLocalStorage.updateSyncStatus(transactionId, 'synced');
+  await walletLocalStorage.updateSyncStatus(data.walletId, 'synced');
 
   return success;
 };
@@ -119,6 +120,22 @@ export const deleteTransaction = async ({
 
   const deletedAt = new Date().toISOString();
   const updatedAt = new Date().toISOString();
+
+  const transaction = await transactionLocalStorage.getTransaction(
+    transactionId
+  );
+  if (!transaction) {
+    console.error('Transaction not found, cannot delete');
+    return false;
+  }
+
+  // Revert transaction amount from wallet balance
+  await walletLocalStorage.addToBalance({
+    id: transaction.walletId,
+    amount: -transaction.amount,
+    type: transaction.type,
+  });
+
   const { success } = await transactionLocalStorage.deleteTransaction({
     id: transactionId,
     deletedAt,
@@ -133,6 +150,7 @@ export const deleteTransaction = async ({
     updatedAt,
   });
   await transactionLocalStorage.updateSyncStatus(transactionId, 'synced');
+  await walletLocalStorage.updateSyncStatus(transaction.walletId, 'synced');
 
   return success;
 };

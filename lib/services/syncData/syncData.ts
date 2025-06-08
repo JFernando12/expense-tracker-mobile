@@ -1,6 +1,7 @@
 import { transactionLocalStorage } from '@/lib/storage/transactionLocalStorage';
 import { walletLocalStorage } from '@/lib/storage/walletLocalStorage';
 import { createDownloadResumable, documentDirectory } from 'expo-file-system';
+import { v4 as uuidv4 } from 'uuid';
 import {
   getTransactionsFromServer,
   getWalletsFromServer,
@@ -108,8 +109,9 @@ const syncTransactions = async (): Promise<number> => {
       serverTransaction.imageUrl &&
       (!localTransaction || isLocalOutdated)
     ) {
-      const fileName = serverTransaction.imageUrl.split('=').pop();
+      const fileName = uuidv4();
       const filePath = `${documentDirectory}${fileName}`;
+      console.log('Downloading image to:', filePath);
       const downloadResumable = createDownloadResumable(
         serverTransaction.imageUrl,
         filePath
