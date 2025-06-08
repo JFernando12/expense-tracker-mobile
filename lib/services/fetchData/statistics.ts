@@ -1,5 +1,6 @@
-import { CATEGORIES } from '@/constants/categories';
+import { getCategoryById } from '@/constants/categories';
 import { CategoryExpenseData, PeriodTypes } from '@/constants/interfaces';
+import { TranslationKey } from '@/lib/i18n/types';
 import { transactionLocalStorage } from '@/lib/storage/transactionLocalStorage';
 
 export const getTotalIncomes = async ({
@@ -22,8 +23,10 @@ export const getTotalExpenses = async ({
 
 export const getExpensesByCategory = async ({
   period,
+  t,
 }: {
   period: PeriodTypes;
+  t: (key: TranslationKey) => string;
 }): Promise<CategoryExpenseData[]> => {
   const result = await transactionLocalStorage.getExpensesByCategory({
     period,
@@ -42,7 +45,7 @@ export const getExpensesByCategory = async ({
   const totalExpenses = await getTotalExpenses({ period });
 
   return result.map((item, index) => {
-    const category = CATEGORIES.find((cat) => cat.id === item.categoryId);
+    const category = getCategoryById(item.categoryId, t);
     const categoryId = item.categoryId;
     const categoryName = category?.name || 'Unknown';
     const percentage =

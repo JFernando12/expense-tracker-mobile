@@ -1,7 +1,8 @@
 import CustomField from '@/components/CustomField';
-import { CATEGORIES } from '@/constants/categories';
+import { useTranslatedCategories } from '@/constants/categories';
 import icons from '@/constants/icons';
 import { useGlobalContext } from '@/lib/global-provider';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 import { createTransaction } from '@/lib/services/fetchData/transactions';
 import { TransactionType } from '@/types/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -32,19 +33,23 @@ enum fieldTypes {
 }
 
 const TransactionCreate = () => {
-  const incomeCategories = CATEGORIES.filter(
-    (category) => category.type === 'income'
-  ).map((category) => ({
-    value: category.id,
-    label: category.name,
-  }));
+  const { t } = useTranslation();
+  const categories = useTranslatedCategories();
+  const incomeCategories = categories
+    .filter((category) => category.type === 'income')
+    .map((category) => ({
+      value: category.id,
+      label: category.name,
+      icon: category.icon,
+    }));
 
-  const expenseCategories = CATEGORIES.filter(
-    (category) => category.type === 'expense'
-  ).map((category) => ({
-    value: category.id,
-    label: category.name,
-  }));
+  const expenseCategories = categories
+    .filter((category) => category.type === 'expense')
+    .map((category) => ({
+      value: category.id,
+      label: category.name,
+      icon: category.icon,
+    }));
 
   const [transactionType, setTransactionType] = useState<'expense' | 'income'>(
     'expense'

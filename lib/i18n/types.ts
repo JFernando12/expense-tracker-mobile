@@ -154,6 +154,7 @@ export type TranslationKey =
   | 'categories.transport'
   | 'categories.entertainment'
   | 'categories.shopping'
+  | 'categories.shoping'
   | 'categories.health'
   | 'categories.utilities'
   | 'categories.travel'

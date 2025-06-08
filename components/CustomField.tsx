@@ -1,4 +1,5 @@
 import { useTranslation } from '@/lib/i18n/useTranslation';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -15,6 +16,12 @@ export const transactionTypes = [
   { label: 'transactions.income', value: 'income' },
 ];
 
+interface DropdownOption {
+  label: string;
+  value: string;
+  icon?: keyof typeof Ionicons.glyphMap;
+}
+
 const CustomField = ({
   label,
   title,
@@ -27,7 +34,7 @@ const CustomField = ({
   title?: string;
   value: string;
   type: fieldTypes;
-  options?: { label: string; value: string }[];
+  options?: DropdownOption[];
   onChangeText: (text: string) => void;
 }) => {
   const { t } = useTranslation();
@@ -106,6 +113,39 @@ const CustomField = ({
               shadowOpacity: 1,
               shadowRadius: 15,
               elevation: 5,
+            }}
+            renderItem={(item) => (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingVertical: 10,
+                  paddingHorizontal: 12,
+                }}
+              >
+                {item.icon && (
+                  <Ionicons
+                    name={item.icon}
+                    size={20}
+                    color="white"
+                    style={{ marginRight: 12 }}
+                  />
+                )}
+                <Text style={{ color: 'white', fontSize: 14 }}>
+                  {item.label}
+                </Text>
+              </View>
+            )}
+            renderLeftIcon={() => {
+              const selectedOption = options.find((opt) => opt.value === value);
+              return selectedOption?.icon ? (
+                <Ionicons
+                  name={selectedOption.icon}
+                  size={20}
+                  color="white"
+                  style={{ marginRight: 8 }}
+                />
+              ) : null;
             }}
             onChange={(item) => {
               onChangeText(item.value);

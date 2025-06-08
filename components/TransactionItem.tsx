@@ -1,14 +1,9 @@
-import icons from "@/constants/icons";
+import { useCategory } from '@/constants/categories';
 import { useTranslation } from '@/lib/i18n/useTranslation';
 import { Transaction, TransactionType } from '@/types/types';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import {
-  Image,
-  ImagePropsBase,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 const TransactionItem = ({
   id,
@@ -19,6 +14,7 @@ const TransactionItem = ({
   date,
 }: Transaction) => {
   const { t } = useTranslation();
+  const category = useCategory(categoryId);
 
   // Function to get translated category name
   const getCategoryName = (categoryId: string) => {
@@ -30,6 +26,7 @@ const TransactionItem = ({
       return categoryId;
     }
   };
+
   return (
     <TouchableOpacity
       onPress={() =>
@@ -50,14 +47,13 @@ const TransactionItem = ({
             type === TransactionType.INCOME ? 'bg-accent-200' : 'bg-danger-100'
           } rounded-full items-center justify-center mr-3`}
         >
-          <Image
-            source={
-              type === TransactionType.INCOME
-                ? (icons.wallet as ImagePropsBase)
-                : (icons.cutlery as ImagePropsBase)
+          <Ionicons
+            name={
+              category?.icon ||
+              (type === TransactionType.INCOME ? 'wallet' : 'restaurant')
             }
-            tintColor="white"
-            className="h-6 w-6"
+            size={24}
+            color="white"
           />
         </View>
         <View>

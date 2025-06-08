@@ -1,7 +1,14 @@
 import { CategoryExpenseData, PeriodTypes } from "@/constants/interfaces";
-import { Transaction, Wallet } from "@/types/types";
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import { Transaction, Wallet } from '@/types/types';
 import { useNetworkState } from 'expo-network';
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import {
   getExpensesByCategory,
   getTotalExpenses,
@@ -94,7 +101,16 @@ interface GlobalProviderProps {
 }
 
 export const GlobalProvider = ({ children }: GlobalProviderProps) => {
+  const { t } = useTranslation();
   const networkState = useNetworkState();
+
+  // Create wrapper functions with translation function captured in closure
+  const getExpensesByCategoryWithTranslation = useCallback(
+    (params: { period: PeriodTypes }) =>
+      getExpensesByCategory({ ...params, t }),
+    [t]
+  );
+
   const [subscriptionModal, setSubscriptionModal] = useState<{
     visible: boolean;
     registrationUserData?: RegistrationUserData;
@@ -219,13 +235,12 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     fn: getTotalExpenses,
     params: { period: PeriodTypes.THIRTY_DAYS },
   });
-
   const {
     data: categoryExpensesSevenDays,
     loading: categoryExpensesSevenDaysLoading,
     refetch: refetchCategoryExpensesSevenDays,
   } = useAppwrite({
-    fn: getExpensesByCategory,
+    fn: getExpensesByCategoryWithTranslation,
     params: { period: PeriodTypes.SEVEN_DAYS },
   });
 
@@ -234,7 +249,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     loading: categoryExpensesThirtyDaysLoading,
     refetch: refetchCategoryExpensesThirtyDays,
   } = useAppwrite({
-    fn: getExpensesByCategory,
+    fn: getExpensesByCategoryWithTranslation,
     params: { period: PeriodTypes.THIRTY_DAYS },
   });
 
@@ -243,7 +258,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     loading: categoryExpensesYearLoading,
     refetch: refetchCategoryExpensesYear,
   } = useAppwrite({
-    fn: getExpensesByCategory,
+    fn: getExpensesByCategoryWithTranslation,
     params: { period: PeriodTypes.ALL_TIME },
   });
 
