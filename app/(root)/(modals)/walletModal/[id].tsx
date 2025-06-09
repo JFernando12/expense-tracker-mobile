@@ -5,14 +5,14 @@ import { deleteWallet, updateWallet } from "@/lib/services/fetchData/wallets";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ImagePropsBase,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    ImagePropsBase,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -78,7 +78,7 @@ const WalletUpdate = () => {
 
   const handleUpdateWallet = async () => {
     if (!walletToEdit) {
-      Alert.alert('Algo salio mal', 'Cartera no encontrada');
+      Alert.alert('Algo salio mal', 'Cuenta no encontrada');
       return;
     }
 
@@ -86,7 +86,7 @@ const WalletUpdate = () => {
     if (!formData.name.trim()) {
       Alert.alert(
         'Completo los campos',
-        'El nombre de la cartera es requerido'
+        'El nombre de la cuenta es requerido'
       );
       return;
     }
@@ -121,7 +121,7 @@ const WalletUpdate = () => {
 
       // Refetch resources to update the wallet list
       await refetchResources();
-      Alert.alert('Éxito', 'Cartera actualizada exitosamente', [
+      Alert.alert('Éxito', 'Cuenta actualizada exitosamente', [
         {
           text: 'OK',
           onPress: () => router.back(),
@@ -131,7 +131,7 @@ const WalletUpdate = () => {
       console.error('Error updating wallet:', error);
       Alert.alert(
         'Algo salio mal',
-        'Ocurrió un error al actualizar la cartera'
+        'Ocurrió un error al actualizar la cuenta'
       );
     } finally {
       setIsLoading(false);
@@ -141,8 +141,8 @@ const WalletUpdate = () => {
     if (!walletToEdit) return;
 
     Alert.alert(
-      'Eliminar Cartera',
-      '¿Estás seguro de que quieres eliminar esta cartera? Esta acción no se puede deshacer. La cartera no se puede eliminar si tiene transacciones.',
+      'Eliminar Cuenta',
+      '¿Estás seguro de que quieres eliminar esta cuenta? Esta acción no se puede deshacer. La cuenta no se puede eliminar si tiene transacciones.',
       [
         {
           text: 'Cancelar',
@@ -156,7 +156,7 @@ const WalletUpdate = () => {
             try {
               await deleteWallet({ isOnlineMode, walletId: walletToEdit.id });
 
-              Alert.alert('Éxito', 'Cartera eliminada exitosamente', [
+              Alert.alert('Éxito', 'Cuenta eliminada exitosamente', [
                 {
                   text: 'OK',
                   onPress: () => {
@@ -169,7 +169,7 @@ const WalletUpdate = () => {
               console.error('Error deleting wallet:', error);
               Alert.alert(
                 'Algo salio mal',
-                'Ocurrió un error al eliminar la cartera'
+                'Ocurrió un error al eliminar la cuenta'
               );
             } finally {
               setIsDeleting(false);
@@ -193,12 +193,12 @@ const WalletUpdate = () => {
             tintColor="white"
           />
         </TouchableOpacity>
-        <Text className="text-white text-2xl font-bold">Editar Cartera</Text>
+        <Text className="text-white text-2xl font-bold">Editar Cuenta</Text>
       </View>
 
       {!walletToEdit ? (
         <View className="flex-1 justify-center items-center">
-          <Text className="text-white text-lg">Cartera no encontrada</Text>
+          <Text className="text-white text-lg">Cuenta no encontrada</Text>
         </View>
       ) : (
         <>

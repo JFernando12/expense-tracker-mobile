@@ -1,10 +1,11 @@
 import SuscriptionModal from "@/components/SubscriptionModal";
 import { useGlobalContext } from "@/lib/global-provider";
-import { login } from '@/lib/services/user/user';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { login } from "@/lib/services/user/user";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -12,17 +13,18 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const LoginModal = () => {
   const { isNetworkEnabled, refetchUserLocal } = useGlobalContext();
+  const { t } = useTranslation();
   const { mode } = useLocalSearchParams();
 
   const [isLoginMode, setIsLoginMode] = useState(true);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -30,7 +32,7 @@ const LoginModal = () => {
 
   // Set initial mode based on URL parameter
   useEffect(() => {
-    if (mode === 'register') {
+    if (mode === "register") {
       setIsLoginMode(false);
     } else {
       setIsLoginMode(true);
@@ -40,14 +42,14 @@ const LoginModal = () => {
   const handleLogin = async () => {
     // Basic validation
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Por favor ingresa tu correo y contraseña');
+      Alert.alert(t("common.error"), t("auth.emailAndPasswordRequired"));
       return;
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      Alert.alert('Error', 'Por favor ingresa una dirección de correo válida');
+      Alert.alert(t("common.error"), t("auth.invalidEmail"));
       return;
     }
 
@@ -60,7 +62,7 @@ const LoginModal = () => {
       await refetchUserLocal();
       router.back();
     } catch (error) {
-      Alert.alert('Error', 'Ocurrió un error inesperado.');
+      Alert.alert(t("common.error"), t("auth.unexpectedError"));
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -70,24 +72,24 @@ const LoginModal = () => {
   const handleRegister = async () => {
     // Basic validation
     if (!name.trim() || !email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Por favor completa todos los campos');
+      Alert.alert(t("common.error"), t("auth.completeAllFields"));
       return;
     }
 
     if (password.length < 8) {
-      Alert.alert('Error', 'La contraseña debe tener al menos 8 caracteres');
+      Alert.alert(t("common.error"), t("auth.passwordMinLength"));
       return;
     }
 
     // Email validation using regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      Alert.alert('Error', 'Por favor ingresa una dirección de correo válida');
+      Alert.alert(t("common.error"), t("auth.invalidEmail"));
       return;
     }
 
     if (!acceptedTerms) {
-      Alert.alert('Error', 'Debes aceptar los términos de uso para continuar');
+      Alert.alert(t("common.error"), t("auth.termsAcceptanceRequired"));
       return;
     }
 
@@ -122,19 +124,19 @@ const LoginModal = () => {
       {/* Segmented Control */}
       <View className="mt-4">
         <SegmentedControl
-          values={['Create new Profile', 'Sign-In']}
+          values={["Create new Profile", "Sign-In"]}
           selectedIndex={isLoginMode ? 1 : 0}
           tintColor="#6B7280"
-          fontStyle={{ color: '#fff' }}
-          activeFontStyle={{ color: '#fff' }}
+          fontStyle={{ color: "#fff" }}
+          activeFontStyle={{ color: "#fff" }}
           onChange={(event) => {
             const selectedValue = event.nativeEvent.value;
-            const newMode = selectedValue === 'Sign-In';
+            const newMode = selectedValue === "Sign-In";
             setIsLoginMode(newMode);
             // Clear form when switching modes
-            setName('');
-            setEmail('');
-            setPassword('');
+            setName("");
+            setEmail("");
+            setPassword("");
             setAcceptedTerms(false);
             setShowPassword(false);
           }}
@@ -185,7 +187,7 @@ const LoginModal = () => {
               className="ml-2"
             >
               <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
                 size={20}
                 color="#9CA3AF"
               />
@@ -207,8 +209,8 @@ const LoginModal = () => {
           <View
             className={`w-5 h-5 border-2 rounded mr-3 mt-1 items-center justify-center ${
               acceptedTerms
-                ? 'border-accent-200 bg-accent-200'
-                : 'border-neutral-400'
+                ? "border-accent-200 bg-accent-200"
+                : "border-neutral-400"
             }`}
           >
             {acceptedTerms && (
@@ -216,7 +218,7 @@ const LoginModal = () => {
             )}
           </View>
           <Text className="text-neutral-400 text-sm flex-1">
-            {`${'I accept the '}`}
+            {`${"I accept the "}`}
             <Text className="text-accent-200 underline">terms of use</Text> of
             the Tracki synchronization service
           </Text>
@@ -233,7 +235,7 @@ const LoginModal = () => {
         ) : (
           <View className="flex-row items-center">
             <Text className="text-white text-lg font-bold mr-2">
-              {isLoginMode ? 'Sign In' : 'Sign Up'}
+              {isLoginMode ? "Sign In" : "Sign Up"}
             </Text>
             {!isLoginMode ? (
               <Ionicons name="lock-closed-outline" size={16} color="#fff" />

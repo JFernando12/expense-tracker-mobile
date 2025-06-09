@@ -5,7 +5,8 @@
     "totalBalance": "Balance Total",
     "income": "Ingresos",
     "expenses": "Gastos",
-    "recent": "Recientes"
+    "recent": "Recientes",
+    "transactions": "Transacciones"
   },
   "profile": {
     "localUser": "Usuario Local",
@@ -106,7 +107,8 @@
     "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
     "invalidEmail": "Por favor ingresa una dirección de correo válida",
     "unexpectedError": "Ocurrió un error inesperado",
-    "emailAndPasswordRequired": "Por favor ingresa tu correo y contraseña"
+    "emailAndPasswordRequired": "Por favor ingresa tu correo y contraseña",
+    "termsAcceptanceRequired": "Debes aceptar los términos de uso para continuar"
   },
   "subscription": {
     "monthlyPlan": "Plan Mensual",
@@ -136,6 +138,101 @@
     "success": "Éxito",
     "failed": "Fallido",
     "continue": "Continuar",
-    "language": "Idioma"
+    "language": "Idioma",
+    "clear": "Limpiar",
+    "ok": "OK",
+    "close": "Cerrar"
+  },
+  "modals": {
+    "profileModal": {
+      "title": "Editar Perfil",
+      "saving": "Guardando...",
+      "save": "Guardar"
+    },
+    "searchModal": {
+      "title": "Buscar",
+      "searchPlaceholder": "Buscar transacciones...",
+      "searching": "Buscando...",
+      "noResults": "No se encontraron resultados",
+      "noResultsDescription": "Intenta con otra palabra clave o verifica la ortografía.",
+      "foundResults": "Se {{count}} transacción{{s}}"
+    },
+    "transactionModal": {
+      "createTitle": "Nueva Transacción",
+      "editTitle": "Editar Transacción",
+      "walletLabel": "Cuenta",
+      "categoryLabel": "Categoría",
+      "dateLabel": "Fecha",
+      "amountLabel": "Monto",
+      "descriptionLabel": "Descripción",
+      "ticketLabel": "Ticket/Comprobante",
+      "tapToAddImage": "Toca para agregar una imagen",
+      "expense": "Gasto",
+      "income": "Ingreso",
+      "loadingData": "Cargando datos...",
+      "saving": "Guardando...",
+      "save": "Guardar",
+      "transactionNotFound": "Transacción no encontrada",
+      "transactionNotFoundForUpdate": "Transacción no encontrada para actualizar"
+    },
+    "walletModal": {
+      "createTitle": "Nueva Cuenta",
+      "editTitle": "Editar Cuenta",
+      "nameLabel": "Nombre",
+      "descriptionLabel": "Descripción",
+      "initialBalanceLabel": "Saldo inicial",
+      "saving": "Guardando...",
+      "deleting": "Eliminando...",
+      "save": "Guardar",
+      "delete": "Eliminar",
+      "walletNotFound": "Cuenta no encontrada"
+    },
+    "loginModal": {
+      "cloudSyncTitle": "Sincronización en la nube",
+      "passwordRequirement": "La contraseña debe tener al menos 8 caracteres",
+      "termsText": "Acepto los ",
+      "termsLink": "términos de uso",
+      "termsService": " del servicio de sincronización Tracki"
+    }
+  },
+  "validation": {
+    "completeFields": "Completa los campos",
+    "selectWallet": "Debe seleccionar una cuenta",
+    "selectCategory": "Debe seleccionar una categoría",
+    "validAmount": "Debe ingresar un monto mayor a 0",
+    "walletNameRequired": "El nombre de la cuenta es requerido",
+    "initialBalanceRequired": "El saldo inicial es requerido",
+    "initialBalanceValid": "El saldo inicial debe ser mayor o igual a 0",
+    "transactionNotFound": "Transacción no encontrada"
+  },
+  "alerts": {
+    "permissionsRequired": "Permisos requeridos",
+    "galleryPermissionMessage": "Se necesitan permisos para acceder a la galería de fotos.",
+    "saved": "Guardado",
+    "imageSaved": "Imagen guardada en {{path}}",
+    "failedToSaveImage": "No se pudo guardar la imagen",
+    "somethingWentWrong": "Algo salió mal",
+    "couldNotTakePhoto": "No se pudo tomar la foto",
+    "couldNotSelectImage": "No se pudo seleccionar la imagen",
+    "selectImage": "Seleccionar imagen",
+    "chooseOption": "Elige una opción",
+    "takePhoto": "Tomar foto",
+    "gallery": "Galería",
+    "cameraPermissionMessage": "Se necesitan permisos para acceder a la cámara.",
+    "deleteWallet": "Eliminar Cuenta",
+    "deleteWalletConfirm": "¿Estás seguro de que quieres eliminar esta cuenta? Esta acción no se puede deshacer. La cuenta no se puede eliminar si tiene transacciones.",
+    "walletDeletedSuccess": "Cuenta eliminada exitosamente",
+    "errorDeletingWallet": "Ocurrió un error al eliminar la cuenta",
+    "walletUpdatedSuccess": "Cuenta actualizada exitosamente",
+    "errorUpdatingWallet": "Ocurrió un error al actualizar la cuenta",
+    "walletCreatedSuccess": "Cuenta creada exitosamente",
+    "errorCreatingWallet": "Ocurrió un error al crear la cuenta. Inténtalo de nuevo.",
+    "deleteTransaction": "Eliminar Transacción",
+    "deleteTransactionConfirm": "¿Estás seguro de que quieres eliminar esta transacción? Esta acción no se puede deshacer.",
+    "transactionDeletedSuccess": "Transacción eliminada exitosamente",
+    "errorDeletingTransaction": "Ocurrió un error al eliminar la transacción",
+    "transactionUpdatedSuccess": "Transacción actualizada exitosamente",
+    "errorUpdatingTransaction": "Ocurrió un error al actualizar la transacción",
+    "errorCreatingTransaction": "Ocurrió un error al crear la transacción"
   }
 }

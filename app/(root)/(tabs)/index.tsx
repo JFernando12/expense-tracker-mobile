@@ -1,9 +1,9 @@
-import TransactionList from '@/components/TransactionList';
-import icons from '@/constants/icons';
-import images from '@/constants/images';
-import { useGlobalContext } from '@/lib/global-provider';
-import { useTranslation } from '@/lib/i18n/useTranslation';
-import { router } from 'expo-router';
+import TransactionList from "@/components/TransactionList";
+import icons from "@/constants/icons";
+import images from "@/constants/images";
+import { useGlobalContext } from "@/lib/global-provider";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { router } from "expo-router";
 import {
   ActivityIndicator,
   Image,
@@ -11,8 +11,8 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   const {
@@ -49,9 +49,11 @@ export default function Index() {
     <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-20">
       {/* Header */}
       <View className="flex-row items-center justify-between">
-        <Text className="text-white text-2xl font-bold">Transactions</Text>
+        <Text className="text-white text-2xl font-bold">
+          {t("home.transactions")}
+        </Text>
         <TouchableOpacity
-          onPress={() => router.push('/(root)/(tabs)/profile')}
+          onPress={() => router.push("/(root)/(tabs)/profile")}
           className="size-10 rounded-full overflow-hidden bg-accent-200 flex items-center justify-center"
         >
           <Image
@@ -64,10 +66,10 @@ export default function Index() {
       {/* Balance Section */}
       <View className="bg-primary-300 p-6 rounded-3xl mt-3 shadow-lg">
         <Text className="text-neutral-200 text-lg mb-1">
-          {t('home.totalBalance')}
+          {t("home.totalBalance")}
         </Text>
         <Text className="text-white text-4xl font-bold mb-6">
-          ${totalBalance?.toFixed(2) || '0.00'}
+          ${totalBalance?.toFixed(2) || "0.00"}
         </Text>
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
@@ -79,9 +81,9 @@ export default function Index() {
               />
             </View>
             <View>
-              <Text className="text-neutral-200">{t('home.income')}</Text>
+              <Text className="text-neutral-200">{t("home.income")}</Text>
               <Text className="text-white text-lg font-bold">
-                ${totalIncomes?.toFixed(2) || '0.00'}
+                ${totalIncomes?.toFixed(2) || "0.00"}
               </Text>
             </View>
           </View>
@@ -94,9 +96,9 @@ export default function Index() {
               />
             </View>
             <View>
-              <Text className="text-neutral-200">{t('home.expenses')}</Text>
+              <Text className="text-neutral-200">{t("home.expenses")}</Text>
               <Text className="text-danger font-bold text-lg">
-                ${totalExpenses?.toFixed(2) || '0.00'}
+                ${totalExpenses?.toFixed(2) || "0.00"}
               </Text>
             </View>
           </View>
@@ -105,10 +107,10 @@ export default function Index() {
       {/* Today's Transactions Section */}
       <View className="flex-row items-center justify-between mt-3">
         <Text className="text-white text-2xl font-bold">
-          {t('home.recent')}
+          {t("home.recent")}
         </Text>
         <TouchableOpacity
-          onPress={() => router.push('/(root)/(modals)/searchModal')}
+          onPress={() => router.push("/(root)/(modals)/searchModal")}
           className="h-10 w-10 bg-primary-300 rounded-full items-center justify-center"
         >
           <Image

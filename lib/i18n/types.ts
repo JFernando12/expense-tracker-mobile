@@ -6,6 +6,7 @@ export interface Translations {
     income: string;
     expenses: string;
     recent: string;
+    transactions: string;
   };
   profile: {
     localUser: string;
@@ -100,6 +101,14 @@ export interface Translations {
     signUp: string;
     signIn: string;
   };
+  auth: {
+    completeAllFields: string;
+    passwordMinLength: string;
+    invalidEmail: string;
+    unexpectedError: string;
+    emailAndPasswordRequired: string;
+    termsAcceptanceRequired: string;
+  };
   common: {
     loading: string;
     error: string;
@@ -113,6 +122,101 @@ export interface Translations {
     failed: string;
     continue: string;
     language: string;
+    clear: string;
+    ok: string;
+    close: string;
+  };
+  modals: {
+    profileModal: {
+      title: string;
+      saving: string;
+      save: string;
+    };
+    searchModal: {
+      title: string;
+      searchPlaceholder: string;
+      searching: string;
+      noResults: string;
+      noResultsDescription: string;
+      foundResults: string;
+    };
+    transactionModal: {
+      createTitle: string;
+      editTitle: string;
+      walletLabel: string;
+      categoryLabel: string;
+      dateLabel: string;
+      amountLabel: string;
+      descriptionLabel: string;
+      ticketLabel: string;
+      tapToAddImage: string;
+      expense: string;
+      income: string;
+      loadingData: string;
+      saving: string;
+      save: string;
+      transactionNotFound: string;
+      transactionNotFoundForUpdate: string;
+    };
+    walletModal: {
+      createTitle: string;
+      editTitle: string;
+      nameLabel: string;
+      descriptionLabel: string;
+      initialBalanceLabel: string;
+      saving: string;
+      deleting: string;
+      save: string;
+      delete: string;
+      walletNotFound: string;
+    };
+    loginModal: {
+      cloudSyncTitle: string;
+      passwordRequirement: string;
+      termsText: string;
+      termsLink: string;
+      termsService: string;
+    };
+  };
+  validation: {
+    completeFields: string;
+    selectWallet: string;
+    selectCategory: string;
+    validAmount: string;
+    walletNameRequired: string;
+    initialBalanceRequired: string;
+    initialBalanceValid: string;
+    transactionNotFound: string;
+  };
+  alerts: {
+    permissionsRequired: string;
+    galleryPermissionMessage: string;
+    saved: string;
+    imageSaved: string;
+    failedToSaveImage: string;
+    somethingWentWrong: string;
+    couldNotTakePhoto: string;
+    couldNotSelectImage: string;
+    selectImage: string;
+    chooseOption: string;
+    takePhoto: string;
+    gallery: string;
+    cameraPermissionMessage: string;
+    deleteWallet: string;
+    deleteWalletConfirm: string;
+    walletDeletedSuccess: string;
+    errorDeletingWallet: string;
+    walletUpdatedSuccess: string;
+    errorUpdatingWallet: string;
+    walletCreatedSuccess: string;
+    errorCreatingWallet: string;
+    deleteTransaction: string;
+    deleteTransactionConfirm: string;
+    transactionDeletedSuccess: string;
+    errorDeletingTransaction: string;
+    transactionUpdatedSuccess: string;
+    errorUpdatingTransaction: string;
+    errorCreatingTransaction: string;
   };
 }
 
@@ -123,7 +227,8 @@ export type TranslationKey =
   | "home.totalBalance"
   | "home.income"
   | "home.expenses"
-  | "home.recent" // Profile translations
+  | "home.recent"
+  | "home.transactions" // Profile translations
   | "profile.localUser"
   | "profile.tagline"
   | "profile.accountSettings"
@@ -206,7 +311,13 @@ export type TranslationKey =
   | "forms.dontHaveAccount"
   | "forms.signUp"
   | "forms.signIn"
-  // Common translations
+  // Auth translations
+  | "auth.completeAllFields"
+  | "auth.passwordMinLength"
+  | "auth.invalidEmail"
+  | "auth.unexpectedError"
+  | "auth.emailAndPasswordRequired"
+  | "auth.termsAcceptanceRequired" // Common translations
   | "common.loading"
   | "common.error"
   | "common.retry"
@@ -218,4 +329,86 @@ export type TranslationKey =
   | "common.success"
   | "common.failed"
   | "common.continue"
-  | "common.language";
+  | "common.language"
+  | "common.clear"
+  | "common.ok"
+  | "common.close"
+  // Modal translations
+  | "modals.profileModal.title"
+  | "modals.profileModal.saving"
+  | "modals.profileModal.save"
+  | "modals.searchModal.title"
+  | "modals.searchModal.searchPlaceholder"
+  | "modals.searchModal.searching"
+  | "modals.searchModal.noResults"
+  | "modals.searchModal.noResultsDescription"
+  | "modals.searchModal.foundResults"
+  | "modals.transactionModal.createTitle"
+  | "modals.transactionModal.editTitle"
+  | "modals.transactionModal.walletLabel"
+  | "modals.transactionModal.categoryLabel"
+  | "modals.transactionModal.dateLabel"
+  | "modals.transactionModal.amountLabel"
+  | "modals.transactionModal.descriptionLabel"
+  | "modals.transactionModal.ticketLabel"
+  | "modals.transactionModal.tapToAddImage"
+  | "modals.transactionModal.expense"
+  | "modals.transactionModal.income"
+  | "modals.transactionModal.loadingData"
+  | "modals.transactionModal.saving"
+  | "modals.transactionModal.save"
+  | "modals.transactionModal.transactionNotFound"
+  | "modals.transactionModal.transactionNotFoundForUpdate"
+  | "modals.walletModal.createTitle"
+  | "modals.walletModal.editTitle"
+  | "modals.walletModal.nameLabel"
+  | "modals.walletModal.descriptionLabel"
+  | "modals.walletModal.initialBalanceLabel"
+  | "modals.walletModal.saving"
+  | "modals.walletModal.deleting"
+  | "modals.walletModal.save"
+  | "modals.walletModal.delete"
+  | "modals.walletModal.walletNotFound"
+  | "modals.loginModal.cloudSyncTitle"
+  | "modals.loginModal.passwordRequirement"
+  | "modals.loginModal.termsText"
+  | "modals.loginModal.termsLink"
+  | "modals.loginModal.termsService"
+  // Validation translations
+  | "validation.completeFields"
+  | "validation.selectWallet"
+  | "validation.selectCategory"
+  | "validation.validAmount"
+  | "validation.walletNameRequired"
+  | "validation.initialBalanceRequired"
+  | "validation.initialBalanceValid"
+  | "validation.transactionNotFound"
+  // Alert translations
+  | "alerts.permissionsRequired"
+  | "alerts.galleryPermissionMessage"
+  | "alerts.saved"
+  | "alerts.imageSaved"
+  | "alerts.failedToSaveImage"
+  | "alerts.somethingWentWrong"
+  | "alerts.couldNotTakePhoto"
+  | "alerts.couldNotSelectImage"
+  | "alerts.selectImage"
+  | "alerts.chooseOption"
+  | "alerts.takePhoto"
+  | "alerts.gallery"
+  | "alerts.cameraPermissionMessage"
+  | "alerts.deleteWallet"
+  | "alerts.deleteWalletConfirm"
+  | "alerts.walletDeletedSuccess"
+  | "alerts.errorDeletingWallet"
+  | "alerts.walletUpdatedSuccess"
+  | "alerts.errorUpdatingWallet"
+  | "alerts.walletCreatedSuccess"
+  | "alerts.errorCreatingWallet"
+  | "alerts.deleteTransaction"
+  | "alerts.deleteTransactionConfirm"
+  | "alerts.transactionDeletedSuccess"
+  | "alerts.errorDeletingTransaction"
+  | "alerts.transactionUpdatedSuccess"
+  | "alerts.errorUpdatingTransaction"
+  | "alerts.errorCreatingTransaction";

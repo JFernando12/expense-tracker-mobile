@@ -96,7 +96,7 @@ const LayoutTabs = () => {
       <Tabs.Screen
         name="wallet"
         options={{
-          title: 'Cartera',
+          title: 'Cuentas',
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Image

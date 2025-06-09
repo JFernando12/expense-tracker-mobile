@@ -5,7 +5,7 @@ import { ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Index = () => {
-  const { userLocalLoading, userLocal } = useGlobalContext();
+  const { userLocalLoading } = useGlobalContext();
 
   if (userLocalLoading) {
     return (
@@ -15,11 +15,7 @@ const Index = () => {
     );
   }
 
-  if (userLocal?.isLoggedIn) {
-    return <Redirect href="/(root)/(tabs)" />;
-  }
-
-  return <Redirect href="/welcome" />;
+  return <Redirect href="/(root)/(tabs)" />;
 };
 
 export default Index;

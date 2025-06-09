@@ -1,9 +1,10 @@
 import icons from "@/constants/icons";
 import images from "@/constants/images";
 import { useGlobalContext } from "@/lib/global-provider";
-import { updateUser } from '@/lib/services/user/user';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { updateUser } from "@/lib/services/user/user";
+import { router } from "expo-router";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,12 +14,13 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ProfileModal = () => {
+  const { t } = useTranslation();
   const { isNetworkEnabled, userLocal, refetchUserLocal } = useGlobalContext();
-  const [name, setName] = useState(userLocal?.name || '');
+  const [name, setName] = useState(userLocal?.name || "");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUpdateName = async () => {
@@ -27,8 +29,8 @@ const ProfileModal = () => {
       await updateUser({ data: { name }, networkEnabled: isNetworkEnabled });
       await refetchUserLocal();
     } catch (error) {
-      console.error('Error updating profile:', error);
-      Alert.alert('Error', 'An unexpected error occurred');
+      console.error("Error updating profile:", error);
+      Alert.alert(t("common.error"), t("auth.unexpectedError"));
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +49,9 @@ const ProfileModal = () => {
             tintColor="white"
           />
         </TouchableOpacity>
-        <Text className="text-white text-2xl font-bold">Editar Perfil</Text>
+        <Text className="text-white text-2xl font-bold">
+          {t("modals.profileModal.title")}
+        </Text>
       </View>
       <View className="flex-col items-center justify-center">
         <View className="relative">
@@ -67,10 +71,11 @@ const ProfileModal = () => {
         </View>
       </View>
       <View className="mt-5 rounded-3xl shadow-lg">
-        <Text className="text-neutral-200 text-sm mb-1">Nombre</Text>
+        {" "}
+        <Text className="text-neutral-200 text-sm mb-1">{t("forms.name")}</Text>
         <TextInput
           className="bg-primary-200 text-white p-4 rounded-xl border border-primary-300 mb-4"
-          placeholder="Enter your name"
+          placeholder={t("forms.enterName")}
           placeholderTextColor="gray"
           value={name}
           onChangeText={setName}
@@ -79,21 +84,21 @@ const ProfileModal = () => {
 
       <TouchableOpacity
         className={`rounded-xl py-3 mt-5 ${
-          isLoading ? 'bg-gray-600' : 'bg-accent-200'
+          isLoading ? "bg-gray-600" : "bg-accent-200"
         }`}
         onPress={handleUpdateName}
         disabled={isLoading}
       >
         {isLoading ? (
           <View className="flex-row justify-center items-center">
-            <ActivityIndicator size="small" color="white" />
+            <ActivityIndicator size="small" color="white" />{" "}
             <Text className="text-white text-center text-lg font-bold ml-2">
-              Guardando...
+              {t("modals.profileModal.saving")}
             </Text>
           </View>
         ) : (
           <Text className="text-white text-center text-lg font-bold">
-            Guardar
+            {t("modals.profileModal.save")}
           </Text>
         )}
       </TouchableOpacity>

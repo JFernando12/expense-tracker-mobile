@@ -5,14 +5,14 @@ import { createWallet } from '@/lib/services/fetchData/wallets';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ImagePropsBase,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    ImagePropsBase,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -66,7 +66,7 @@ const WalletCreate = () => {
     if (!formData.name.trim()) {
       Alert.alert(
         'Completa los campos',
-        'El nombre de la cartera es requerido'
+        'El nombre de la cuenta es requerido'
       );
       return;
     }
@@ -99,7 +99,7 @@ const WalletCreate = () => {
 
       // Refetch resources to update the wallet list
       await refetchResources();
-      Alert.alert('Éxito', 'Cartera creada exitosamente', [
+      Alert.alert('Éxito', 'Cuenta creada exitosamente', [
         {
           text: 'OK',
           onPress: () => router.back(),
@@ -109,7 +109,7 @@ const WalletCreate = () => {
       console.error('Error creating wallet:', error);
       Alert.alert(
         'Error',
-        'Ocurrió un error al crear la cartera. Inténtalo de nuevo.'
+        'Ocurrió un error al crear la cuenta. Inténtalo de nuevo.'
       );
     } finally {
       setIsLoading(false);
@@ -128,7 +128,7 @@ const WalletCreate = () => {
             tintColor="white"
           />
         </TouchableOpacity>
-        <Text className="text-white text-2xl font-bold">Nueva Cartera</Text>
+        <Text className="text-white text-2xl font-bold">Nueva Cuenta</Text>
       </View>
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="rounded-3xl mb-6 shadow-lg">
