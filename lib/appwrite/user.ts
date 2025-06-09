@@ -14,6 +14,22 @@ export const createUser = async ({
   email: string;
 }): Promise<boolean> => {
   try {
+    // Create user document in Appwrite
+    await databases.createDocument(
+      config.databaseId,
+      config.userCollectionId,
+      userId, // Use userId as document ID
+      {
+        user_id: userId,
+        name,
+        email,
+        app_mode: 'free',
+        subscription_type: null,
+        subscription_expiration: null,
+        transaction_id: null,
+        original_transaction_id: null,
+      }
+    );
     return true;
   } catch (error) {
     console.error('Error creating user:', error);
@@ -95,12 +111,14 @@ export const updateUserOnServer = async ({
 };
 
 export const upgradeToPremiumOnServer = async ({
-  input: { userId, subscriptionType, subscriptionExpiration },
+  input: { userId, subscriptionType, subscriptionExpiration, transactionId, originalTransactionId },
 }: {
   input: {
     userId: string;
     subscriptionType: 'monthly' | 'yearly';
     subscriptionExpiration: Date;
+    transactionId?: string;
+    originalTransactionId?: string;
   };
 }): Promise<boolean> => {
   try {
@@ -113,18 +131,27 @@ export const upgradeToPremiumOnServer = async ({
     if (response.documents.length === 0) {
       console.error('User not found for upgrade:', userId);
       return false; // User not found
+    }    const userDocId = response.documents[0].$id;
+    
+    const updateData: any = {
+      app_mode: 'premium',
+      subscription_type: subscriptionType,
+      subscription_expiration: subscriptionExpiration.toISOString(),
+    };
+    
+    // Add transaction data if provided
+    if (transactionId) {
+      updateData.transaction_id = transactionId;
     }
-
-    const userDocId = response.documents[0].$id;
+    if (originalTransactionId) {
+      updateData.original_transaction_id = originalTransactionId;
+    }
+    
     await databases.updateDocument(
       config.databaseId,
       config.userCollectionId,
       userDocId,
-      {
-        app_mode: 'premium',
-        subscription_type: subscriptionType,
-        subscription_expiration: subscriptionExpiration.toISOString(),
-      }
+      updateData
     );
 
     return true;

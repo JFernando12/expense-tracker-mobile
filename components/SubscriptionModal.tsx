@@ -1,53 +1,57 @@
-import { useGlobalContext } from '@/lib/global-provider';
-import { register, upgradeToPremium } from '@/lib/services/user/user';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import React, { useState } from 'react';
+import { useGlobalContext } from "@/lib/global-provider";
+import { IAPProduct, iapService } from "@/lib/services/iap/iapService";
+import { completeIAPPurchase, register } from "@/lib/services/user/user";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Modal,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import type { Purchase, SubscriptionPurchase } from "react-native-iap";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface SubscriptionPlan {
-  id: 'monthly' | 'yearly';
+  id: "monthly" | "yearly";
   title: string;
   price: string;
   period: string;
   description: string;
   features: string[];
   popular: boolean;
+  productId?: string;
 }
 
-// Mock subscription plans
-const subscriptionPlans: SubscriptionPlan[] = [
+// Default subscription plans (will be updated with IAP product info)
+const defaultSubscriptionPlans: SubscriptionPlan[] = [
   {
-    id: 'monthly',
-    title: 'Plan Mensual',
-    price: '$4.99',
-    period: '/mes',
-    description: 'Perfecto para comenzar',
+    id: "monthly",
+    title: "Plan Mensual",
+    price: "$4.99",
+    period: "/mes",
+    description: "Perfecto para comenzar",
     features: [
-      'Sincronización automática en la nube',
-      'Respaldo seguro de tus datos',
-      'Actualizaciones en tiempo real',
+      "Sincronización automática en la nube",
+      "Respaldo seguro de tus datos",
+      "Actualizaciones en tiempo real",
     ],
     popular: false,
   },
   {
-    id: 'yearly',
-    title: 'Plan Anual',
-    price: '$39.99',
-    period: '/año',
-    description: 'Ahorra 33% - ¡Mejor valor!',
+    id: "yearly",
+    title: "Plan Anual",
+    price: "$39.99",
+    period: "/año",
+    description: "Ahorra 33% - ¡Mejor valor!",
     features: [
-      'Sincronización automática en la nube',
-      'Respaldo seguro de tus datos',
-      'Actualizaciones en tiempo real',
-      'Soporte prioritario',
+      "Sincronización automática en la nube",
+      "Respaldo seguro de tus datos",
+      "Actualizaciones en tiempo real",
+      "Soporte prioritario",
     ],
     popular: true,
   },
@@ -69,33 +73,166 @@ const SubscriptionModal = ({
   userData,
 }: SubscriptionModalProps) => {
   const { isNetworkEnabled, userLocal, refetchUserLocal } = useGlobalContext();
-  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>(
-    'monthly'
+  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">(
+    "monthly"
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [subscriptionPlans, setSubscriptionPlans] = useState<
+    SubscriptionPlan[]
+  >(defaultSubscriptionPlans);
+  const [iapInitialized, setIapInitialized] = useState(false);
 
-  const handleSubscription = async (planId: 'monthly' | 'yearly') => {
-    setIsLoading(true);
-    await upgradeToPremium({
-      subscriptionType: planId,
-      networkEnabled: isNetworkEnabled,
-    });
-
-    // If userData is provided and the user is not logged in, register the user
-    if (userData && !userLocal?.isLoggedIn) {
-      await register({
-        networkEnabled: isNetworkEnabled,
-        input: {
-          email: userData.email,
-          password: userData.password,
-          name: userData.name,
-        },
-      });
-    }
-
-    // Refetch user data to update the local state
-    await refetchUserLocal();
+  const handlePurchaseError = useCallback((error: Error) => {
+    console.error("Purchase error:", error);
     setIsLoading(false);
+
+    Alert.alert(
+      "Error en la Compra",
+      "No se pudo completar la suscripción. Por favor, inténtalo de nuevo.",
+      [{ text: "OK" }]
+    );
+  }, []);
+
+  const handlePurchaseSuccess = useCallback(
+    async (
+      subscriptionType: "monthly" | "yearly",
+      purchase: Purchase | SubscriptionPurchase
+    ) => {
+      try {
+        // Complete the purchase and update user subscription
+        const success = await completeIAPPurchase({
+          subscriptionType,
+          purchase,
+          networkEnabled: isNetworkEnabled,
+        });
+
+        if (success) {
+          // If userData is provided and the user is not logged in, register the user
+          if (userData && !userLocal?.isLoggedIn) {
+            await register({
+              networkEnabled: isNetworkEnabled,
+              input: {
+                email: userData.email,
+                password: userData.password,
+                name: userData.name,
+              },
+            });
+          }
+
+          // Refetch user data to update the local state
+          await refetchUserLocal();
+
+          Alert.alert(
+            "¡Suscripción Exitosa!",
+            "Tu suscripción premium ha sido activada. Ahora puedes sincronizar tus datos en la nube.",
+            [
+              {
+                text: "Continuar",
+                onPress: () => {
+                  setIsLoading(false);
+                  onClose();
+                },
+              },
+            ]
+          );
+        } else {
+          throw new Error("Failed to complete purchase");
+        }
+      } catch (error) {
+        console.error("Error handling purchase success:", error);
+        handlePurchaseError(error as Error);
+      }
+    },
+    [
+      isNetworkEnabled,
+      userLocal,
+      userData,
+      refetchUserLocal,
+      onClose,
+      handlePurchaseError,
+    ]
+  );
+
+  const updatePlansWithIAPProducts = useCallback((products: IAPProduct[]) => {
+    const updatedPlans = defaultSubscriptionPlans.map((plan) => {
+      const product = products.find((p) => p.subscriptionType === plan.id);
+      if (product) {
+        return {
+          ...plan,
+          price: product.localizedPrice || plan.price,
+          productId: product.productId,
+        };
+      }
+      return plan;
+    });
+    setSubscriptionPlans(updatedPlans);
+  }, []);
+
+  const setupIAPCallbacks = useCallback(() => {
+    iapService.onPurchaseSuccess = handlePurchaseSuccess;
+    iapService.onPurchaseError = handlePurchaseError;
+  }, [handlePurchaseSuccess, handlePurchaseError]);
+
+  const cleanupIAP = useCallback(() => {
+    iapService.cleanup();
+    setIapInitialized(false);
+  }, []);
+
+  // Initialize IAP service when modal becomes visible
+  const initializeIAP = useCallback(async () => {
+    try {
+      const initialized = await iapService.initialize();
+      if (initialized) {
+        setIapInitialized(true);
+        const products = iapService.getProducts();
+        updatePlansWithIAPProducts(products);
+        setupIAPCallbacks();
+      } else {
+        console.warn("IAP initialization failed, using default prices");
+      }
+    } catch (error) {
+      console.error("Error initializing IAP:", error);
+    }
+  }, [updatePlansWithIAPProducts, setupIAPCallbacks]);
+
+  useEffect(() => {
+    if (visible && !iapInitialized) {
+      initializeIAP();
+    }
+    return () => {
+      if (visible) {
+        cleanupIAP();
+      }
+    };
+  }, [visible, iapInitialized, initializeIAP, cleanupIAP]);
+
+  const handleSubscription = async (planId: "monthly" | "yearly") => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+
+    try {
+      if (iapInitialized) {
+        // Use IAP for purchase
+        await iapService.purchaseSubscription(planId);
+        // Purchase success/error will be handled by callbacks
+      } else {
+        // Fallback: direct upgrade without IAP (for testing or if IAP fails)
+        Alert.alert(
+          "Función No Disponible",
+          "El sistema de pagos no está disponible en este momento. Por favor, inténtalo más tarde.",
+          [
+            {
+              text: "OK",
+              onPress: () => setIsLoading(false),
+            },
+          ]
+        );
+      }
+    } catch (error) {
+      console.error("Error initiating subscription:", error);
+      handlePurchaseError(error as Error);
+    }
   };
 
   return (
@@ -143,8 +280,8 @@ const SubscriptionModal = ({
                     key={plan.id}
                     className={`p-5 rounded-2xl border-2 relative overflow-hidden ${
                       selectedPlan === plan.id
-                        ? 'border-accent-200 bg-accent-200/10'
-                        : 'border-primary-300 bg-primary-200/50'
+                        ? "border-accent-200 bg-accent-200/10"
+                        : "border-primary-300 bg-primary-200/50"
                     }`}
                     onPress={() => setSelectedPlan(plan.id)}
                   >
@@ -206,12 +343,12 @@ const SubscriptionModal = ({
           <View className="px-5 pb-5 border-t border-primary-300/50 pt-5 bg-primary-100">
             <TouchableOpacity
               className={`py-4 rounded-xl mb-4 ${
-                isLoading ? 'bg-neutral-600' : 'bg-accent-200'
+                isLoading ? "bg-neutral-600" : "bg-accent-200"
               }`}
               onPress={() => handleSubscription(selectedPlan)}
               disabled={isLoading}
               style={{
-                shadowColor: isLoading ? '#666' : '#FF6B35',
+                shadowColor: isLoading ? "#666" : "#FF6B35",
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: isLoading ? 0.2 : 0.3,
                 shadowRadius: 8,
@@ -227,7 +364,7 @@ const SubscriptionModal = ({
                 </View>
               ) : (
                 <Text className="text-white text-lg font-bold text-center">
-                  Comenzar con{' '}
+                  Comenzar con{" "}
                   {subscriptionPlans.find((p) => p.id === selectedPlan)?.title}
                 </Text>
               )}
