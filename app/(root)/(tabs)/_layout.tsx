@@ -1,17 +1,37 @@
 import icons from "@/constants/icons";
+import { useGlobalContext } from "@/lib/global-provider";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { router, Tabs } from "expo-router";
 import React from "react";
-import { Image, ImagePropsBase, TouchableOpacity, View } from "react-native";
+import { Alert, Image, ImagePropsBase, TouchableOpacity, View } from "react-native";
 
 const LayoutTabs = () => {
+  const { wallets } = useGlobalContext();
   const { t } = useTranslation();
 
   // Function to render the custom add button in the middle of the tab bar
   const renderAddButton = () => {
+    const handleAddPress = () => {      // If there is no wallet, show an alert to create one first
+      if (!wallets || wallets.length === 0) {
+        Alert.alert(
+          t('alerts.createFirstAccount'),
+          t('alerts.createFirstAccountMessage'),
+          [
+            {
+              text: t('common.continue'),
+              onPress: () => router.push("/(root)/(modals)/walletModal/create"),
+            },
+          ]
+        );
+        return;
+      };
+
+      // Navigate to the create transaction modal
+      router.push("/(root)/(modals)/transactionModal/create");
+    }
     return (
       <TouchableOpacity
-        onPress={() => router.push("/(root)/(modals)/transactionModal/create")}
+        onPress={handleAddPress}
         style={{
           top: -20,
           justifyContent: "center",

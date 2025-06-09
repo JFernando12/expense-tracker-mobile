@@ -234,8 +234,9 @@ export interface Translations {
     errorDeletingWallet: string;
     walletUpdatedSuccess: string;
     errorUpdatingWallet: string;
-    walletCreatedSuccess: string;
-    errorCreatingWallet: string;
+    walletCreatedSuccess: string;    errorCreatingWallet: string;
+    createFirstAccount: string;
+    createFirstAccountMessage: string;
     deleteTransaction: string;
     deleteTransactionConfirm: string;
     transactionDeletedSuccess: string;
@@ -454,8 +455,9 @@ export type TranslationKey =
   | "alerts.errorDeletingWallet"
   | "alerts.walletUpdatedSuccess"
   | "alerts.errorUpdatingWallet"
-  | "alerts.walletCreatedSuccess"
-  | "alerts.errorCreatingWallet"
+  | "alerts.walletCreatedSuccess"  | "alerts.errorCreatingWallet"
+  | "alerts.createFirstAccount"
+  | "alerts.createFirstAccountMessage"
   | "alerts.deleteTransaction"
   | "alerts.deleteTransactionConfirm"
   | "alerts.transactionDeletedSuccess"
