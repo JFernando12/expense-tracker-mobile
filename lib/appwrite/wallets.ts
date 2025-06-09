@@ -188,7 +188,7 @@ export const deleteWalletFromServer = async ({
     );
 
     if (!wallet) {
-      console.error('Wallet not found');
+      console.error('Account not found');
       return false;
     }
 

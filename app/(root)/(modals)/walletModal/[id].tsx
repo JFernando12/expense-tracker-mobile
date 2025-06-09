@@ -1,18 +1,19 @@
 import CustomField from "@/components/CustomField";
 import icons from "@/constants/icons";
 import { useGlobalContext } from "@/lib/global-provider";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { deleteWallet, updateWallet } from "@/lib/services/fetchData/wallets";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    ImagePropsBase,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  ImagePropsBase,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -26,6 +27,7 @@ enum fieldTypes {
 const WalletUpdate = () => {
   const { id } = useLocalSearchParams();
   const { refetchResources, wallets, isOnlineMode } = useGlobalContext();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -47,22 +49,22 @@ const WalletUpdate = () => {
   }, [walletToEdit]);
   const fields = [
     {
-      label: "Nombre",
-      title: "Nombre",
+      label: t("modals.walletModal.nameLabel"),
+      title: t("modals.walletModal.nameLabel"),
       value: formData.name,
       type: fieldTypes.TEXT,
       key: "name",
     },
     {
-      label: "Descripción",
-      title: "Descripción",
+      label: t("modals.walletModal.descriptionLabel"),
+      title: t("modals.walletModal.descriptionLabel"),
       value: formData.description,
       type: fieldTypes.TEXT,
       key: "description",
     },
     {
-      label: "Saldo inicial",
-      title: "Saldo inicial",
+      label: t("modals.walletModal.initialBalanceLabel"),
+      title: t("modals.walletModal.initialBalanceLabel"),
       value: formData.initialBalance,
       type: fieldTypes.NUMBER,
       key: "initialBalance",
@@ -75,32 +77,34 @@ const WalletUpdate = () => {
       [key]: value,
     }));
   };
-
   const handleUpdateWallet = async () => {
     if (!walletToEdit) {
-      Alert.alert('Algo salio mal', 'Cuenta no encontrada');
+      Alert.alert(t("common.error"), t("modals.walletModal.walletNotFound"));
       return;
     }
 
     // Validate form
     if (!formData.name.trim()) {
       Alert.alert(
-        'Completo los campos',
-        'El nombre de la cuenta es requerido'
+        t("validation.completeFields"),
+        t("validation.walletNameRequired")
       );
       return;
     }
 
     if (!formData.initialBalance.trim()) {
-      Alert.alert('Completa los campos', 'El saldo inicial es requerido');
+      Alert.alert(
+        t("validation.completeFields"),
+        t("validation.initialBalanceRequired")
+      );
       return;
     }
 
     const initialBalance = parseFloat(formData.initialBalance);
     if (isNaN(initialBalance) || initialBalance < 0) {
       Alert.alert(
-        'Completa los campos',
-        'El saldo inicial debe ser mayor o igual a 0'
+        t("validation.completeFields"),
+        t("validation.initialBalanceValid")
       );
       return;
     }
@@ -121,18 +125,15 @@ const WalletUpdate = () => {
 
       // Refetch resources to update the wallet list
       await refetchResources();
-      Alert.alert('Éxito', 'Cuenta actualizada exitosamente', [
+      Alert.alert(t("common.success"), t("alerts.walletUpdatedSuccess"), [
         {
-          text: 'OK',
+          text: t("common.ok"),
           onPress: () => router.back(),
         },
       ]);
     } catch (error) {
-      console.error('Error updating wallet:', error);
-      Alert.alert(
-        'Algo salio mal',
-        'Ocurrió un error al actualizar la cuenta'
-      );
+      console.error("Error updating account:", error);
+      Alert.alert(t("common.error"), t("alerts.errorUpdatingWallet"));
     } finally {
       setIsLoading(false);
     }
@@ -140,44 +141,37 @@ const WalletUpdate = () => {
   const handleDelete = async () => {
     if (!walletToEdit) return;
 
-    Alert.alert(
-      'Eliminar Cuenta',
-      '¿Estás seguro de que quieres eliminar esta cuenta? Esta acción no se puede deshacer. La cuenta no se puede eliminar si tiene transacciones.',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            setIsDeleting(true);
-            try {
-              await deleteWallet({ isOnlineMode, walletId: walletToEdit.id });
+    Alert.alert(t("alerts.deleteWallet"), t("alerts.deleteWalletConfirm"), [
+      {
+        text: t("common.cancel"),
+        style: "cancel",
+      },
+      {
+        text: t("common.delete"),
+        style: "destructive",
+        onPress: async () => {
+          setIsDeleting(true);
+          try {
+            await deleteWallet({ isOnlineMode, walletId: walletToEdit.id });
 
-              Alert.alert('Éxito', 'Cuenta eliminada exitosamente', [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    refetchResources();
-                    router.back();
-                  },
+            Alert.alert(t("common.success"), t("alerts.walletDeletedSuccess"), [
+              {
+                text: t("common.ok"),
+                onPress: () => {
+                  refetchResources();
+                  router.back();
                 },
-              ]);
-            } catch (error) {
-              console.error('Error deleting wallet:', error);
-              Alert.alert(
-                'Algo salio mal',
-                'Ocurrió un error al eliminar la cuenta'
-              );
-            } finally {
-              setIsDeleting(false);
-            }
-          },
+              },
+            ]);
+          } catch (error) {
+            console.error("Error deleting wallet:", error);
+            Alert.alert(t("common.error"), t("alerts.errorDeletingWallet"));
+          } finally {
+            setIsDeleting(false);
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   return (
@@ -193,12 +187,16 @@ const WalletUpdate = () => {
             tintColor="white"
           />
         </TouchableOpacity>
-        <Text className="text-white text-2xl font-bold">Editar Cuenta</Text>
+        <Text className="text-white text-2xl font-bold">
+          {t("modals.walletModal.editTitle")}
+        </Text>
       </View>
 
       {!walletToEdit ? (
         <View className="flex-1 justify-center items-center">
-          <Text className="text-white text-lg">Cuenta no encontrada</Text>
+          <Text className="text-white text-lg">
+            {t("modals.walletModal.walletNotFound")}
+          </Text>
         </View>
       ) : (
         <>
@@ -227,12 +225,12 @@ const WalletUpdate = () => {
               <View className="flex-row justify-center items-center">
                 <ActivityIndicator size="small" color="white" />
                 <Text className="text-white text-center text-lg font-bold ml-2">
-                  Guardando...
+                  {t("modals.walletModal.saving")}
                 </Text>
               </View>
             ) : (
               <Text className="text-white text-center text-lg font-bold">
-                Guardar
+                {t("modals.walletModal.save")}
               </Text>
             )}
           </TouchableOpacity>
@@ -248,12 +246,12 @@ const WalletUpdate = () => {
               <View className="flex-row justify-center items-center">
                 <ActivityIndicator size="small" color="white" />
                 <Text className="text-white text-center text-lg font-bold ml-2">
-                  Eliminando...
+                  {t("modals.walletModal.deleting")}
                 </Text>
               </View>
             ) : (
               <Text className="text-white text-center text-lg font-bold">
-                Eliminar
+                {t("modals.walletModal.delete")}
               </Text>
             )}
           </TouchableOpacity>

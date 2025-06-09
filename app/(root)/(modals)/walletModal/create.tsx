@@ -1,57 +1,59 @@
-import CustomField from '@/components/CustomField';
-import icons from '@/constants/icons';
-import { useGlobalContext } from '@/lib/global-provider';
-import { createWallet } from '@/lib/services/fetchData/wallets';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
+import CustomField from "@/components/CustomField";
+import icons from "@/constants/icons";
+import { useGlobalContext } from "@/lib/global-provider";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { createWallet } from "@/lib/services/fetchData/wallets";
+import { router } from "expo-router";
+import React, { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    ImagePropsBase,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+  ActivityIndicator,
+  Alert,
+  Image,
+  ImagePropsBase,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 enum fieldTypes {
-  TEXT = 'text',
-  NUMBER = 'number',
-  DATE = 'date',
-  SELECT = 'select',
+  TEXT = "text",
+  NUMBER = "number",
+  DATE = "date",
+  SELECT = "select",
 }
 
 const WalletCreate = () => {
   const { refetchResources, isOnlineMode } = useGlobalContext();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    initialBalance: '',
+    name: "",
+    description: "",
+    initialBalance: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const fields = [
     {
-      label: 'Nombre',
-      title: 'Nombre',
+      label: t("modals.walletModal.nameLabel"),
+      title: t("modals.walletModal.nameLabel"),
       value: formData.name,
       type: fieldTypes.TEXT,
-      key: 'name',
+      key: "name",
     },
     {
-      label: 'Descripción',
-      title: 'Descripción',
+      label: t("modals.walletModal.descriptionLabel"),
+      title: t("modals.walletModal.descriptionLabel"),
       value: formData.description,
       type: fieldTypes.TEXT,
-      key: 'description',
+      key: "description",
     },
     {
-      label: 'Saldo inicial',
-      title: 'Saldo inicial',
+      label: t("modals.walletModal.initialBalanceLabel"),
+      title: t("modals.walletModal.initialBalanceLabel"),
       value: formData.initialBalance,
       type: fieldTypes.NUMBER,
-      key: 'initialBalance',
+      key: "initialBalance",
     },
   ];
 
@@ -65,22 +67,25 @@ const WalletCreate = () => {
     // Validate form
     if (!formData.name.trim()) {
       Alert.alert(
-        'Completa los campos',
-        'El nombre de la cuenta es requerido'
+        t("validation.completeFields"),
+        t("validation.walletNameRequired")
       );
       return;
     }
 
     if (!formData.initialBalance.trim()) {
-      Alert.alert('Completa los campos', 'El saldo inicial es requerido');
+      Alert.alert(
+        t("validation.completeFields"),
+        t("validation.initialBalanceRequired")
+      );
       return;
     }
 
     const initialBalance = parseFloat(formData.initialBalance);
     if (isNaN(initialBalance) || initialBalance < 0) {
       Alert.alert(
-        'Completa los campos',
-        'El saldo inicial debe ser mayor o igual a 0'
+        t("validation.completeFields"),
+        t("validation.initialBalanceValid")
       );
       return;
     }
@@ -99,18 +104,15 @@ const WalletCreate = () => {
 
       // Refetch resources to update the wallet list
       await refetchResources();
-      Alert.alert('Éxito', 'Cuenta creada exitosamente', [
+      Alert.alert(t("common.success"), t("alerts.walletCreatedSuccess"), [
         {
-          text: 'OK',
+          text: t("common.ok"),
           onPress: () => router.back(),
         },
       ]);
     } catch (error) {
-      console.error('Error creating wallet:', error);
-      Alert.alert(
-        'Error',
-        'Ocurrió un error al crear la cuenta. Inténtalo de nuevo.'
-      );
+      console.error("Error creating account:", error);
+      Alert.alert(t("common.error"), t("alerts.errorCreatingWallet"));
     } finally {
       setIsLoading(false);
     }
@@ -128,7 +130,9 @@ const WalletCreate = () => {
             tintColor="white"
           />
         </TouchableOpacity>
-        <Text className="text-white text-2xl font-bold">Nueva Cuenta</Text>
+        <Text className="text-white text-2xl font-bold">
+          {t("modals.walletModal.createTitle")}
+        </Text>
       </View>
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         <View className="rounded-3xl mb-6 shadow-lg">
@@ -148,7 +152,7 @@ const WalletCreate = () => {
       </ScrollView>
       <TouchableOpacity
         className={`rounded-xl py-3 mt-5 ${
-          isLoading ? 'bg-gray-600' : 'bg-accent-200'
+          isLoading ? "bg-gray-600" : "bg-accent-200"
         }`}
         onPress={handleCreateWallet}
         disabled={isLoading}
@@ -157,12 +161,12 @@ const WalletCreate = () => {
           <View className="flex-row justify-center items-center">
             <ActivityIndicator size="small" color="white" />
             <Text className="text-white text-center text-lg font-bold ml-2">
-              Guardando...
+              {t("modals.walletModal.saving")}
             </Text>
           </View>
         ) : (
           <Text className="text-white text-center text-lg font-bold">
-            Guardar
+            {t("modals.walletModal.save")}
           </Text>
         )}
       </TouchableOpacity>

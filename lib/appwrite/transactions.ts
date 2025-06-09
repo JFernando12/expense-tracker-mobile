@@ -165,7 +165,7 @@ export const createTransactionOnServer = async ({
     );
 
     if (!wallet) {
-      console.error('Wallet not found');
+      console.error('Account not found');
       return false;
     }
 
@@ -451,7 +451,7 @@ export const deleteTransactionFromServer = async ({
     );
 
     if (!wallet) {
-      console.error('Wallet not found');
+      console.error('Account not found');
       return false;
     }
 
