@@ -1,6 +1,6 @@
+import Header from "@/components/Header";
 import TransactionList from "@/components/TransactionList";
 import icons from "@/constants/icons";
-import images from "@/constants/images";
 import { useGlobalContext } from "@/lib/global-provider";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { router } from "expo-router";
@@ -48,21 +48,7 @@ export default function Index() {
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-20">
       {/* Header */}
-      <View className="flex-row items-center justify-between">
-        <Text className="text-white text-2xl font-bold">
-          {t("home.transactions")}
-        </Text>
-        <TouchableOpacity
-          onPress={() => router.push("/(root)/(tabs)/profile")}
-          className="size-10 rounded-full overflow-hidden bg-accent-200 flex items-center justify-center"
-        >
-          <Image
-            source={images.avatar as ImagePropsBase}
-            className="size-5"
-            tintColor="#6b7280"
-          />
-        </TouchableOpacity>
-      </View>
+      <Header title="home.transactions" />
       {/* Balance Section */}
       <View className="bg-primary-300 p-6 rounded-3xl mt-3 shadow-lg">
         <Text className="text-neutral-200 text-lg mb-1">

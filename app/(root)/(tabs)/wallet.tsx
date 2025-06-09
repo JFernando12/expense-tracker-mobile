@@ -1,15 +1,13 @@
+import Header from "@/components/Header";
 import WalletList from "@/components/WalletList";
-import images from '@/constants/images';
 import { useGlobalContext } from '@/lib/global-provider';
 import { useTranslation } from '@/lib/i18n/useTranslation';
 import { router } from 'expo-router';
 import React from 'react';
 import {
-  Image,
-  ImagePropsBase,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -20,21 +18,7 @@ const Wallet = () => {
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-20">
       {/* Header */}
-      <View className="flex-row items-center justify-between">
-        <Text className="text-white text-2xl font-bold">
-          {t('wallet.title')}
-        </Text>
-        <TouchableOpacity
-          onPress={() => router.push('/(root)/(tabs)/profile')}
-          className="size-10 rounded-full overflow-hidden bg-accent-200 flex items-center justify-center"
-        >
-          <Image
-            source={images.avatar as ImagePropsBase}
-            className="size-5"
-            tintColor="#6b7280"
-          />
-        </TouchableOpacity>
-      </View>
+      <Header title='wallet.title' />
       {/* Balance Section */}
       <View className="mt-3 flex-col items-center justify-between">
         <Text className="text-neutral-200 text-lg">

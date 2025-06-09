@@ -1,4 +1,4 @@
-import { ID } from 'react-native-appwrite';
+import { AppwriteException, ID } from 'react-native-appwrite';
 import { account } from './client';
 
 export const login = async (
@@ -12,7 +12,21 @@ export const login = async (
 
     return user.$id;
   } catch (error) {
-    console.error('Error during login:', error);
+    if (error instanceof AppwriteException) {
+      console.error('Response:', error.response);
+      if (error.type.includes('user_session_already_exists')) {
+        try {
+          const user = await account.get();
+          if (!user.$id) return null;
+          return user.$id;
+        } catch (fetchError) {
+          console.error('Error fetching user data after session creation:', fetchError);
+          return null;
+        }
+      }
+    } else {
+      console.error('Unexpected error during login:', error);
+    }
     return null;
   }
 };

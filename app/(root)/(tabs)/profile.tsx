@@ -26,6 +26,11 @@ const Profile = () => {
     openSubscriptionModal,
   } = useGlobalContext();
   const syncMode = userLocal?.syncMode || "local";
+ const initials = userLocal?.name
+    ?.split(" ")
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toUpperCase())
+    .join("");
 
   const { appMode } = userLocal || {};
   const { t } = useTranslation();
@@ -71,20 +76,18 @@ const Profile = () => {
         <View className="mt-8">
           {/* Profile Avatar */}
           <View className="items-center mb-4">
-            <View className="relative">
-              <View className="size-28 rounded-full overflow-hidden bg-secondary-100 border border-neutral-500 items-center justify-center">
-                {userLocal?.isLoggedIn && userLocal?.name ? (
-                  <Text className="text-white text-4xl font-bold">
-                    {userLocal.name.charAt(0).toUpperCase()}
-                  </Text>
-                ) : (
-                  <Image
-                    source={images.avatar as ImageSourcePropType}
-                    className="size-16"
-                    tintColor={"#6b7280"}
-                  />
-                )}
-              </View>
+            <View className="size-28 rounded-full overflow-hidden bg-secondary-100 border border-neutral-500 items-center justify-center">
+              {userLocal?.isLoggedIn && userLocal?.name ? (
+                <Text className="text-white text-7xl font-bold">
+                  {initials}
+                </Text>
+              ) : (
+                <Image
+                  source={images.avatar as ImageSourcePropType}
+                  className="size-16"
+                  tintColor={"#6b7280"}
+                />
+              )}
             </View>
           </View>
           {/* Profile Name */}

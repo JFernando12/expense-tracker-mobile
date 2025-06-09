@@ -1,5 +1,5 @@
+import Header from '@/components/Header';
 import { CategoryDistribution, SummaryCards } from '@/components/statistics';
-import images from '@/constants/images';
 import {
   CategoryExpenseData,
   ExtendedCategoryData,
@@ -7,15 +7,11 @@ import {
 import { useGlobalContext } from '@/lib/global-provider';
 import { useTranslation } from '@/lib/i18n/useTranslation';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  Image,
-  ImagePropsBase,
   ScrollView,
   Text,
-  TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -123,21 +119,7 @@ const Statistics = () => {
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-20">
       {/* Header */}
-      <View className="flex-row items-center justify-between">
-        <Text className="text-white text-2xl font-bold">
-          {t('statistics.title')}
-        </Text>
-        <TouchableOpacity
-          onPress={() => router.push('/(root)/(tabs)/profile')}
-          className="size-10 rounded-full overflow-hidden bg-accent-200 flex items-center justify-center"
-        >
-          <Image
-            source={images.avatar as ImagePropsBase}
-            className="size-5"
-            tintColor="#6b7280"
-          />
-        </TouchableOpacity>
-      </View>
+      <Header title='statistics.title' />
       {/* Segmented Control */}
       <View className="mt-3">
         <SegmentedControl
