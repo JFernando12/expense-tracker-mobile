@@ -75,6 +75,7 @@ const TransactionCreate = () => {
       [field]: value,
     }));
   };
+
   const validateForm = () => {
     if (!formData.walletId) {
       Alert.alert(t("validation.completeFields"), t("validation.selectWallet"));
@@ -122,10 +123,6 @@ const TransactionCreate = () => {
             from: localUri,
             to: destUri,
           });
-          Alert.alert(
-            t("alerts.saved"),
-            t("alerts.imageSaved", { path: destUri })
-          );
         } catch (error) {
           console.error("Error al guardar la imagen:", error);
           Alert.alert(t("common.error"), t("alerts.failedToSaveImage"));
@@ -168,11 +165,7 @@ const TransactionCreate = () => {
           await FileSystem.copyAsync({
             from: localUri,
             to: destUri,
-          });
-          Alert.alert(
-            t("alerts.saved"),
-            t("alerts.imageSaved", { path: destUri })
-          );
+          });;
         } catch (error) {
           console.error("Error saving image:", error);
           Alert.alert(t("common.error"), t("alerts.failedToSaveImage"));
@@ -188,6 +181,7 @@ const TransactionCreate = () => {
       );
     }
   };
+
   const showImagePicker = () => {
     Alert.alert(t("alerts.selectImage"), t("alerts.chooseOption"), [
       { text: t("common.cancel"), style: "cancel" },
@@ -219,8 +213,19 @@ const TransactionCreate = () => {
       });
 
       await refetchResources();
-      setIsSubmitting(false);
-      router.back();
+      Alert.alert(
+        t("common.success"),
+        t("alerts.transactionCreatedSuccess"),
+        [
+          {
+            text: t("common.ok"),
+            onPress: () => {
+              router.back();
+              router.push("/(root)/(tabs)");
+            },
+          },
+        ]
+      );
     } catch (error) {
       console.error("Error creating transaction:", error);
       setIsSubmitting(false);
@@ -229,6 +234,7 @@ const TransactionCreate = () => {
         t("alerts.errorCreatingTransaction")
       );
     }
+    setIsSubmitting(false);
   };
 
   const onDateChange = (event: any, selectedDate?: Date) => {

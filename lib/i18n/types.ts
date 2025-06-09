@@ -106,7 +106,8 @@ export interface Translations {
     dontHaveAccount: string;
     signUp: string;
     signIn: string;
-  };  auth: {
+  };
+  auth: {
     completeAllFields: string;
     passwordMinLength: string;
     invalidEmail: string;
@@ -190,6 +191,9 @@ export interface Translations {
       nameLabel: string;
       descriptionLabel: string;
       initialBalanceLabel: string;
+      namePlaceholder: string;
+      descriptionPlaceholder: string;
+      initialBalancePlaceholder: string;
       saving: string;
       deleting: string;
       save: string;
@@ -218,7 +222,6 @@ export interface Translations {
     permissionsRequired: string;
     galleryPermissionMessage: string;
     saved: string;
-    imageSaved: string;
     failedToSaveImage: string;
     somethingWentWrong: string;
     couldNotTakePhoto: string;
@@ -234,11 +237,13 @@ export interface Translations {
     errorDeletingWallet: string;
     walletUpdatedSuccess: string;
     errorUpdatingWallet: string;
-    walletCreatedSuccess: string;    errorCreatingWallet: string;
+    walletCreatedSuccess: string;
+    errorCreatingWallet: string;
     createFirstAccount: string;
     createFirstAccountMessage: string;
     deleteTransaction: string;
     deleteTransactionConfirm: string;
+    transactionCreatedSuccess: string;
     transactionDeletedSuccess: string;
     errorDeletingTransaction: string;
     transactionUpdatedSuccess: string;
@@ -342,13 +347,13 @@ export type TranslationKey =
   | "forms.alreadyHaveAccount"
   | "forms.dontHaveAccount"
   | "forms.signUp"
-  | "forms.signIn"  // Auth translations
+  | "forms.signIn" // Auth translations
   | "auth.completeAllFields"
   | "auth.passwordMinLength"
   | "auth.invalidEmail"
   | "auth.unexpectedError"
   | "auth.emailAndPasswordRequired"
-  | "auth.termsAcceptanceRequired" 
+  | "auth.termsAcceptanceRequired"
   // Subscription translations
   | "subscription.freeMode"
   | "subscription.monthlyPlan"
@@ -416,6 +421,9 @@ export type TranslationKey =
   | "modals.walletModal.nameLabel"
   | "modals.walletModal.descriptionLabel"
   | "modals.walletModal.initialBalanceLabel"
+  | "modals.walletModal.namePlaceholder"
+  | "modals.walletModal.descriptionPlaceholder"
+  | "modals.walletModal.initialBalancePlaceholder"
   | "modals.walletModal.saving"
   | "modals.walletModal.deleting"
   | "modals.walletModal.save"
@@ -439,7 +447,6 @@ export type TranslationKey =
   | "alerts.permissionsRequired"
   | "alerts.galleryPermissionMessage"
   | "alerts.saved"
-  | "alerts.imageSaved"
   | "alerts.failedToSaveImage"
   | "alerts.somethingWentWrong"
   | "alerts.couldNotTakePhoto"
@@ -455,11 +462,13 @@ export type TranslationKey =
   | "alerts.errorDeletingWallet"
   | "alerts.walletUpdatedSuccess"
   | "alerts.errorUpdatingWallet"
-  | "alerts.walletCreatedSuccess"  | "alerts.errorCreatingWallet"
+  | "alerts.walletCreatedSuccess"
+  | "alerts.errorCreatingWallet"
   | "alerts.createFirstAccount"
   | "alerts.createFirstAccountMessage"
   | "alerts.deleteTransaction"
   | "alerts.deleteTransactionConfirm"
+  | "alerts.transactionCreatedSuccess"
   | "alerts.transactionDeletedSuccess"
   | "alerts.errorDeletingTransaction"
   | "alerts.transactionUpdatedSuccess"

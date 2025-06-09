@@ -54,6 +54,7 @@ const WalletUpdate = () => {
       value: formData.name,
       type: fieldTypes.TEXT,
       key: "name",
+      placeholder: t("modals.walletModal.namePlaceholder"),
     },
     {
       label: t("modals.walletModal.descriptionLabel"),
@@ -61,6 +62,7 @@ const WalletUpdate = () => {
       value: formData.description,
       type: fieldTypes.TEXT,
       key: "description",
+      placeholder: t("modals.walletModal.descriptionPlaceholder"),
     },
     {
       label: t("modals.walletModal.initialBalanceLabel"),
@@ -68,6 +70,7 @@ const WalletUpdate = () => {
       value: formData.initialBalance,
       type: fieldTypes.NUMBER,
       key: "initialBalance",
+      placeholder: t("modals.walletModal.initialBalancePlaceholder"),
     },
   ];
 
@@ -209,6 +212,7 @@ const WalletUpdate = () => {
                   title={field.title}
                   value={field.value}
                   type={field.type}
+                  placeholder={field.placeholder}
                   onChangeText={(text) => handleFieldChange(field.key, text)}
                 />
               ))}

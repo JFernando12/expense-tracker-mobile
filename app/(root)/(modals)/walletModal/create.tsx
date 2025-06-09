@@ -40,6 +40,7 @@ const WalletCreate = () => {
       value: formData.name,
       type: fieldTypes.TEXT,
       key: "name",
+      placeholder: t("modals.walletModal.namePlaceholder"),
     },
     {
       label: t("modals.walletModal.descriptionLabel"),
@@ -47,6 +48,7 @@ const WalletCreate = () => {
       value: formData.description,
       type: fieldTypes.TEXT,
       key: "description",
+      placeholder: t("modals.walletModal.descriptionPlaceholder"),
     },
     {
       label: t("modals.walletModal.initialBalanceLabel"),
@@ -54,6 +56,7 @@ const WalletCreate = () => {
       value: formData.initialBalance,
       type: fieldTypes.NUMBER,
       key: "initialBalance",
+      placeholder: t("modals.walletModal.initialBalancePlaceholder"),
     },
   ];
 
@@ -107,16 +110,19 @@ const WalletCreate = () => {
       Alert.alert(t("common.success"), t("alerts.walletCreatedSuccess"), [
         {
           text: t("common.ok"),
-          onPress: () => router.back(),
+          onPress: () => {
+            router.back();
+            router.push("/(root)/(tabs)/wallet");
+          },
         },
       ]);
     } catch (error) {
       console.error("Error creating account:", error);
       Alert.alert(t("common.error"), t("alerts.errorCreatingWallet"));
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
+
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5">
       <View className="relative flex-row items-center justify-center mb-5">
@@ -143,6 +149,7 @@ const WalletCreate = () => {
               title={field.title}
               value={field.value}
               type={field.type}
+              placeholder={field.placeholder}
               onChangeText={(text) => {
                 handleFieldChange(field.key, text);
               }}

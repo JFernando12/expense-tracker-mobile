@@ -155,10 +155,6 @@ const TransactionUpdate = () => {
             from: localUri,
             to: destUri,
           });
-          Alert.alert(
-            t("alerts.saved"),
-            t("alerts.imageSaved", { path: destUri })
-          );
         } catch (error) {
           console.error("Error al guardar la imagen:", error);
           Alert.alert(
@@ -203,10 +199,6 @@ const TransactionUpdate = () => {
             from: localUri,
             to: destUri,
           });
-          Alert.alert(
-            t("alerts.saved"),
-            t("alerts.imageSaved", { path: destUri })
-          );
         } catch (error) {
           console.error("Error saving image:", error);
           Alert.alert(
