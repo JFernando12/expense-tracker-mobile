@@ -1,28 +1,28 @@
 import { Alert, Platform } from "react-native";
 import {
-    acknowledgePurchaseAndroid,
-    endConnection,
-    finishTransaction,
-    flushFailedPurchasesCachedAsPendingAndroid,
-    getSubscriptions,
-    initConnection,
-    Purchase,
-    PurchaseError,
-    purchaseErrorListener,
-    purchaseUpdatedListener,
-    requestSubscription,
-    SubscriptionPurchase,
-} from "react-native-iap";
+  acknowledgePurchaseAndroid,
+  endConnection,
+  finishTransaction,
+  flushFailedPurchasesCachedAsPendingAndroid,
+  getSubscriptions,
+  initConnection,
+  Purchase,
+  PurchaseError,
+  purchaseErrorListener,
+  purchaseUpdatedListener,
+  requestSubscription,
+  SubscriptionPurchase,
+} from 'react-native-iap';
 
 // Product IDs for your subscription plans
 export const SUBSCRIPTION_SKUS = {
   monthly: Platform.select({
-    ios: "com.jfernando.expensetracker.monthly",
-    android: "com.jfernando.expensetracker.monthly",
+    ios: 'com.jfernando2012.expensetracker.monthly',
+    android: 'com.jfernando2012.expensetracker.monthly',
   })!,
   yearly: Platform.select({
-    ios: "com.jfernando.expensetracker.yearly",
-    android: "com.jfernando.expensetracker.yearly",
+    ios: 'com.jfernando2012.expensetracker.yearly',
+    android: 'com.jfernando2012.expensetracker.yearly',
   })!,
 };
 

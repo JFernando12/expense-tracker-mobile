@@ -5,8 +5,8 @@ This expense tracker app now supports In-App Purchases (IAP) for premium subscri
 
 ## Product IDs
 The following product IDs are configured for your app:
-- **Monthly Subscription**: `com.jfernando.expensetracker.monthly`
-- **Yearly Subscription**: `com.jfernando.expensetracker.yearly`
+- **Monthly Subscription**: `com.jfernando2012.expensetracker.monthly`
+- **Yearly Subscription**: `com.jfernando2012.expensetracker.yearly`
 
 ## Apple App Store Connect Setup
 
@@ -16,14 +16,14 @@ The following product IDs are configured for your app:
 3. Create two new Auto-Renewable Subscriptions:
 
 #### Monthly Subscription
-- **Product ID**: `com.jfernando.expensetracker.monthly`
+- **Product ID**: `com.jfernando2012.expensetracker.monthly`
 - **Reference Name**: Expense Tracker Monthly Premium
 - **Subscription Group**: Premium Subscriptions
 - **Subscription Duration**: 1 Month
 - **Price**: Choose appropriate price point (e.g., $4.99)
 
 #### Yearly Subscription
-- **Product ID**: `com.jfernando.expensetracker.yearly`
+- **Product ID**: `com.jfernando2012.expensetracker.yearly`
 - **Reference Name**: Expense Tracker Yearly Premium
 - **Subscription Group**: Premium Subscriptions
 - **Subscription Duration**: 1 Year
@@ -54,7 +54,7 @@ The following product IDs are configured for your app:
 - **Price**: Set appropriate price
 
 #### Yearly Subscription
-- **Product ID**: `com.jfernando.expensetracker.yearly`
+- **Product ID**: `com.jfernando2012.expensetracker.yearly`
 - **Name**: Yearly Premium
 - **Description**: Premium features with yearly billing (save 33%)
 - **Billing Period**: Yearly
