@@ -1,12 +1,12 @@
-import SubscriptionStatus from '@/components/SubscriptionStatus';
-import icons from '@/constants/icons';
-import images from '@/constants/images';
-import { useGlobalContext } from '@/lib/global-provider';
-import { useTranslation } from '@/lib/i18n/useTranslation';
-import { clearLocalData } from '@/lib/services/syncData/clearData';
-import { logout, updateSyncMode } from '@/lib/services/user/user';
-import { router } from 'expo-router';
-import React from 'react';
+import SubscriptionStatus from "@/components/SubscriptionStatus";
+import icons from "@/constants/icons";
+import images from "@/constants/images";
+import { useGlobalContext } from "@/lib/global-provider";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { clearLocalData } from "@/lib/services/syncData/clearData";
+import { logout, updateSyncMode } from "@/lib/services/user/user";
+import { router } from "expo-router";
+import React from "react";
 import {
   Alert,
   Image,
@@ -15,18 +15,17 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
   const {
     userLocal,
     refetchUserLocal,
-    isOnlineMode,
     isNetworkEnabled,
     openSubscriptionModal,
   } = useGlobalContext();
-  const syncMode = userLocal?.syncMode || 'local';
+  const syncMode = userLocal?.syncMode || "local";
 
   const { appMode } = userLocal || {};
   const { t } = useTranslation();
@@ -34,38 +33,35 @@ const Profile = () => {
   const handleLogout = async () => {
     const result = await logout({ networkEnabled: isNetworkEnabled });
     if (!result) {
-      Alert.alert(t('common.failed'), t('profile.logoutFailed'));
+      Alert.alert(t("common.failed"), t("profile.logoutFailed"));
       return;
     }
     await refetchUserLocal();
-    Alert.alert(t('common.success'), t('profile.logoutSuccess'));
+    Alert.alert(t("common.success"), t("profile.logoutSuccess"));
   };
 
   const handleLoginToSync = () => {
-    router.push('/(root)/(modals)/loginModal');
+    router.push("/(root)/(modals)/loginModal");
   };
 
   const handleAutoSyncToggle = async () => {
     if (!userLocal?.isLoggedIn) {
-      router.push('/(root)/(modals)/loginModal');
+      router.push("/(root)/(modals)/loginModal");
       return;
     }
 
     // Cloud sync requires premium subscription
-    if (appMode !== 'premium') {
+    if (appMode !== "premium") {
       openSubscriptionModal();
       return;
     }
 
     try {
-      const value = syncMode === 'local' ? 'cloud' : 'local';
+      const value = syncMode === "local" ? "cloud" : "local";
       await updateSyncMode({ syncMode: value });
       await refetchUserLocal();
-    } catch (error) {
-      Alert.alert(
-        t('common.failed'),
-        'Cloud sync requires premium subscription'
-      );
+    } catch {
+      Alert.alert(t("common.failed"), t("profile.cloudSyncRequiresPremium"));
     }
   };
 
@@ -85,7 +81,7 @@ const Profile = () => {
                   <Image
                     source={images.avatar as ImageSourcePropType}
                     className="size-16"
-                    tintColor={'#6b7280'}
+                    tintColor={"#6b7280"}
                   />
                 )}
               </View>
@@ -94,10 +90,10 @@ const Profile = () => {
           {/* Profile Name */}
           <View className="items-center">
             <Text className="text-white text-2xl font-bold mb-1">
-              {userLocal?.isLoggedIn ? userLocal?.name : t('profile.localUser')}
+              {userLocal?.isLoggedIn ? userLocal?.name : t("profile.localUser")}
             </Text>
             <Text className="text-neutral-400 text-base">
-              All your spending in one place
+              {t("profile.tagline")}
             </Text>
           </View>
         </View>
@@ -110,14 +106,13 @@ const Profile = () => {
           {/* Account Settings Section */}
           <View className="mt-4">
             <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
-              ACCOUNT SETTINGS
+              {t("profile.accountSettings")}
             </Text>
-
             {/* Personal Information Card */}
             <TouchableOpacity
               onPress={
                 userLocal?.isLoggedIn
-                  ? () => router.push('/(root)/(modals)/profileModal')
+                  ? () => router.push("/(root)/(modals)/profileModal")
                   : handleLoginToSync
               }
               className="bg-secondary-100 rounded-2xl p-4"
@@ -126,11 +121,11 @@ const Profile = () => {
               <View className="flex-row items-center justify-between">
                 <View className="flex-1">
                   <Text className="text-white text-lg font-medium mb-0.5">
-                    Personal Information
+                    {t("profile.personalInformation")}
                   </Text>
                   {!userLocal?.isLoggedIn && (
                     <Text className="text-neutral-400 text-base">
-                      Log in to back up your expenses
+                      {t("profile.loginBackupPrompt")}
                     </Text>
                   )}
                 </View>
@@ -148,9 +143,8 @@ const Profile = () => {
           {/* Data Settings Section */}
           <View className="mt-4">
             <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
-              DATA SETTINGS
+              {t("profile.dataSettings")}
             </Text>
-
             {/* Combined Data Settings Card */}
             <View className="bg-secondary-100 rounded-2xl overflow-hidden">
               {/* Auto Sync Data */}
@@ -158,25 +152,25 @@ const Profile = () => {
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1">
                     <Text className="text-white text-lg font-medium">
-                      Secure Cloud Sync
+                      {t("profile.secureCloudSync")}
                     </Text>
-                    {appMode === 'free' && (
+                    {appMode === "free" && (
                       <Text className="text-neutral-400 text-sm">
-                        Premium feature - upgrade required
+                        {t("profile.premiumFeatureRequired")}
                       </Text>
                     )}
                   </View>
                   <TouchableOpacity
                     onPress={() => handleAutoSyncToggle()}
                     className={`w-12 h-6 rounded-full p-0.5 ${
-                      syncMode === 'cloud' ? 'bg-green-500' : 'bg-neutral-600'
+                      syncMode === "cloud" ? "bg-green-500" : "bg-neutral-600"
                     }`}
                   >
                     <View
                       className="w-5 h-5 rounded-full bg-white"
                       style={{
                         transform: [
-                          { translateX: syncMode === 'cloud' ? 24 : 0 },
+                          { translateX: syncMode === "cloud" ? 24 : 0 },
                         ],
                       }}
                     />
@@ -204,10 +198,10 @@ const Profile = () => {
                     </View>
                     <View className="flex-1">
                       <Text className="text-white text-lg font-medium mb-0.5">
-                        {t('profile.deleteData')}
+                        {t("profile.deleteData")}
                       </Text>
                       <Text className="text-neutral-400 text-base">
-                        This will erase all local information
+                        {t("profile.deleteDataDescription")}
                       </Text>
                     </View>
                   </View>
@@ -227,9 +221,8 @@ const Profile = () => {
           {userLocal?.isLoggedIn && (
             <View className="mt-4">
               <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
-                ACCOUNT ACTIONS
+                {t("profile.accountActions")}
               </Text>
-
               {/* Logout Button */}
               <TouchableOpacity
                 onPress={handleLogout}
@@ -247,7 +240,7 @@ const Profile = () => {
                     </View>
                     <View className="flex-1">
                       <Text className="text-white text-lg font-medium mb-0.5">
-                        {t('profile.logout')}
+                        {t("profile.logout")}
                       </Text>
                     </View>
                   </View>
