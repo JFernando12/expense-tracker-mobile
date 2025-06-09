@@ -26,7 +26,7 @@ const Profile = () => {
     openSubscriptionModal,
   } = useGlobalContext();
   const syncMode = userLocal?.syncMode || "local";
- const initials = userLocal?.name
+  const initials = userLocal?.name
     ?.split(" ")
     .slice(0, 2)
     .map((word) => word.charAt(0).toUpperCase())
@@ -76,9 +76,12 @@ const Profile = () => {
         <View className="mt-8">
           {/* Profile Avatar */}
           <View className="items-center mb-4">
-            <View className="size-28 rounded-full overflow-hidden bg-secondary-100 border border-neutral-500 items-center justify-center">
+            <View className=" flex items-center justify-center size-28 rounded-full bg-secondary-100 border border-neutral-500">
               {userLocal?.isLoggedIn && userLocal?.name ? (
-                <Text className="text-white text-7xl font-bold">
+                <Text
+                  className="text-white text-5xl font-bold text-center"
+                  style={{ lineHeight: 72, includeFontPadding: false }}
+                >
                   {initials}
                 </Text>
               ) : (

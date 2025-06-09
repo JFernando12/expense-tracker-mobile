@@ -30,12 +30,17 @@ const Header = ({ title }: { title: TranslationKey }) => {
         className="size-10 rounded-full overflow-hidden bg-accent-200 flex items-center justify-center"
       >
         {userLocal?.isLoggedIn && userLocal?.name ? (
-          <Text className="text-white text-lg font-bold">{initials}</Text>
+          <Text
+            className="text-white text-lg font-bold"
+            style={{ includeFontPadding: false }}
+          >
+            {initials}
+          </Text>
         ) : (
           <Image
             source={images.avatar as ImagePropsBase}
             className="size-5"
-            tintColor='white'
+            tintColor="white"
           />
         )}
       </TouchableOpacity>
