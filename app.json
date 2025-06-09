@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "expense-tracker-mobile",
-    "slug": "expense-tracker-mobile",
+    "name": "expense-tracker",
+    "slug": "expense-tracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -45,7 +45,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "463b5452-fc81-4a0f-a631-aa113e2a592c"
+        "projectId": "9f01cb21-f193-4d9b-881c-5d35dbee3ce4"
       }
     }
   }
