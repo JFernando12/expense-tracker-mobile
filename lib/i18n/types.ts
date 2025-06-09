@@ -1,4 +1,10 @@
 export interface Translations {
+  tabs: {
+    home: string;
+    statistics: string;
+    wallet: string;
+    profile: string;
+  };
   home: {
     greeting: string;
     guestUser: string;
@@ -221,6 +227,11 @@ export interface Translations {
 }
 
 export type TranslationKey =
+  // Tab translations
+  | "tabs.home"
+  | "tabs.statistics"
+  | "tabs.wallet"
+  | "tabs.profile"
   // Home translations
   | "home.greeting"
   | "home.guestUser"

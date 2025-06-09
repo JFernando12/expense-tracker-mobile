@@ -1,4 +1,10 @@
 {
+  "tabs": {
+    "home": "Inicio",
+    "statistics": "Reporte",
+    "wallet": "Cuentas",
+    "profile": "Perfil"
+  },
   "home": {
     "greeting": "Hola,",
     "guestUser": "Usuario",
