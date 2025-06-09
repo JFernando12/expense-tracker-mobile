@@ -68,7 +68,6 @@ const SearchModal = () => {
         </Text>
       </View>
       <View className="flex-row items-center">
-        {" "}
         <TextInput
           className="flex-1 bg-primary-300 text-white p-5 rounded-3xl"
           placeholder={t("modals.searchModal.searchPlaceholder")}
@@ -86,7 +85,6 @@ const SearchModal = () => {
         )}
       </View>
       <View className="mt-5 flex-1">
-        {" "}
         {searchQuery.trim() && !isSearching && searchResults.length > 0 && (
           <Text className="text-neutral-200 text-sm mb-3">
             {t("modals.searchModal.foundResults", {
@@ -94,7 +92,7 @@ const SearchModal = () => {
               s: searchResults.length !== 1 ? "s" : "",
             })}
           </Text>
-        )}{" "}
+        )}
         {isSearching ? (
           <View className="flex-1 justify-center items-center bg-primary-300 p-6 rounded-3xl shadow-lg">
             <ActivityIndicator size="large" color="white" />

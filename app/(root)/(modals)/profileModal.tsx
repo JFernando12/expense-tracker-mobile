@@ -71,7 +71,6 @@ const ProfileModal = () => {
         </View>
       </View>
       <View className="mt-5 rounded-3xl shadow-lg">
-        {" "}
         <Text className="text-neutral-200 text-sm mb-1">{t("forms.name")}</Text>
         <TextInput
           className="bg-primary-200 text-white p-4 rounded-xl border border-primary-300 mb-4"
@@ -91,7 +90,7 @@ const ProfileModal = () => {
       >
         {isLoading ? (
           <View className="flex-row justify-center items-center">
-            <ActivityIndicator size="small" color="white" />{" "}
+            <ActivityIndicator size="small" color="white" />
             <Text className="text-white text-center text-lg font-bold ml-2">
               {t("modals.profileModal.saving")}
             </Text>

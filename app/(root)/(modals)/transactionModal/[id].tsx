@@ -438,7 +438,7 @@ const TransactionUpdate = () => {
           </TouchableOpacity>
           <Text className="text-white text-2xl font-bold">
             Editar Transaccion
-          </Text>{" "}
+          </Text>
         </View>
         <View className="flex-1 justify-center items-center">
           <Text className="text-white text-lg">
@@ -460,7 +460,7 @@ const TransactionUpdate = () => {
             className="size-9"
             tintColor="white"
           />
-        </TouchableOpacity>{" "}
+        </TouchableOpacity>
         <Text className="text-white text-2xl font-bold">
           {t("modals.transactionModal.editTitle")}
         </Text>
@@ -493,7 +493,6 @@ const TransactionUpdate = () => {
         className="flex-1"
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
-        {" "}
         {isLoading && !isSubmitting ? (
           <View className="flex-1 justify-center items-center">
             <ActivityIndicator size="large" color="white" />
@@ -547,7 +546,7 @@ const TransactionUpdate = () => {
                   )}
                 </View>
               ))}
-              {/* Image picker section */}{" "}
+              {/* Image picker section */}
               <View className="py-3 px-0">
                 <Text className="text-neutral-200 text-sm mb-1">
                   {t("modals.transactionModal.ticketLabel")}
@@ -581,7 +580,7 @@ const TransactionUpdate = () => {
                     <View className="items-center">
                       <Text className="text-neutral-200 text-base mb-2">
                         📷
-                      </Text>{" "}
+                      </Text>
                       <Text className="text-neutral-200 text-sm">
                         {t("modals.transactionModal.tapToAddImage")}
                       </Text>
@@ -605,7 +604,7 @@ const TransactionUpdate = () => {
         >
           {isSubmitting ? (
             <View className="flex-row justify-center items-center">
-              <ActivityIndicator size="small" color="white" />{" "}
+              <ActivityIndicator size="small" color="white" />
               <Text className="text-white text-center text-lg font-bold ml-2">
                 {t("modals.transactionModal.saving")}
               </Text>

@@ -115,10 +115,14 @@
     "unexpectedError": "An unexpected error occurred",
     "emailAndPasswordRequired": "Please enter your email and password",
     "termsAcceptanceRequired": "You must accept the terms of use to continue"
-  },
-  "subscription": {
+  },  "subscription": {
+    "freeMode": "Free Mode",
     "monthlyPlan": "Monthly Plan",
     "yearlyPlan": "Yearly Plan",
+    "premium": "Premium",
+    "upgradeDescription": "Upgrade for cloud sync and more.",
+    "premiumDescription": "You have full access to all premium features.",
+    "upgradeToPremium": "Upgrade to Premium",
     "perfectToStart": "Perfect to get started",
     "save33Popular": "Save 33% - Most popular!",
     "unlimitedExpenses": "Unlimited expenses",

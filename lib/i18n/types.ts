@@ -106,14 +106,34 @@ export interface Translations {
     dontHaveAccount: string;
     signUp: string;
     signIn: string;
-  };
-  auth: {
+  };  auth: {
     completeAllFields: string;
     passwordMinLength: string;
     invalidEmail: string;
     unexpectedError: string;
     emailAndPasswordRequired: string;
     termsAcceptanceRequired: string;
+  };
+  subscription: {
+    freeMode: string;
+    monthlyPlan: string;
+    yearlyPlan: string;
+    premium: string;
+    upgradeDescription: string;
+    premiumDescription: string;
+    upgradeToPremium: string;
+    perfectToStart: string;
+    save33Popular: string;
+    unlimitedExpenses: string;
+    multipleWallets: string;
+    basicStatistics: string;
+    everythingMonthly: string;
+    advancedStatistics: string;
+    exportReports: string;
+    prioritySupport: string;
+    simulatedSubscription: string;
+    selectedPlan: string;
+    realAppPayment: string;
   };
   common: {
     loading: string;
@@ -321,14 +341,34 @@ export type TranslationKey =
   | "forms.alreadyHaveAccount"
   | "forms.dontHaveAccount"
   | "forms.signUp"
-  | "forms.signIn"
-  // Auth translations
+  | "forms.signIn"  // Auth translations
   | "auth.completeAllFields"
   | "auth.passwordMinLength"
   | "auth.invalidEmail"
   | "auth.unexpectedError"
   | "auth.emailAndPasswordRequired"
-  | "auth.termsAcceptanceRequired" // Common translations
+  | "auth.termsAcceptanceRequired" 
+  // Subscription translations
+  | "subscription.freeMode"
+  | "subscription.monthlyPlan"
+  | "subscription.yearlyPlan"
+  | "subscription.premium"
+  | "subscription.upgradeDescription"
+  | "subscription.premiumDescription"
+  | "subscription.upgradeToPremium"
+  | "subscription.perfectToStart"
+  | "subscription.save33Popular"
+  | "subscription.unlimitedExpenses"
+  | "subscription.multipleWallets"
+  | "subscription.basicStatistics"
+  | "subscription.everythingMonthly"
+  | "subscription.advancedStatistics"
+  | "subscription.exportReports"
+  | "subscription.prioritySupport"
+  | "subscription.simulatedSubscription"
+  | "subscription.selectedPlan"
+  | "subscription.realAppPayment"
+  // Common translations
   | "common.loading"
   | "common.error"
   | "common.retry"
