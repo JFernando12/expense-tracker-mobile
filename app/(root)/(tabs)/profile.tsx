@@ -1,11 +1,11 @@
-import SubscriptionStatus from '@/components/SubscriptionStatus';
-import icons from '@/constants/icons';
-import images from '@/constants/images';
-import { useGlobalContext } from '@/lib/global-provider';
-import { useTranslation } from '@/lib/i18n/useTranslation';
-import { logout, updateSyncMode } from '@/lib/services/user/user';
-import { router } from 'expo-router';
-import React from 'react';
+import SubscriptionStatus from "@/components/SubscriptionStatus";
+import icons from "@/constants/icons";
+import images from "@/constants/images";
+import { useGlobalContext } from "@/lib/global-provider";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { logout, updateSyncMode } from "@/lib/services/user/user";
+import { router } from "expo-router";
+import React from "react";
 import {
   Alert,
   Image,
@@ -14,8 +14,8 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
   const {
@@ -26,16 +26,16 @@ const Profile = () => {
     refetchSyncedData,
   } = useGlobalContext();
   const { t } = useTranslation();
-  const syncMode = userLocal?.syncMode || 'local';
-  const appMode = userLocal?.appMode || 'free';
+  const syncMode = userLocal?.syncMode || "local";
+  const appMode = userLocal?.appMode || "free";
   const initials = userLocal?.name
-    ?.split(' ')
+    ?.split(" ")
     .slice(0, 2)
     .map((word) => word.charAt(0).toUpperCase())
-    .join('');
+    .join("");
 
   const formatLastSyncDate = (date?: Date) => {
-    if (!date) return 'Never';
+    if (!date) return "Never";
 
     const now = new Date();
     const lastSync = new Date(date);
@@ -43,17 +43,17 @@ const Profile = () => {
       (now.getTime() - lastSync.getTime()) / (1000 * 60)
     );
 
-    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 1) return "Just now";
     if (diffInMinutes < 60)
-      return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+      return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
 
     const diffInHours = Math.floor(diffInMinutes / 60);
     if (diffInHours < 24)
-      return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+      return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
 
     const diffInDays = Math.floor(diffInHours / 24);
     if (diffInDays < 7)
-      return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+      return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
 
     return lastSync.toLocaleDateString();
   };
@@ -61,52 +61,52 @@ const Profile = () => {
   const handleLogout = async () => {
     const result = await logout({ networkEnabled: isNetworkEnabled });
     if (!result) {
-      Alert.alert(t('common.failed'), t('profile.logoutFailed'));
+      Alert.alert(t("common.failed"), t("profile.logoutFailed"));
       return;
     }
     await refetchUserLocal();
-    Alert.alert(t('common.success'), t('profile.logoutSuccess'));
+    Alert.alert(t("common.success"), t("profile.logoutSuccess"));
   };
 
   const handleLoginToSync = () => {
-    router.push('/(root)/(modals)/loginModal');
+    router.push("/(root)/(modals)/loginModal");
   };
   const handleAutoSyncToggle = async () => {
     if (!userLocal?.isLoggedIn) {
-      router.push('/(root)/(modals)/loginModal');
+      router.push("/(root)/(modals)/loginModal");
       return;
     }
 
     // Cloud sync requires premium subscription
-    if (appMode !== 'premium') {
+    if (appMode !== "premium") {
       openSubscriptionModal();
       return;
     }
 
     try {
-      const value = syncMode === 'local' ? 'cloud' : 'local';
+      const value = syncMode === "local" ? "cloud" : "local";
       await updateSyncMode({ syncMode: value });
       await refetchUserLocal();
     } catch {
-      Alert.alert(t('common.failed'), t('profile.cloudSyncRequiresPremium'));
+      Alert.alert(t("common.failed"), t("profile.cloudSyncRequiresPremium"));
     }
   };
   const handleSyncData = async () => {
     if (!userLocal?.isLoggedIn) {
-      router.push('/(root)/(modals)/loginModal');
+      router.push("/(root)/(modals)/loginModal");
       return;
     }
 
-    if (appMode !== 'premium') {
+    if (appMode !== "premium") {
       openSubscriptionModal();
       return;
     }
 
     try {
       await refetchSyncedData();
-      Alert.alert(t('common.success'), 'Data synced successfully');
+      Alert.alert(t("common.success"), "Data synced successfully");
     } catch (error) {
-      Alert.alert(t('common.failed'), 'Failed to sync data');
+      Alert.alert(t("common.failed"), "Failed to sync data");
     }
   };
 
@@ -128,7 +128,7 @@ const Profile = () => {
                 <Image
                   source={images.avatar as ImageSourcePropType}
                   className="size-16"
-                  tintColor={'#6b7280'}
+                  tintColor={"#6b7280"}
                 />
               )}
             </View>
@@ -136,10 +136,10 @@ const Profile = () => {
           {/* Profile Name */}
           <View className="items-center">
             <Text className="text-white text-2xl font-bold mb-1">
-              {userLocal?.isLoggedIn ? userLocal?.name : t('profile.localUser')}
+              {userLocal?.isLoggedIn ? userLocal?.name : t("profile.localUser")}
             </Text>
             <Text className="text-neutral-400 text-base">
-              {t('profile.tagline')}
+              {t("profile.tagline")}
             </Text>
           </View>
         </View>
@@ -151,13 +151,13 @@ const Profile = () => {
           {/* Account Settings Section */}
           <View className="mt-4">
             <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
-              {t('profile.accountSettings')}
+              {t("profile.accountSettings")}
             </Text>
             {/* Personal Information Card */}
             <TouchableOpacity
               onPress={
                 userLocal?.isLoggedIn
-                  ? () => router.push('/(root)/(modals)/profileModal')
+                  ? () => router.push("/(root)/(modals)/profileModal")
                   : handleLoginToSync
               }
               className="bg-secondary-100 rounded-2xl p-4"
@@ -166,11 +166,11 @@ const Profile = () => {
               <View className="flex-row items-center justify-between">
                 <View className="flex-1">
                   <Text className="text-white text-lg font-medium mb-0.5">
-                    {t('profile.personalInformation')}
+                    {t("profile.personalInformation")}
                   </Text>
                   {!userLocal?.isLoggedIn && (
                     <Text className="text-neutral-400 text-base">
-                      {t('profile.loginBackupPrompt')}
+                      {t("profile.loginBackupPrompt")}
                     </Text>
                   )}
                 </View>
@@ -183,12 +183,12 @@ const Profile = () => {
                 </View>
               </View>
             </TouchableOpacity>
-          </View>{' '}
+          </View>
           {/* Data Settings Section */}
           <View className="mt-4">
             <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
-              {t('profile.dataSettings')}
-            </Text>{' '}
+              {t("profile.dataSettings")}
+            </Text>
             {/* Last Sync Info */}
             <View className="mb-3 px-4 py-3 bg-secondary-100/80 rounded-xl border border-secondary-100">
               <View className="flex-row items-center">
@@ -205,11 +205,11 @@ const Profile = () => {
                   </Text>
                   <Text className="text-white text-sm font-medium">
                     {!userLocal?.isLoggedIn
-                      ? 'Login required to sync'
-                      : appMode === 'free'
-                      ? 'Premium feature required'
-                      : syncMode === 'local'
-                      ? 'Cloud sync disabled'
+                      ? "Login required to sync"
+                      : appMode === "free"
+                      ? "Premium feature required"
+                      : syncMode === "local"
+                      ? "Cloud sync disabled"
                       : formatLastSyncDate(userLocal?.lastSyncDate)}
                   </Text>
                 </View>
@@ -222,25 +222,25 @@ const Profile = () => {
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1">
                     <Text className="text-white text-lg font-medium">
-                      {t('profile.secureCloudSync')}
+                      {t("profile.secureCloudSync")}
                     </Text>
-                    {appMode === 'free' && (
+                    {appMode === "free" && (
                       <Text className="text-neutral-400 text-sm">
-                        {t('profile.premiumFeatureRequired')}
+                        {t("profile.premiumFeatureRequired")}
                       </Text>
                     )}
                   </View>
                   <TouchableOpacity
                     onPress={() => handleAutoSyncToggle()}
                     className={`w-12 h-6 rounded-full p-0.5 ${
-                      syncMode === 'cloud' ? 'bg-green-500' : 'bg-neutral-600'
+                      syncMode === "cloud" ? "bg-green-500" : "bg-neutral-600"
                     }`}
                   >
                     <View
                       className="w-5 h-5 rounded-full bg-white"
                       style={{
                         transform: [
-                          { translateX: syncMode === 'cloud' ? 24 : 0 },
+                          { translateX: syncMode === "cloud" ? 24 : 0 },
                         ],
                       }}
                     />
@@ -258,14 +258,14 @@ const Profile = () => {
                 >
                   <View className="flex-1">
                     <Text className="text-white text-lg font-medium">
-                      {t('profile.syncData') || 'Sync Data'}
+                      {t("profile.syncData") || "Sync Data"}
                     </Text>
                     <Text className="text-neutral-400 text-sm">
                       {!userLocal?.isLoggedIn
-                        ? 'Login required to sync data'
-                        : appMode === 'free'
-                        ? 'Premium feature required'
-                        : 'Refresh all data from server'}
+                        ? "Login required to sync data"
+                        : appMode === "free"
+                        ? "Premium feature required"
+                        : "Refresh all data from server"}
                     </Text>
                   </View>
                   <View className="bg-blue-500/20 size-10 rounded-full items-center justify-center">
@@ -273,7 +273,7 @@ const Profile = () => {
                       source={icons.rightArrow as ImageSourcePropType}
                       tintColor="#3b82f6"
                       className="size-5"
-                    />{' '}
+                    />
                   </View>
                 </TouchableOpacity>
               </View>
@@ -283,7 +283,7 @@ const Profile = () => {
           {userLocal?.isLoggedIn && (
             <View className="mt-4">
               <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
-                {t('profile.accountActions')}
+                {t("profile.accountActions")}
               </Text>
               {/* Logout Button */}
               <TouchableOpacity
@@ -302,7 +302,7 @@ const Profile = () => {
                     </View>
                     <View className="flex-1">
                       <Text className="text-white text-lg font-medium mb-0.5">
-                        {t('profile.logout')}
+                        {t("profile.logout")}
                       </Text>
                     </View>
                   </View>
