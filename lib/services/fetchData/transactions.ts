@@ -112,18 +112,13 @@ export const deleteTransaction = async ({
   transactionId: string;
   isOnlineMode: boolean;
 }): Promise<boolean> => {
-  const user = await getUser();
-  if (!user.id) {
-    console.error('User not found, cannot delete transaction');
-    return false;
-  }
-
   const deletedAt = new Date().toISOString();
   const updatedAt = new Date().toISOString();
 
   const transaction = await transactionLocalStorage.getTransaction(
     transactionId
   );
+
   if (!transaction) {
     console.error('Transaction not found, cannot delete');
     return false;
@@ -141,7 +136,14 @@ export const deleteTransaction = async ({
     deletedAt,
     updatedAt,
   });
+
   if (!isOnlineMode) return success;
+
+  const user = await getUser();
+  if (!user.id) {
+    console.error('User not found, cannot delete transaction');
+    return false;
+  }
 
   await deleteTransactionFromServer({
     userId: user.id,

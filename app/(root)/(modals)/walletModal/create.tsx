@@ -33,30 +33,31 @@ const WalletCreate = () => {
     initialBalance: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  
   const fields = [
     {
-      label: t("modals.walletModal.nameLabel"),
-      title: t("modals.walletModal.nameLabel"),
+      label: t('modals.walletModal.nameLabel'),
+      title: t('modals.walletModal.nameLabel'),
       value: formData.name,
       type: fieldTypes.TEXT,
-      key: "name",
-      placeholder: t("modals.walletModal.namePlaceholder"),
+      key: 'name',
+      placeholder: t('modals.walletModal.namePlaceholder'),
     },
     {
-      label: t("modals.walletModal.descriptionLabel"),
-      title: t("modals.walletModal.descriptionLabel"),
+      label: t('modals.walletModal.descriptionLabel'),
+      title: t('modals.walletModal.descriptionLabel'),
       value: formData.description,
       type: fieldTypes.TEXT,
-      key: "description",
-      placeholder: t("modals.walletModal.descriptionPlaceholder"),
+      key: 'description',
+      placeholder: t('modals.walletModal.descriptionPlaceholder'),
     },
     {
-      label: t("modals.walletModal.initialBalanceLabel"),
-      title: t("modals.walletModal.initialBalanceLabel"),
+      label: t('modals.walletModal.initialBalanceLabel'),
+      title: t('modals.walletModal.initialBalanceLabel'),
       value: formData.initialBalance,
       type: fieldTypes.NUMBER,
-      key: "initialBalance",
-      placeholder: t("modals.walletModal.initialBalancePlaceholder"),
+      key: 'initialBalance',
+      placeholder: t('modals.walletModal.initialBalancePlaceholder'),
     },
   ];
 
@@ -66,6 +67,7 @@ const WalletCreate = () => {
       [key]: value,
     }));
   };
+  
   const handleCreateWallet = async () => {
     // Validate form
     if (!formData.name.trim()) {

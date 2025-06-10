@@ -30,7 +30,7 @@ export interface IAPProduct {
   productId: string;
   title?: string;
   description?: string;
-  subscriptionType: "monthly" | "yearly";
+  subscriptionType: 'monthly' | 'yearly';
   // Platform-specific price info
   priceString?: string;
   localizedPrice?: string;
@@ -41,13 +41,19 @@ class IAPService {
   private purchaseUpdateSubscription: any = null;
   private purchaseErrorSubscription: any = null;
   private products: IAPProduct[] = [];
+  private isInitialized = false;
 
   async initialize(): Promise<boolean> {
     try {
-      const result = await initConnection();
-      console.log("IAP connection initialized:", result);
+      // Prevent multiple initializations
+      if (this.isInitialized) {
+        return true;
+      }
 
-      if (Platform.OS === "android") {
+      const result = await initConnection();
+      console.log('IAP connection initialized:', result);
+
+      if (Platform.OS === 'android') {
         await flushFailedPurchasesCachedAsPendingAndroid();
       }
 
@@ -57,27 +63,44 @@ class IAPService {
       // Load products
       await this.loadProducts();
 
+      this.isInitialized = true;
       return true;
     } catch (error) {
-      console.error("Failed to initialize IAP:", error);
+      console.error('Failed to initialize IAP:', error);
+      this.isInitialized = false;
       return false;
     }
   }
 
   private setupPurchaseListeners() {
+    // Clean up existing listeners first
+    this.cleanupListeners();
+
     this.purchaseUpdateSubscription = purchaseUpdatedListener(
       (purchase: Purchase | SubscriptionPurchase) => {
-        console.log("Purchase updated:", purchase);
+        console.log('Purchase updated:', purchase);
         this.handlePurchaseUpdate(purchase);
       }
     );
 
     this.purchaseErrorSubscription = purchaseErrorListener(
       (error: PurchaseError) => {
-        console.error("Purchase error:", error);
+        console.error('Purchase error:', error);
         this.handlePurchaseError(error);
       }
     );
+  }
+
+  private cleanupListeners() {
+    if (this.purchaseUpdateSubscription) {
+      this.purchaseUpdateSubscription.remove();
+      this.purchaseUpdateSubscription = null;
+    }
+
+    if (this.purchaseErrorSubscription) {
+      this.purchaseErrorSubscription.remove();
+      this.purchaseErrorSubscription = null;
+    }
   }
 
   private async handlePurchaseUpdate(
@@ -87,7 +110,7 @@ class IAPService {
       const receipt = purchase.transactionReceipt;
       if (receipt) {
         // Verify the purchase with your backend here if needed
-        console.log("Purchase successful:", purchase.productId);
+        console.log('Purchase successful:', purchase.productId);
 
         // Finish the transaction
         await finishTransaction({
@@ -95,7 +118,7 @@ class IAPService {
           isConsumable: false,
         });
 
-        if (Platform.OS === "android") {
+        if (Platform.OS === 'android') {
           await acknowledgePurchaseAndroid({
             token: purchase.purchaseToken!,
           });
@@ -104,8 +127,8 @@ class IAPService {
         // Determine subscription type
         const subscriptionType =
           purchase.productId === SUBSCRIPTION_SKUS.monthly
-            ? "monthly"
-            : "yearly";
+            ? 'monthly'
+            : 'yearly';
 
         // Return success callback with subscription info
         if (this.onPurchaseSuccess) {
@@ -113,7 +136,7 @@ class IAPService {
         }
       }
     } catch (error) {
-      console.error("Error handling purchase update:", error);
+      console.error('Error handling purchase update:', error);
       if (this.onPurchaseError) {
         this.onPurchaseError(error as Error);
       }
@@ -121,17 +144,17 @@ class IAPService {
   }
 
   private handlePurchaseError(error: PurchaseError) {
-    console.error("Purchase failed:", error);
+    console.error('Purchase failed:', error);
 
     // Don't show error for user cancellation
-    if (error.code === "E_USER_CANCELLED") {
+    if (error.code === 'E_USER_CANCELLED') {
       return;
     }
 
     Alert.alert(
-      "Error de Compra",
-      "No se pudo completar la compra. Por favor, inténtalo de nuevo.",
-      [{ text: "OK" }]
+      'Error de Compra',
+      'No se pudo completar la compra. Por favor, inténtalo de nuevo.',
+      [{ text: 'OK' }]
     );
 
     if (this.onPurchaseError) {
@@ -151,8 +174,8 @@ class IAPService {
           description: product.description,
           subscriptionType:
             product.productId === SUBSCRIPTION_SKUS.monthly
-              ? "monthly"
-              : "yearly",
+              ? 'monthly'
+              : 'yearly',
           // Extract price info based on platform
           priceString: (product as any).priceString || (product as any).price,
           localizedPrice: (product as any).localizedPrice,
@@ -160,10 +183,10 @@ class IAPService {
         })
       );
 
-      console.log("Loaded IAP products:", this.products);
+      console.log('Loaded IAP products:', this.products);
       return this.products;
     } catch (error) {
-      console.error("Failed to load products:", error);
+      console.error('Failed to load products:', error);
       return [];
     }
   }
@@ -177,7 +200,7 @@ class IAPService {
   }
 
   async purchaseSubscription(
-    subscriptionType: "monthly" | "yearly"
+    subscriptionType: 'monthly' | 'yearly'
   ): Promise<void> {
     try {
       const productId = SUBSCRIPTION_SKUS[subscriptionType];
@@ -188,48 +211,55 @@ class IAPService {
         );
       }
 
-      console.log("Attempting to purchase:", productId);
+      console.log('Attempting to purchase:', productId);
 
       await requestSubscription({
         sku: productId,
-        ...(Platform.OS === "android" && {
+        ...(Platform.OS === 'android' && {
           subscriptionOffers: [
             {
               sku: productId,
-              offerToken: "", // You might need to get this from the product details
+              offerToken: '', // You might need to get this from the product details
             },
           ],
         }),
       });
     } catch (error) {
-      console.error("Purchase failed:", error);
+      console.error('Purchase failed:', error);
       throw error;
     }
   }
 
   // Callback properties
   onPurchaseSuccess?: (
-    subscriptionType: "monthly" | "yearly",
+    subscriptionType: 'monthly' | 'yearly',
     purchase: Purchase | SubscriptionPurchase
   ) => void;
   onPurchaseError?: (error: Error) => void;
-
   async cleanup() {
-    if (this.purchaseUpdateSubscription) {
-      this.purchaseUpdateSubscription.remove();
-      this.purchaseUpdateSubscription = null;
-    }
-
-    if (this.purchaseErrorSubscription) {
-      this.purchaseErrorSubscription.remove();
-      this.purchaseErrorSubscription = null;
-    }
-
     try {
-      await endConnection();
+      // Clean up listeners
+      this.cleanupListeners();
+
+      // Reset callbacks
+      this.onPurchaseSuccess = undefined;
+      this.onPurchaseError = undefined;
+
+      // Clear products
+      this.products = [];
+
+      // End connection
+      if (this.isInitialized) {
+        await endConnection();
+        this.isInitialized = false;
+      }
     } catch (error) {
-      console.error("Error ending IAP connection:", error);
+      console.error('Error during IAP cleanup:', error);
     }
+  }
+
+  isServiceInitialized(): boolean {
+    return this.isInitialized;
   }
 }
 

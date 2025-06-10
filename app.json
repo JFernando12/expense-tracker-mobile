@@ -12,8 +12,16 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.jfernando2012.expensetracker",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": false
+        },
+        "UIBackgroundModes": [],
+        "NSLocationWhenInUseUsageDescription": "This app does not use location services",
+        "NSCameraUsageDescription": "This app uses camera to capture transaction receipts",
+        "NSPhotoLibraryUsageDescription": "This app accesses photo library to select transaction receipts"
+      },
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {

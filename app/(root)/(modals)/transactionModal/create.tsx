@@ -10,7 +10,7 @@ import SegmentedControl from "@react-native-segmented-control/segmented-control"
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -22,21 +22,21 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 enum fieldTypes {
-  TEXT = "text",
-  NUMBER = "number",
-  DATE = "date",
-  SELECT = "select",
+  TEXT = 'text',
+  NUMBER = 'number',
+  DATE = 'date',
+  SELECT = 'select',
 }
 
 const TransactionCreate = () => {
   const { t } = useTranslation();
   const categories = useTranslatedCategories();
   const incomeCategories = categories
-    .filter((category) => category.type === "income")
+    .filter((category) => category.type === 'income')
     .map((category) => ({
       value: category.id,
       label: category.name,
@@ -44,30 +44,53 @@ const TransactionCreate = () => {
     }));
 
   const expenseCategories = categories
-    .filter((category) => category.type === "expense")
+    .filter((category) => category.type === 'expense')
     .map((category) => ({
       value: category.id,
       label: category.name,
       icon: category.icon,
     }));
 
-  const [transactionType, setTransactionType] = useState<"expense" | "income">(
-    "expense"
+  const [transactionType, setTransactionType] = useState<'expense' | 'income'>(
+    'expense'
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   // Form state
   const [formData, setFormData] = useState({
-    walletId: "",
-    categoryId: "",
-    description: "",
-    amount: "",
+    walletId: '',
+    categoryId: '',
+    description: '',
+    amount: '',
     date: new Date(),
   });
-
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const { isOnlineMode, wallets, walletsLoading, refetchResources } =
     useGlobalContext();
+
+  // Cleanup image when component unmounts
+  useEffect(() => {
+    return () => {
+      if (selectedImage) {
+        // Clean up local image file
+        FileSystem.deleteAsync(selectedImage, { idempotent: true }).catch(
+          (error) => console.log('Error cleaning up image:', error)
+        );
+      }
+    };
+  }, [selectedImage]);
+
+  // Cleanup image when component unmounts
+  useEffect(() => {
+    return () => {
+      if (selectedImage) {
+        // Clean up local image file
+        FileSystem.deleteAsync(selectedImage, { idempotent: true }).catch(
+          (error) => console.log('Error cleaning up image:', error)
+        );
+      }
+    };
+  }, [selectedImage]);
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -78,18 +101,18 @@ const TransactionCreate = () => {
 
   const validateForm = () => {
     if (!formData.walletId) {
-      Alert.alert(t("validation.completeFields"), t("validation.selectWallet"));
+      Alert.alert(t('validation.completeFields'), t('validation.selectWallet'));
       return false;
     }
     if (!formData.categoryId) {
       Alert.alert(
-        t("validation.completeFields"),
-        t("validation.selectCategory")
+        t('validation.completeFields'),
+        t('validation.selectCategory')
       );
       return false;
     }
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      Alert.alert(t("validation.completeFields"), t("validation.validAmount"));
+      Alert.alert(t('validation.completeFields'), t('validation.validAmount'));
       return false;
     }
     return true;
@@ -101,22 +124,22 @@ const TransactionCreate = () => {
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!granted) {
         Alert.alert(
-          t("alerts.permissionsRequired"),
-          t("alerts.galleryPermissionMessage")
+          t('alerts.permissionsRequired'),
+          t('alerts.galleryPermissionMessage')
         );
         return;
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "images",
+        mediaTypes: 'images',
         quality: 1,
       });
 
       if (!result.canceled && result.assets[0]) {
         // Save the image to local filesystem
         const localUri = result.assets[0].uri;
-        const filename = localUri.split("/").pop();
-        const documentDirectory = FileSystem.documentDirectory || "";
+        const filename = localUri.split('/').pop();
+        const documentDirectory = FileSystem.documentDirectory || '';
         const destUri = documentDirectory + filename;
         try {
           await FileSystem.copyAsync({
@@ -124,16 +147,16 @@ const TransactionCreate = () => {
             to: destUri,
           });
         } catch (error) {
-          console.error("Error al guardar la imagen:", error);
-          Alert.alert(t("common.error"), t("alerts.failedToSaveImage"));
+          console.error('Error al guardar la imagen:', error);
+          Alert.alert(t('common.error'), t('alerts.failedToSaveImage'));
         }
         setSelectedImage(destUri);
       }
     } catch (error) {
-      console.error("Error picking image:", error);
+      console.error('Error picking image:', error);
       Alert.alert(
-        t("alerts.somethingWentWrong"),
-        t("alerts.couldNotSelectImage")
+        t('alerts.somethingWentWrong'),
+        t('alerts.couldNotSelectImage')
       );
     }
   };
@@ -144,8 +167,8 @@ const TransactionCreate = () => {
 
       if (!granted) {
         Alert.alert(
-          t("alerts.permissionsRequired"),
-          t("alerts.cameraPermissionMessage")
+          t('alerts.permissionsRequired'),
+          t('alerts.cameraPermissionMessage')
         );
         return;
       }
@@ -157,36 +180,36 @@ const TransactionCreate = () => {
       if (!result.canceled && result.assets[0]) {
         // Save the image to local filesystem
         const localUri = result.assets[0].uri;
-        const filename = localUri.split("/").pop();
-        const documentDirectory = FileSystem.documentDirectory || "";
+        const filename = localUri.split('/').pop();
+        const documentDirectory = FileSystem.documentDirectory || '';
         const destUri = documentDirectory + filename;
 
         try {
           await FileSystem.copyAsync({
             from: localUri,
             to: destUri,
-          });;
+          });
         } catch (error) {
-          console.error("Error saving image:", error);
-          Alert.alert(t("common.error"), t("alerts.failedToSaveImage"));
+          console.error('Error saving image:', error);
+          Alert.alert(t('common.error'), t('alerts.failedToSaveImage'));
         }
 
         setSelectedImage(destUri);
       }
     } catch (error) {
-      console.error("Error taking photo:", error);
+      console.error('Error taking photo:', error);
       Alert.alert(
-        t("alerts.somethingWentWrong"),
-        t("alerts.couldNotTakePhoto")
+        t('alerts.somethingWentWrong'),
+        t('alerts.couldNotTakePhoto')
       );
     }
   };
 
   const showImagePicker = () => {
-    Alert.alert(t("alerts.selectImage"), t("alerts.chooseOption"), [
-      { text: t("common.cancel"), style: "cancel" },
-      { text: t("alerts.takePhoto"), onPress: takePhoto },
-      { text: t("alerts.gallery"), onPress: pickImage },
+    Alert.alert(t('alerts.selectImage'), t('alerts.chooseOption'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('alerts.takePhoto'), onPress: takePhoto },
+      { text: t('alerts.gallery'), onPress: pickImage },
     ]);
   };
 
@@ -213,25 +236,21 @@ const TransactionCreate = () => {
       });
 
       await refetchResources();
-      Alert.alert(
-        t("common.success"),
-        t("alerts.transactionCreatedSuccess"),
-        [
-          {
-            text: t("common.ok"),
-            onPress: () => {
-              router.back();
-              router.push("/(root)/(tabs)");
-            },
+      Alert.alert(t('common.success'), t('alerts.transactionCreatedSuccess'), [
+        {
+          text: t('common.ok'),
+          onPress: () => {
+            router.back();
+            router.push('/(root)/(tabs)');
           },
-        ]
-      );
+        },
+      ]);
     } catch (error) {
-      console.error("Error creating transaction:", error);
+      console.error('Error creating transaction:', error);
       setIsSubmitting(false);
       Alert.alert(
-        t("alerts.somethingWentWrong"),
-        t("alerts.errorCreatingTransaction")
+        t('alerts.somethingWentWrong'),
+        t('alerts.errorCreatingTransaction')
       );
     }
     setIsSubmitting(false);
@@ -240,7 +259,7 @@ const TransactionCreate = () => {
   const onDateChange = (event: any, selectedDate?: Date) => {
     // For Android, date picker closes automatically after selection
     // For iOS, we need to keep it open until user manually closes it
-    const isIOS = Platform.OS === "ios";
+    const isIOS = Platform.OS === 'ios';
     if (!isIOS) {
       setShowDatePicker(false);
     }
@@ -254,8 +273,8 @@ const TransactionCreate = () => {
   };
   const fields = [
     {
-      label: "walletId",
-      title: t("modals.transactionModal.walletLabel"),
+      label: 'walletId',
+      title: t('modals.transactionModal.walletLabel'),
       type: fieldTypes.SELECT,
       value: formData.walletId,
       options:
@@ -265,28 +284,28 @@ const TransactionCreate = () => {
         })) || [],
     },
     {
-      label: "categoryId",
-      title: t("modals.transactionModal.categoryLabel"),
+      label: 'categoryId',
+      title: t('modals.transactionModal.categoryLabel'),
       type: fieldTypes.SELECT,
       value: formData.categoryId,
       options:
-        transactionType === "expense" ? expenseCategories : incomeCategories,
+        transactionType === 'expense' ? expenseCategories : incomeCategories,
     },
     {
-      label: "date",
-      title: t("modals.transactionModal.dateLabel"),
+      label: 'date',
+      title: t('modals.transactionModal.dateLabel'),
       type: fieldTypes.DATE,
       value: formData.date.toLocaleDateString(),
     },
     {
-      label: "amount",
-      title: t("modals.transactionModal.amountLabel"),
+      label: 'amount',
+      title: t('modals.transactionModal.amountLabel'),
       type: fieldTypes.NUMBER,
       value: formData.amount,
     },
     {
-      label: "description",
-      title: t("modals.transactionModal.descriptionLabel"),
+      label: 'description',
+      title: t('modals.transactionModal.descriptionLabel'),
       type: fieldTypes.TEXT,
       value: formData.description,
     },
@@ -308,42 +327,42 @@ const TransactionCreate = () => {
           />
         </TouchableOpacity>
         <Text className="text-white text-2xl font-bold">
-          {t("modals.transactionModal.createTitle")}
+          {t('modals.transactionModal.createTitle')}
         </Text>
       </View>
       <View className="mb-4">
         <SegmentedControl
           values={[
-            t("modals.transactionModal.expense"),
-            t("modals.transactionModal.income"),
+            t('modals.transactionModal.expense'),
+            t('modals.transactionModal.income'),
           ]}
-          selectedIndex={transactionType === "expense" ? 0 : 1}
-          tintColor={transactionType === "expense" ? "#EA4335" : "#34A853"}
+          selectedIndex={transactionType === 'expense' ? 0 : 1}
+          tintColor={transactionType === 'expense' ? '#EA4335' : '#34A853'}
           onChange={(event) => {
             const selectedValue = event.nativeEvent.value;
             const newType =
-              selectedValue === t("modals.transactionModal.expense")
-                ? "expense"
-                : "income";
+              selectedValue === t('modals.transactionModal.expense')
+                ? 'expense'
+                : 'income';
             setTransactionType(newType);
             // Reset category when transaction type changes
             setFormData((prev) => ({
               ...prev,
-              categoryId: "",
+              categoryId: '',
             }));
           }}
         />
       </View>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
         {isLoading && !isSubmitting ? (
           <View className="flex-1 justify-center items-center">
             <ActivityIndicator size="large" color="white" />
             <Text className="text-white mt-4">
-              {t("modals.transactionModal.loadingData")}
+              {t('modals.transactionModal.loadingData')}
             </Text>
           </View>
         ) : (
@@ -354,7 +373,7 @@ const TransactionCreate = () => {
             <View className="rounded-3xl shadow-lg">
               {fields.map((field, index) => (
                 <View key={index}>
-                  {field.label === "date" ? (
+                  {field.label === 'date' ? (
                     <View className="py-3 px-0">
                       <Text className="text-neutral-200 text-sm mb-1">
                         {field.title}
@@ -369,12 +388,12 @@ const TransactionCreate = () => {
                           {field.value}
                         </Text>
                       </TouchableOpacity>
-                      {showDatePicker && field.label === "date" && (
+                      {showDatePicker && field.label === 'date' && (
                         <DateTimePicker
                           value={formData.date}
                           mode="date"
                           display={
-                            Platform.OS === "ios" ? "spinner" : "default"
+                            Platform.OS === 'ios' ? 'spinner' : 'default'
                           }
                           onChange={onDateChange}
                         />
@@ -395,7 +414,7 @@ const TransactionCreate = () => {
               {/* Image picker section */}
               <View className="py-3 px-0">
                 <Text className="text-neutral-200 text-sm mb-1">
-                  {t("modals.transactionModal.ticketLabel")}
+                  {t('modals.transactionModal.ticketLabel')}
                 </Text>
                 <TouchableOpacity
                   className="bg-primary-200 rounded-xl border border-primary-300 py-4 px-4 min-h-[120px] justify-center items-center"
@@ -408,7 +427,7 @@ const TransactionCreate = () => {
                         style={{
                           maxWidth: 280,
                           maxHeight: 200,
-                          width: "100%",
+                          width: '100%',
                           height: undefined,
                           aspectRatio: 1,
                         }}
@@ -428,7 +447,7 @@ const TransactionCreate = () => {
                         📷
                       </Text>
                       <Text className="text-neutral-200 text-sm">
-                        {t("modals.transactionModal.tapToAddImage")}
+                        {t('modals.transactionModal.tapToAddImage')}
                       </Text>
                     </View>
                   )}
@@ -440,7 +459,7 @@ const TransactionCreate = () => {
       </KeyboardAvoidingView>
       <TouchableOpacity
         className={`rounded-xl py-3 mt-5 ${
-          isSubmitting ? "bg-gray-600" : "bg-accent-200"
+          isSubmitting ? 'bg-gray-600' : 'bg-accent-200'
         }`}
         onPress={handleSubmit}
         disabled={isSubmitting}
@@ -449,12 +468,12 @@ const TransactionCreate = () => {
           <View className="flex-row justify-center items-center">
             <ActivityIndicator size="small" color="white" />
             <Text className="text-white text-center text-lg font-bold ml-2">
-              {t("modals.transactionModal.saving")}
+              {t('modals.transactionModal.saving')}
             </Text>
           </View>
         ) : (
           <Text className="text-white text-center text-lg font-bold">
-            {t("modals.transactionModal.save")}
+            {t('modals.transactionModal.save')}
           </Text>
         )}
       </TouchableOpacity>

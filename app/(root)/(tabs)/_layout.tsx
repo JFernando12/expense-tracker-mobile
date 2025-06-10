@@ -53,15 +53,15 @@ const LayoutTabs = () => {
     <Tabs
       screenOptions={{
         tabBarShowLabel: true,
-        tabBarActiveTintColor: "#0061FF",
-        tabBarInactiveTintColor: "#A3A3A3",
+        tabBarActiveTintColor: '#0061FF',
+        tabBarInactiveTintColor: '#A3A3A3',
         tabBarStyle: {
-          backgroundColor: "#111827", // Dark background to match the app's theme
-          borderTopColor: "#1E293B",
+          backgroundColor: '#111827', // Dark background to match the app's theme
+          borderTopColor: '#1E293B',
           borderTopWidth: 1,
           minHeight: 70,
           elevation: 10,
-          shadowColor: "#000",
+          shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,
@@ -75,7 +75,7 @@ const LayoutTabs = () => {
       <Tabs.Screen
         name="index"
         options={{
-          title: t("tabs.home"),
+          title: t('tabs.home'),
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Image
@@ -89,7 +89,7 @@ const LayoutTabs = () => {
       <Tabs.Screen
         name="statistics"
         options={{
-          title: t("tabs.statistics"),
+          title: t('tabs.statistics'),
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Image
@@ -104,22 +104,22 @@ const LayoutTabs = () => {
       <Tabs.Screen
         name="add"
         options={{
-          title: "",
+          title: '',
           tabBarButton: renderAddButton,
         }}
         listeners={{
-          tabPress: (e) => {
+          tabPress: (e: any) => {
             // Prevent default action (navigation to tab)
             e.preventDefault();
             // Navigate to create transaction modal
-            router.push("/(root)/(modals)/transactionModal/create");
+            router.push('/(root)/(modals)/transactionModal/create');
           },
         }}
       />
       <Tabs.Screen
         name="wallet"
         options={{
-          title: t("tabs.wallet"),
+          title: t('tabs.wallet'),
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Image
@@ -133,7 +133,7 @@ const LayoutTabs = () => {
       <Tabs.Screen
         name="profile"
         options={{
-          title: t("tabs.profile"),
+          title: t('tabs.profile'),
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Image
