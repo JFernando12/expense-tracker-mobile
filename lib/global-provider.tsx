@@ -18,7 +18,7 @@ import { getTransactions } from './services/fetchData/transactions';
 import { getTotalBalance, getWallets } from './services/fetchData/wallets';
 
 import { syncData } from './services/syncData/syncData';
-import { getUser } from './services/user/user';
+import { getUser, updateLastSyncDate } from './services/user/user';
 import { UserLocal } from './storage/userLocalStorage';
 import { useAppwrite } from './useAppwrite';
 
@@ -231,6 +231,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
     fn: getTotalExpenses,
     params: { period: PeriodTypes.THIRTY_DAYS },
   });
+
   const {
     data: categoryExpensesSevenDays,
     loading: categoryExpensesSevenDaysLoading,
@@ -282,13 +283,13 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
       refetchCategoryExpensesYear(),
     ]);
   };
+  
   const refetchSyncedData = async () => {
     await refetchSyncData();
     await refetchResources();
     await refetchStatistics();
-    // Update last sync time on successful sync
-    const { userLocalStorage } = await import('@/lib/storage/userLocalStorage');
-    await userLocalStorage.updateLastSyncDate();
+    await updateLastSyncDate();
+    await refetchUserLocal();
   };
 
   useEffect(() => {

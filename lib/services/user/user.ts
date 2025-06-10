@@ -187,3 +187,7 @@ export const completeIAPPurchase = async ({
     return false;
   }
 };
+
+export const updateLastSyncDate = async (): Promise<void> => {
+  await userLocalStorage.updateLastSyncDate();
+};

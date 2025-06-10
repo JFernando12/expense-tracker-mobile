@@ -21,7 +21,7 @@ export interface Translations {
     personalInformation: string;
     loginBackupPrompt: string;
     dataSettings: string;
-    secureCloudSync: string;
+    automaticCloudSync: string;
     premiumFeatureRequired: string;
     cloudSyncRequiresPremium: string;
     deleteDataDescription: string;
@@ -272,7 +272,7 @@ export type TranslationKey =
   | "profile.personalInformation"
   | "profile.loginBackupPrompt"
   | "profile.dataSettings"
-  | "profile.secureCloudSync"
+  | "profile.automaticCloudSync"
   | "profile.premiumFeatureRequired"
   | "profile.cloudSyncRequiresPremium"
   | "profile.deleteDataDescription"

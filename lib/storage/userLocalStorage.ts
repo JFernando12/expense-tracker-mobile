@@ -104,7 +104,7 @@ class UserLocalStorage {
       return { appMode: 'free' };
     }
   }
-  // Upgrade to premium mode
+  
   async upgradeToPremium({
     subscriptionType,
     subscriptionExpiration,

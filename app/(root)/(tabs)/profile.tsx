@@ -71,6 +71,7 @@ const Profile = () => {
   const handleLoginToSync = () => {
     router.push("/(root)/(modals)/loginModal");
   };
+
   const handleAutoSyncToggle = async () => {
     if (!userLocal?.isLoggedIn) {
       router.push("/(root)/(modals)/loginModal");
@@ -91,6 +92,7 @@ const Profile = () => {
       Alert.alert(t("common.failed"), t("profile.cloudSyncRequiresPremium"));
     }
   };
+
   const handleSyncData = async () => {
     if (!userLocal?.isLoggedIn) {
       router.push("/(root)/(modals)/loginModal");
@@ -103,8 +105,24 @@ const Profile = () => {
     }
 
     try {
-      await refetchSyncedData();
-      Alert.alert(t("common.success"), "Data synced successfully");
+      // Alert with confirmation or cancel
+      Alert.alert(
+        t("profile.syncData"),
+        'You are about to sync your data with the cloud',
+        [
+          {
+            text: t("common.cancel"),
+            style: "cancel",
+          },
+          {
+            text: "Confirm",
+            onPress: async () => {
+              await refetchSyncedData();
+            },
+          },
+        ],
+        { cancelable: true }
+      );
     } catch (error) {
       Alert.alert(t("common.failed"), "Failed to sync data");
     }
@@ -204,13 +222,7 @@ const Profile = () => {
                     Last Sync
                   </Text>
                   <Text className="text-white text-sm font-medium">
-                    {!userLocal?.isLoggedIn
-                      ? "Login required to sync"
-                      : appMode === "free"
-                      ? "Premium feature required"
-                      : syncMode === "local"
-                      ? "Cloud sync disabled"
-                      : formatLastSyncDate(userLocal?.lastSyncDate)}
+                    {formatLastSyncDate(userLocal?.lastSyncDate)}
                   </Text>
                 </View>
               </View>
@@ -222,7 +234,7 @@ const Profile = () => {
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1">
                     <Text className="text-white text-lg font-medium">
-                      {t("profile.secureCloudSync")}
+                      {t("profile.automaticCloudSync")}
                     </Text>
                     {appMode === "free" && (
                       <Text className="text-neutral-400 text-sm">
@@ -258,14 +270,14 @@ const Profile = () => {
                 >
                   <View className="flex-1">
                     <Text className="text-white text-lg font-medium">
-                      {t("profile.syncData") || "Sync Data"}
+                      {t("profile.syncData")}
                     </Text>
                     <Text className="text-neutral-400 text-sm">
                       {!userLocal?.isLoggedIn
                         ? "Login required to sync data"
                         : appMode === "free"
                         ? "Premium feature required"
-                        : "Refresh all data from server"}
+                        : "Get latest data from server"}
                     </Text>
                   </View>
                   <View className="bg-blue-500/20 size-10 rounded-full items-center justify-center">

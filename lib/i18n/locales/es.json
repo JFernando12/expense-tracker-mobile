@@ -21,7 +21,7 @@
     "personalInformation": "Información Personal",
     "loginBackupPrompt": "Inicia sesión para respaldar tus gastos",
     "dataSettings": "CONFIGURACIÓN DE DATOS",
-    "secureCloudSync": "Sincronización Segura en la Nube",
+    "automaticCloudSync": "Sincronización automática",
     "premiumFeatureRequired": "Función premium - actualización requerida",
     "cloudSyncRequiresPremium": "La sincronización en la nube requiere suscripción premium",
     "deleteDataDescription": "Esto borrará toda la información local",
