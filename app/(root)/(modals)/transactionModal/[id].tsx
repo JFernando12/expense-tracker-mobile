@@ -105,6 +105,7 @@ const TransactionUpdate = () => {
     // Fallback to regular Date parsing
     return new Date(dateString);
   };
+
   useEffect(() => {
     if (transactionToEdit && wallets) {
       setFormData({
@@ -141,6 +142,7 @@ const TransactionUpdate = () => {
       [field]: value,
     }));
   };
+
   const pickImage = async () => {
     try {
       const { granted } =
@@ -179,6 +181,7 @@ const TransactionUpdate = () => {
       );
     }
   };
+
   const takePhoto = async () => {
     try {
       const { granted } = await ImagePicker.requestCameraPermissionsAsync();
@@ -218,6 +221,7 @@ const TransactionUpdate = () => {
       );
     }
   };
+
   const showImagePicker = () => {
     Alert.alert(t('alerts.selectImage'), t('alerts.chooseOption'), [
       { text: t('common.cancel'), style: 'cancel' },
@@ -279,6 +283,7 @@ const TransactionUpdate = () => {
       ]
     );
   };
+
   const validateForm = () => {
     if (!transactionToEdit) {
       Alert.alert(
@@ -319,6 +324,7 @@ const TransactionUpdate = () => {
         setIsSubmitting(false);
         return;
       }
+
       await updateTransaction({
         isOnlineMode,
         input: {
@@ -573,12 +579,6 @@ const TransactionUpdate = () => {
                           console.log('Failed image URI:', selectedImage);
                           // Optionally remove the broken image
                           setSelectedImage(null);
-                        }}
-                        onLoad={() => {
-                          console.log(
-                            'Image loaded successfully:',
-                            selectedImage
-                          );
                         }}
                       />
                       <TouchableOpacity

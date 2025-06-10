@@ -10,7 +10,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -67,17 +67,6 @@ const TransactionCreate = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const { isOnlineMode, wallets, walletsLoading, refetchResources } =
     useGlobalContext();
-  // Cleanup image when component unmounts
-  useEffect(() => {
-    return () => {
-      if (selectedImage) {
-        // Clean up local image file
-        deleteImage(selectedImage).catch((error) =>
-          console.log('Error cleaning up image:', error)
-        );
-      }
-    };
-  }, [selectedImage]);
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -91,6 +80,7 @@ const TransactionCreate = () => {
       Alert.alert(t('validation.completeFields'), t('validation.selectWallet'));
       return false;
     }
+
     if (!formData.categoryId) {
       Alert.alert(
         t('validation.completeFields'),
@@ -98,12 +88,15 @@ const TransactionCreate = () => {
       );
       return false;
     }
+
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
       Alert.alert(t('validation.completeFields'), t('validation.validAmount'));
       return false;
     }
+
     return true;
   };
+
   const pickImage = async () => {
     try {
       const { granted } =
@@ -191,6 +184,7 @@ const TransactionCreate = () => {
       { text: t('alerts.gallery'), onPress: pickImage },
     ]);
   };
+
   const removeImage = () => {
     if (selectedImage) {
       // Clean up the local file
@@ -426,12 +420,6 @@ const TransactionCreate = () => {
                           console.log('Failed image URI:', selectedImage);
                           // Optionally remove the broken image
                           setSelectedImage(null);
-                        }}
-                        onLoad={() => {
-                          console.log(
-                            'Image loaded successfully:',
-                            selectedImage
-                          );
                         }}
                       />
                       <TouchableOpacity

@@ -18,15 +18,13 @@ export const saveImageToDocuments = async (
   prefix: string = 'transaction'
 ): Promise<ImageSaveResult> => {
   try {
-    await logImageDebug(`Attempting to save image: ${sourceUri}`);
-    
     const documentDirectory = FileSystem.documentDirectory;
-    
+
     if (!documentDirectory) {
       await logImageDebug('Document directory not available');
       return {
         success: false,
-        error: 'Document directory not available'
+        error: 'Document directory not available',
       };
     }
 
@@ -37,8 +35,6 @@ export const saveImageToDocuments = async (
     const uniqueFilename = `${prefix}_${timestamp}_${random}.${fileExtension}`;
     const destUri = `${documentDirectory}${uniqueFilename}`;
 
-    await logImageDebug(`Saving to: ${destUri}`);
-
     // Copy the file
     await FileSystem.copyAsync({
       from: sourceUri,
@@ -47,12 +43,15 @@ export const saveImageToDocuments = async (
 
     // Verify the file was saved and is accessible
     const fileInfo = await FileSystem.getInfoAsync(destUri);
-    
+
     if (!fileInfo.exists) {
-      await logImageDebug('File verification failed - file does not exist', destUri);
+      await logImageDebug(
+        'File verification failed - file does not exist',
+        destUri
+      );
       return {
         success: false,
-        error: 'File was not saved properly'
+        error: 'File was not saved properly',
       };
     }
 
@@ -61,23 +60,25 @@ export const saveImageToDocuments = async (
       await logImageDebug('File verification failed - file is empty', destUri);
       return {
         success: false,
-        error: 'Saved file is empty'
+        error: 'Saved file is empty',
       };
     }
 
-    await logImageDebug(`Image saved successfully: ${destUri} (${fileInfo.size} bytes)`);
+    await logImageDebug(
+      `Image saved successfully: ${destUri} (${fileInfo.size} bytes)`
+    );
 
     return {
       success: true,
-      uri: destUri
+      uri: destUri,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error occurred';
     await logImageDebug(`Error saving image: ${errorMessage}`, sourceUri);
-    console.error('Error saving image:', error);
     return {
       success: false,
-      error: errorMessage
+      error: errorMessage,
     };
   }
 };
@@ -90,16 +91,13 @@ export const saveImageToDocuments = async (
 export const verifyImageExists = async (uri: string): Promise<boolean> => {
   try {
     if (!uri) return false;
-    
+
     const fileInfo = await FileSystem.getInfoAsync(uri);
     const exists = fileInfo.exists && fileInfo.size > 0;
-    
-    await logImageDebug(`Image verification: ${uri} - ${exists ? 'EXISTS' : 'MISSING'}`);
-    
+
     return exists;
   } catch (error) {
     await logImageDebug(`Error verifying image: ${uri} - ${error}`);
-    console.error('Error verifying image:', error);
     return false;
   }
 };
@@ -112,7 +110,7 @@ export const verifyImageExists = async (uri: string): Promise<boolean> => {
 export const deleteImage = async (uri: string): Promise<boolean> => {
   try {
     if (!uri) return true; // Nothing to delete
-    
+
     await FileSystem.deleteAsync(uri, { idempotent: true });
     return true;
   } catch (error) {
@@ -127,23 +125,28 @@ export const deleteImage = async (uri: string): Promise<boolean> => {
  * @param referencedUris - Array of URIs that are still being used
  * @returns Promise<number> - Number of files cleaned up
  */
-export const cleanupUnusedImages = async (referencedUris: string[]): Promise<number> => {
+export const cleanupUnusedImages = async (
+  referencedUris: string[]
+): Promise<number> => {
   try {
     const documentDirectory = FileSystem.documentDirectory;
     if (!documentDirectory) return 0;
 
     const dirInfo = await FileSystem.readDirectoryAsync(documentDirectory);
-    const transactionFiles = dirInfo.filter(file => 
-      file.startsWith('transaction_') && 
-      (file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.png'))
+    const transactionFiles = dirInfo.filter(
+      (file) =>
+        file.startsWith('transaction_') &&
+        (file.endsWith('.jpg') ||
+          file.endsWith('.jpeg') ||
+          file.endsWith('.png'))
     );
 
     let cleanedCount = 0;
-    
+
     for (const file of transactionFiles) {
       const fullPath = `${documentDirectory}${file}`;
       const isReferenced = referencedUris.includes(fullPath);
-      
+
       if (!isReferenced) {
         const deleted = await deleteImage(fullPath);
         if (deleted) cleanedCount++;
