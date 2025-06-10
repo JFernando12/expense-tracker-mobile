@@ -1,15 +1,15 @@
-import CustomField from "@/components/CustomField";
-import { useTranslatedCategories } from "@/constants/categories";
-import icons from "@/constants/icons";
-import { useGlobalContext } from "@/lib/global-provider";
-import { useTranslation } from "@/lib/i18n/useTranslation";
-import { createTransaction } from "@/lib/services/fetchData/transactions";
-import { TransactionType } from "@/types/types";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import * as FileSystem from "expo-file-system";
-import * as ImagePicker from "expo-image-picker";
-import { router } from "expo-router";
+import CustomField from '@/components/CustomField';
+import { useTranslatedCategories } from '@/constants/categories';
+import icons from '@/constants/icons';
+import { useGlobalContext } from '@/lib/global-provider';
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import { createTransaction } from '@/lib/services/fetchData/transactions';
+import { deleteImage, saveImageToDocuments } from '@/lib/utils/imageUtils';
+import { TransactionType } from '@/types/types';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import * as ImagePicker from 'expo-image-picker';
+import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -67,26 +67,13 @@ const TransactionCreate = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const { isOnlineMode, wallets, walletsLoading, refetchResources } =
     useGlobalContext();
-
   // Cleanup image when component unmounts
   useEffect(() => {
     return () => {
       if (selectedImage) {
         // Clean up local image file
-        FileSystem.deleteAsync(selectedImage, { idempotent: true }).catch(
-          (error) => console.log('Error cleaning up image:', error)
-        );
-      }
-    };
-  }, [selectedImage]);
-
-  // Cleanup image when component unmounts
-  useEffect(() => {
-    return () => {
-      if (selectedImage) {
-        // Clean up local image file
-        FileSystem.deleteAsync(selectedImage, { idempotent: true }).catch(
-          (error) => console.log('Error cleaning up image:', error)
+        deleteImage(selectedImage).catch((error) =>
+          console.log('Error cleaning up image:', error)
         );
       }
     };
@@ -117,7 +104,6 @@ const TransactionCreate = () => {
     }
     return true;
   };
-
   const pickImage = async () => {
     try {
       const { granted } =
@@ -136,21 +122,17 @@ const TransactionCreate = () => {
       });
 
       if (!result.canceled && result.assets[0]) {
-        // Save the image to local filesystem
         const localUri = result.assets[0].uri;
-        const filename = localUri.split('/').pop();
-        const documentDirectory = FileSystem.documentDirectory || '';
-        const destUri = documentDirectory + filename;
-        try {
-          await FileSystem.copyAsync({
-            from: localUri,
-            to: destUri,
-          });
-        } catch (error) {
-          console.error('Error al guardar la imagen:', error);
-          Alert.alert(t('common.error'), t('alerts.failedToSaveImage'));
+        const saveResult = await saveImageToDocuments(localUri, 'transaction');
+
+        if (saveResult.success && saveResult.uri) {
+          setSelectedImage(saveResult.uri);
+        } else {
+          Alert.alert(
+            t('common.error'),
+            saveResult.error || t('alerts.failedToSaveImage')
+          );
         }
-        setSelectedImage(destUri);
       }
     } catch (error) {
       console.error('Error picking image:', error);
@@ -178,23 +160,20 @@ const TransactionCreate = () => {
       });
 
       if (!result.canceled && result.assets[0]) {
-        // Save the image to local filesystem
         const localUri = result.assets[0].uri;
-        const filename = localUri.split('/').pop();
-        const documentDirectory = FileSystem.documentDirectory || '';
-        const destUri = documentDirectory + filename;
+        const saveResult = await saveImageToDocuments(
+          localUri,
+          'transaction_photo'
+        );
 
-        try {
-          await FileSystem.copyAsync({
-            from: localUri,
-            to: destUri,
-          });
-        } catch (error) {
-          console.error('Error saving image:', error);
-          Alert.alert(t('common.error'), t('alerts.failedToSaveImage'));
+        if (saveResult.success && saveResult.uri) {
+          setSelectedImage(saveResult.uri);
+        } else {
+          Alert.alert(
+            t('common.error'),
+            saveResult.error || t('alerts.failedToSaveImage')
+          );
         }
-
-        setSelectedImage(destUri);
       }
     } catch (error) {
       console.error('Error taking photo:', error);
@@ -212,8 +191,13 @@ const TransactionCreate = () => {
       { text: t('alerts.gallery'), onPress: pickImage },
     ]);
   };
-
   const removeImage = () => {
+    if (selectedImage) {
+      // Clean up the local file
+      deleteImage(selectedImage).catch((error) =>
+        console.log('Error removing image:', error)
+      );
+    }
     setSelectedImage(null);
   };
 
@@ -271,6 +255,7 @@ const TransactionCreate = () => {
       }));
     }
   };
+
   const fields = [
     {
       label: 'walletId',
@@ -433,6 +418,21 @@ const TransactionCreate = () => {
                         }}
                         className="rounded-lg"
                         resizeMode="contain"
+                        onError={(error) => {
+                          console.error(
+                            'Image load error:',
+                            error.nativeEvent.error
+                          );
+                          console.log('Failed image URI:', selectedImage);
+                          // Optionally remove the broken image
+                          setSelectedImage(null);
+                        }}
+                        onLoad={() => {
+                          console.log(
+                            'Image loaded successfully:',
+                            selectedImage
+                          );
+                        }}
                       />
                       <TouchableOpacity
                         className="absolute top-2 right-2 bg-red-600 rounded-full p-1"

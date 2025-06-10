@@ -1,6 +1,6 @@
 import { transactionLocalStorage } from '@/lib/storage/transactionLocalStorage';
 import { walletLocalStorage } from '@/lib/storage/walletLocalStorage';
-import { createDownloadResumable, documentDirectory } from 'expo-file-system';
+import { createDownloadResumable } from 'expo-file-system';
 import { v4 as uuidv4 } from 'uuid';
 import {
   getTransactionsFromServer,
@@ -103,23 +103,53 @@ const syncTransactions = async (): Promise<number> => {
     const localUpdatedAt = new Date(localTransaction?.updatedAt || 0);
     const serverUpdatedAt = new Date(serverTransaction.updatedAt);
     const isLocalOutdated = serverUpdatedAt > localUpdatedAt;
-
     if (
       !serverTransaction?.deletedAt &&
       serverTransaction.imageUrl &&
       (!localTransaction || isLocalOutdated)
     ) {
-      const fileName = uuidv4();
-      const filePath = `${documentDirectory}${fileName}`;
-      console.log('Downloading image to:', filePath);
-      const downloadResumable = createDownloadResumable(
-        serverTransaction.imageUrl,
-        filePath
-      );
-      const localImage = await downloadResumable.downloadAsync();
-      console.log('Image downloaded:', localImage?.uri);
-      if (localImage?.uri) {
-        serverTransaction.imageUrl = localImage.uri;
+      try {
+        const uniqueFilename = `synced_${uuidv4()}`;
+        const documentDirectory = require('expo-file-system').documentDirectory;
+
+        if (documentDirectory) {
+          const filePath = `${documentDirectory}${uniqueFilename}.jpg`;
+          console.log('Downloading image to:', filePath);
+
+          const downloadResumable = createDownloadResumable(
+            serverTransaction.imageUrl,
+            filePath
+          );
+
+          const localImage = await downloadResumable.downloadAsync();
+          console.log('Image downloaded:', localImage?.uri);
+
+          if (localImage?.uri) {
+            // Verify the downloaded file using our utility
+            const { saveImageToDocuments } = await import(
+              '@/lib/utils/imageUtils'
+            );
+            const saveResult = await saveImageToDocuments(
+              localImage.uri,
+              'synced_transaction'
+            );
+
+            if (saveResult.success && saveResult.uri) {
+              serverTransaction.imageUrl = saveResult.uri;
+            } else {
+              console.warn(
+                'Failed to properly save synced image:',
+                saveResult.error
+              );
+              // Continue without the image rather than failing the entire sync
+              serverTransaction.imageUrl = null;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error downloading image during sync:', error);
+        // Continue sync without the image rather than failing
+        serverTransaction.imageUrl = null;
       }
     }
 
