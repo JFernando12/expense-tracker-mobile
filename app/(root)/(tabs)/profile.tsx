@@ -3,10 +3,9 @@ import icons from '@/constants/icons';
 import images from '@/constants/images';
 import { useGlobalContext } from '@/lib/global-provider';
 import { useTranslation } from '@/lib/i18n/useTranslation';
-import { clearLocalData } from '@/lib/services/syncData/clearData';
 import { logout, updateSyncMode } from '@/lib/services/user/user';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Alert,
   Image,
@@ -24,10 +23,9 @@ const Profile = () => {
     refetchUserLocal,
     isNetworkEnabled,
     openSubscriptionModal,
+    refetchSyncedData,
   } = useGlobalContext();
   const { t } = useTranslation();
-  const [debugPanelVisible, setDebugPanelVisible] = useState(false);
-  const [debugTapCount, setDebugTapCount] = useState(0);
 
   const syncMode = userLocal?.syncMode || 'local';
   const appMode = userLocal?.appMode || 'free';
@@ -36,20 +34,6 @@ const Profile = () => {
     .slice(0, 2)
     .map((word) => word.charAt(0).toUpperCase())
     .join('');
-
-  const handleDebugTap = () => {
-    const newCount = debugTapCount + 1;
-    setDebugTapCount(newCount);
-
-    // Show debug panel after 7 taps
-    if (newCount >= 7) {
-      setDebugPanelVisible(true);
-      setDebugTapCount(0);
-    }
-
-    // Reset counter after 3 seconds
-    setTimeout(() => setDebugTapCount(0), 3000);
-  };
 
   const handleLogout = async () => {
     const result = await logout({ networkEnabled: isNetworkEnabled });
@@ -64,7 +48,6 @@ const Profile = () => {
   const handleLoginToSync = () => {
     router.push('/(root)/(modals)/loginModal');
   };
-
   const handleAutoSyncToggle = async () => {
     if (!userLocal?.isLoggedIn) {
       router.push('/(root)/(modals)/loginModal');
@@ -85,6 +68,24 @@ const Profile = () => {
       Alert.alert(t('common.failed'), t('profile.cloudSyncRequiresPremium'));
     }
   };
+  const handleSyncData = async () => {
+    if (!userLocal?.isLoggedIn) {
+      router.push('/(root)/(modals)/loginModal');
+      return;
+    }
+
+    if (appMode !== 'premium') {
+      openSubscriptionModal();
+      return;
+    }
+
+    try {
+      await refetchSyncedData();
+      Alert.alert(t('common.success'), 'Data synced successfully');
+    } catch (error) {
+      Alert.alert(t('common.failed'), 'Failed to sync data');
+    }
+  };
 
   return (
     <SafeAreaView className="bg-primary-100 h-full -p-safe-offset-20">
@@ -92,11 +93,7 @@ const Profile = () => {
         <View className="mt-8">
           {/* Profile Avatar */}
           <View className="items-center mb-4">
-            <TouchableOpacity
-              onPress={handleDebugTap}
-              className=" flex items-center justify-center size-28 rounded-full bg-secondary-100 border border-neutral-500"
-              activeOpacity={0.8}
-            >
+            <View className=" flex items-center justify-center size-28 rounded-full bg-secondary-100 border border-neutral-500">
               {userLocal?.isLoggedIn && userLocal?.name ? (
                 <Text
                   className="text-white text-5xl font-bold text-center"
@@ -111,7 +108,7 @@ const Profile = () => {
                   tintColor={'#6b7280'}
                 />
               )}
-            </TouchableOpacity>
+            </View>
           </View>
           {/* Profile Name */}
           <View className="items-center">
@@ -203,41 +200,34 @@ const Profile = () => {
               </View>
               {/* Divider */}
               <View className="h-px bg-neutral-700 mx-4" />
-              {/* Delete Data */}
-              <TouchableOpacity
-                onPress={() => {
-                  clearLocalData();
-                }}
-                className="p-4"
-                activeOpacity={0.7}
-              >
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-row items-center flex-1">
-                    <View className="bg-red-500/20 size-10 rounded-full items-center justify-center mr-3">
-                      <Image
-                        source={icons.trashCan as ImageSourcePropType}
-                        tintColor="#ef4444"
-                        className="size-6"
-                      />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-white text-lg font-medium mb-0.5">
-                        {t('profile.deleteData')}
-                      </Text>
-                      <Text className="text-neutral-400 text-base">
-                        {t('profile.deleteDataDescription')}
-                      </Text>
-                    </View>
+              {/* Sync Data */}
+              <View className="p-4">
+                <TouchableOpacity
+                  onPress={handleSyncData}
+                  className="flex-row items-center justify-between"
+                  activeOpacity={0.7}
+                >
+                  <View className="flex-1">
+                    <Text className="text-white text-lg font-medium">
+                      {t('profile.syncData') || 'Sync Data'}
+                    </Text>
+                    <Text className="text-neutral-400 text-sm">
+                      {!userLocal?.isLoggedIn
+                        ? 'Login required to sync data'
+                        : appMode === 'free'
+                        ? 'Premium feature required'
+                        : 'Refresh all data from server'}
+                    </Text>
                   </View>
-                  <View className="ml-3">
+                  <View className="bg-blue-500/20 size-10 rounded-full items-center justify-center">
                     <Image
                       source={icons.rightArrow as ImageSourcePropType}
-                      tintColor="#6b7280"
+                      tintColor="#3b82f6"
                       className="size-5"
                     />
                   </View>
-                </View>
-              </TouchableOpacity>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
           {/* Account Actions Section */}

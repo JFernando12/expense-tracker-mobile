@@ -87,11 +87,7 @@ interface GlobalContextType {
   categoryExpensesYear: CategoryExpenseData[] | null;
   categoryExpensesYearLoading: boolean;
   // Function to refetch sync data
-  refetchSyncData: (
-    newParams?: Record<string, string | number>
-  ) => Promise<void>;
-  syncDataLoading: boolean;
-  // Subscription management
+  refetchSyncedData: () => Promise<void>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -342,8 +338,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         categoryExpensesThirtyDaysLoading,
         categoryExpensesYear,
         categoryExpensesYearLoading,
-        refetchSyncData,
-        syncDataLoading,
+        refetchSyncedData,
       }}
     >
       {children}
