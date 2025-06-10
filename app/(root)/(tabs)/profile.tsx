@@ -26,7 +26,6 @@ const Profile = () => {
     refetchSyncedData,
   } = useGlobalContext();
   const { t } = useTranslation();
-
   const syncMode = userLocal?.syncMode || 'local';
   const appMode = userLocal?.appMode || 'free';
   const initials = userLocal?.name
@@ -34,6 +33,30 @@ const Profile = () => {
     .slice(0, 2)
     .map((word) => word.charAt(0).toUpperCase())
     .join('');
+
+  const formatLastSyncDate = (date?: Date) => {
+    if (!date) return 'Never';
+
+    const now = new Date();
+    const lastSync = new Date(date);
+    const diffInMinutes = Math.floor(
+      (now.getTime() - lastSync.getTime()) / (1000 * 60)
+    );
+
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60)
+      return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24)
+      return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7)
+      return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+
+    return lastSync.toLocaleDateString();
+  };
 
   const handleLogout = async () => {
     const result = await logout({ networkEnabled: isNetworkEnabled });
@@ -160,12 +183,38 @@ const Profile = () => {
                 </View>
               </View>
             </TouchableOpacity>
-          </View>
+          </View>{' '}
           {/* Data Settings Section */}
           <View className="mt-4">
             <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
               {t('profile.dataSettings')}
-            </Text>
+            </Text>{' '}
+            {/* Last Sync Info */}
+            <View className="mb-3 px-4 py-3 bg-secondary-100/80 rounded-xl border border-secondary-100">
+              <View className="flex-row items-center">
+                <View className="bg-blue-500/20 size-8 rounded-full items-center justify-center mr-3">
+                  <Image
+                    source={icons.calendar as ImageSourcePropType}
+                    tintColor="#3b82f6"
+                    className="size-4"
+                  />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-neutral-500 text-xs font-medium uppercase tracking-wider mb-1">
+                    Last Sync
+                  </Text>
+                  <Text className="text-white text-sm font-medium">
+                    {!userLocal?.isLoggedIn
+                      ? 'Login required to sync'
+                      : appMode === 'free'
+                      ? 'Premium feature required'
+                      : syncMode === 'local'
+                      ? 'Cloud sync disabled'
+                      : formatLastSyncDate(userLocal?.lastSyncDate)}
+                  </Text>
+                </View>
+              </View>
+            </View>
             {/* Combined Data Settings Card */}
             <View className="bg-secondary-100 rounded-2xl overflow-hidden">
               {/* Auto Sync Data */}
@@ -224,7 +273,7 @@ const Profile = () => {
                       source={icons.rightArrow as ImageSourcePropType}
                       tintColor="#3b82f6"
                       className="size-5"
-                    />
+                    />{' '}
                   </View>
                 </TouchableOpacity>
               </View>

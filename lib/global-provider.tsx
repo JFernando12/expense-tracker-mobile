@@ -282,11 +282,13 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
       refetchCategoryExpensesYear(),
     ]);
   };
-
   const refetchSyncedData = async () => {
     await refetchSyncData();
     await refetchResources();
     await refetchStatistics();
+    // Update last sync time on successful sync
+    const { userLocalStorage } = await import('@/lib/storage/userLocalStorage');
+    await userLocalStorage.updateLastSyncDate();
   };
 
   useEffect(() => {

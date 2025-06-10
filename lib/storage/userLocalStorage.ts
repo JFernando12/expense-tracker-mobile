@@ -14,6 +14,7 @@ export interface UserLocal {
   syncMode?: SyncMode;
   transactionId?: string;
   originalTransactionId?: string;
+  lastSyncDate?: Date;
 }
 
 interface StorageUser extends UserLocal {
@@ -85,7 +86,8 @@ class UserLocalStorage {
       const storedSubscription = await AsyncStorage.getItem(USER_LOCAL_KEY);
       if (!storedSubscription) return null;
       const parsed: StorageUser = JSON.parse(storedSubscription);
-      return parsed;    } catch {
+      return parsed;
+    } catch {
       return null;
     }
   }
@@ -121,7 +123,7 @@ class UserLocalStorage {
     subscription.subscriptionType = subscriptionType;
     subscription.subscriptionExpiration = subscriptionExpiration;
     subscription.syncStatus = 'pending'; // Set to pending until confirmed
-    
+
     // Add receipt information if provided
     if (transactionId) {
       subscription.transactionId = transactionId;
@@ -147,6 +149,13 @@ class UserLocalStorage {
     const subscription = await this.getUserLocalStorage();
     if (!subscription) return;
     subscription.syncMode = syncMode;
+    await this.saveUserLocal(subscription);
+  }
+
+  async updateLastSyncDate(): Promise<void> {
+    const subscription = await this.getUserLocalStorage();
+    if (!subscription) return;
+    subscription.lastSyncDate = new Date();
     await this.saveUserLocal(subscription);
   }
 
