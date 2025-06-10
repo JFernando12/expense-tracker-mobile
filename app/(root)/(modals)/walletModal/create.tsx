@@ -119,7 +119,7 @@ const WalletCreate = () => {
         },
       ]);
     } catch (error) {
-      console.error("Error creating account:", error);
+      console.error('Error creating wallet:', error);
       Alert.alert(t("common.error"), t("alerts.errorCreatingWallet"));
     }
     setIsLoading(false);

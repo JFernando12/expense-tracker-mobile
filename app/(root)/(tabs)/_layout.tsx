@@ -14,12 +14,12 @@ const LayoutTabs = () => {
     const handleAddPress = () => {      // If there is no wallet, show an alert to create one first
       if (!wallets || wallets.length === 0) {
         Alert.alert(
-          t('alerts.createFirstAccount'),
-          t('alerts.createFirstAccountMessage'),
+          t('alerts.createFirstWallet'),
+          t('alerts.createFirstWalletMessage'),
           [
             {
               text: t('common.continue'),
-              onPress: () => router.push("/(root)/(modals)/walletModal/create"),
+              onPress: () => router.push('/(root)/(modals)/walletModal/create'),
             },
           ]
         );

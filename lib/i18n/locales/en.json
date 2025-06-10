@@ -2,7 +2,7 @@
   "tabs": {
     "home": "Home",
     "statistics": "Report",
-    "wallet": "Accounts",
+    "wallet": "Wallets",
     "profile": "Profile"
   },
   "home": {
@@ -49,9 +49,9 @@
     "expensesByCategory": "Expenses by Category"
   },
   "wallet": {
-    "title": "My Accounts",
+    "title": "My Wallets",
     "totalBalance": "Total Balance",
-    "allAccounts": "All accounts",
+    "allAccounts": "All Wallets",
     "create": "Create"
   },
   "transactions": {
@@ -115,7 +115,8 @@
     "unexpectedError": "An unexpected error occurred",
     "emailAndPasswordRequired": "Please enter your email and password",
     "termsAcceptanceRequired": "You must accept the terms of use to continue"
-  },  "subscription": {
+  },
+  "subscription": {
     "freeMode": "Free Mode",
     "monthlyPlan": "Monthly Plan",
     "yearlyPlan": "Yearly Plan",
@@ -170,7 +171,7 @@
     "transactionModal": {
       "createTitle": "New Transaction",
       "editTitle": "Edit Transaction",
-      "walletLabel": "Account",
+      "walletLabel": "Wallet",
       "categoryLabel": "Category",
       "dateLabel": "Date",
       "amountLabel": "Amount",
@@ -184,9 +185,10 @@
       "save": "Save",
       "transactionNotFound": "Transaction not found",
       "transactionNotFoundForUpdate": "Transaction not found to update"
-    },    "walletModal": {
-      "createTitle": "New Account",
-      "editTitle": "Edit Account",
+    },
+    "walletModal": {
+      "createTitle": "New Wallet",
+      "editTitle": "Edit Wallet",
       "nameLabel": "Name",
       "descriptionLabel": "Description",
       "initialBalanceLabel": "Initial Balance",
@@ -197,7 +199,7 @@
       "deleting": "Deleting...",
       "save": "Save",
       "delete": "Delete",
-      "walletNotFound": "Account not found"
+      "walletNotFound": "Wallet not found"
     },
     "loginModal": {
       "cloudSyncTitle": "Cloud synchronization",
@@ -212,7 +214,7 @@
     "selectWallet": "You must select an account",
     "selectCategory": "You must select a category",
     "validAmount": "You must enter an amount greater than 0",
-    "walletNameRequired": "Account name is required",
+    "walletNameRequired": "Wallet name is required",
     "initialBalanceRequired": "Initial balance is required",
     "initialBalanceValid": "Initial balance must be greater than or equal to 0",
     "transactionNotFound": "Transaction not found"
@@ -230,17 +232,19 @@
     "takePhoto": "Take photo",
     "gallery": "Gallery",
     "cameraPermissionMessage": "Camera access permissions are needed.",
-    "deleteWallet": "Delete Account",
-    "deleteWalletConfirm": "Are you sure you want to delete this account? This action cannot be undone. The account cannot be deleted if it has transactions.",
-    "walletDeletedSuccess": "Account deleted successfully",
-    "errorDeletingWallet": "An error occurred while deleting the account",
-    "walletUpdatedSuccess": "Account updated successfully",
-    "errorUpdatingWallet": "An error occurred while updating the account",
-    "walletCreatedSuccess": "Account created successfully",    "errorCreatingWallet": "An error occurred while creating the account. Please try again.",
-    "createFirstAccount": "Create your first account",
-    "createFirstAccountMessage": "To create transactions you need to have at least one account created.",
+    "deleteWallet": "Delete Wallet",
+    "deleteWalletConfirm": "Are you sure you want to delete this wallet? This action cannot be undone. The account cannot be deleted if it has transactions.",
+    "walletDeletedSuccess": "Wallet deleted successfully",
+    "errorDeletingWallet": "An error occurred while deleting the wallet",
+    "walletUpdatedSuccess": "Wallet updated successfully",
+    "errorUpdatingWallet": "An error occurred while updating the wallet",
+    "walletCreatedSuccess": "Wallet created successfully",
+    "errorCreatingWallet": "An error occurred while creating the wallet. Please try again.",
+    "createFirstWallet": "Create your first wallet",
+    "createFirstWalletMessage": "To create transactions you need to have at least one wallet created.",
     "deleteTransaction": "Delete Transaction",
-    "deleteTransactionConfirm": "Are you sure you want to delete this transaction? This action cannot be undone.",    "transactionCreatedSuccess": "Transaction created successfully",
+    "deleteTransactionConfirm": "Are you sure you want to delete this transaction? This action cannot be undone.",
+    "transactionCreatedSuccess": "Transaction created successfully",
     "transactionDeletedSuccess": "Transaction deleted successfully",
     "errorDeletingTransaction": "An error occurred while deleting the transaction",
     "transactionUpdatedSuccess": "Transaction updated successfully",

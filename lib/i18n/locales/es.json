@@ -2,7 +2,7 @@
   "tabs": {
     "home": "Inicio",
     "statistics": "Reporte",
-    "wallet": "Cuentas",
+    "wallet": "Carteras",
     "profile": "Perfil"
   },
   "home": {
@@ -49,9 +49,9 @@
     "expensesByCategory": "Gastos por Categoría"
   },
   "wallet": {
-    "title": "Mis Cuentas",
+    "title": "Mis Carteras",
     "totalBalance": "Balance Total",
-    "allAccounts": "Todas las cuentas",
+    "allWallets": "Todas las carteras",
     "create": "Crear"
   },
   "transactions": {
@@ -115,7 +115,8 @@
     "unexpectedError": "Ocurrió un error inesperado",
     "emailAndPasswordRequired": "Por favor ingresa tu correo y contraseña",
     "termsAcceptanceRequired": "Debes aceptar los términos de uso para continuar"
-  },  "subscription": {
+  },
+  "subscription": {
     "freeMode": "Modo Gratuito",
     "monthlyPlan": "Plan Mensual",
     "yearlyPlan": "Plan Anual",
@@ -170,7 +171,7 @@
     "transactionModal": {
       "createTitle": "Nueva Transacción",
       "editTitle": "Editar Transacción",
-      "walletLabel": "Cuenta",
+      "walletLabel": "Cartera",
       "categoryLabel": "Categoría",
       "dateLabel": "Fecha",
       "amountLabel": "Monto",
@@ -184,9 +185,10 @@
       "save": "Guardar",
       "transactionNotFound": "Transacción no encontrada",
       "transactionNotFoundForUpdate": "Transacción no encontrada para actualizar"
-    },    "walletModal": {
-      "createTitle": "Nueva Cuenta",
-      "editTitle": "Editar Cuenta",
+    },
+    "walletModal": {
+      "createTitle": "Nueva Cartera",
+      "editTitle": "Editar Cartera",
       "nameLabel": "Nombre",
       "descriptionLabel": "Descripción",
       "initialBalanceLabel": "Saldo inicial",
@@ -197,7 +199,7 @@
       "deleting": "Eliminando...",
       "save": "Guardar",
       "delete": "Eliminar",
-      "walletNotFound": "Cuenta no encontrada"
+      "walletNotFound": "Cartera no encontrada"
     },
     "loginModal": {
       "cloudSyncTitle": "Sincronización en la nube",
@@ -209,10 +211,10 @@
   },
   "validation": {
     "completeFields": "Completa los campos",
-    "selectWallet": "Debe seleccionar una cuenta",
+    "selectWallet": "Debe seleccionar una cartera",
     "selectCategory": "Debe seleccionar una categoría",
     "validAmount": "Debe ingresar un monto mayor a 0",
-    "walletNameRequired": "El nombre de la cuenta es requerido",
+    "walletNameRequired": "El nombre de la cartera es requerido",
     "initialBalanceRequired": "El saldo inicial es requerido",
     "initialBalanceValid": "El saldo inicial debe ser mayor o igual a 0",
     "transactionNotFound": "Transacción no encontrada"
@@ -230,17 +232,19 @@
     "takePhoto": "Tomar foto",
     "gallery": "Galería",
     "cameraPermissionMessage": "Se necesitan permisos para acceder a la cámara.",
-    "deleteWallet": "Eliminar Cuenta",
-    "deleteWalletConfirm": "¿Estás seguro de que quieres eliminar esta cuenta? Esta acción no se puede deshacer. La cuenta no se puede eliminar si tiene transacciones.",
-    "walletDeletedSuccess": "Cuenta eliminada exitosamente",
-    "errorDeletingWallet": "Ocurrió un error al eliminar la cuenta",
-    "walletUpdatedSuccess": "Cuenta actualizada exitosamente",
-    "errorUpdatingWallet": "Ocurrió un error al actualizar la cuenta",
-    "walletCreatedSuccess": "Cuenta creada exitosamente",    "errorCreatingWallet": "Ocurrió un error al crear la cuenta. Inténtalo de nuevo.",
-    "createFirstAccount": "Crea tu primera cuenta",
-    "createFirstAccountMessage": "Para poder crear transacciones necesitas tener al menos una cuenta creada.",
+    "deleteWallet": "Eliminar Cartera",
+    "deleteWalletConfirm": "¿Estás seguro de que quieres eliminar esta cartera? Esta acción no se puede deshacer. La cartera no se puede eliminar si tiene transacciones.",
+    "walletDeletedSuccess": "Cartera eliminada exitosamente",
+    "errorDeletingWallet": "Ocurrió un error al eliminar la cartera",
+    "walletUpdatedSuccess": "Cartera actualizada exitosamente",
+    "errorUpdatingWallet": "Ocurrió un error al actualizar la cartera",
+    "walletCreatedSuccess": "Cartera creada exitosamente",
+    "errorCreatingWallet": "Ocurrió un error al crear la cartera. Inténtalo de nuevo.",
+    "createFirstWallet": "Crea tu primera cartera",
+    "createFirstWalletMessage": "Para poder crear transacciones necesitas tener al menos una cartera creada.",
     "deleteTransaction": "Eliminar Transacción",
-    "deleteTransactionConfirm": "¿Estás seguro de que quieres eliminar esta transacción? Esta acción no se puede deshacer.",    "transactionCreatedSuccess": "Transacción creada exitosamente",
+    "deleteTransactionConfirm": "¿Estás seguro de que quieres eliminar esta transacción? Esta acción no se puede deshacer.",
+    "transactionCreatedSuccess": "Transacción creada exitosamente",
     "transactionDeletedSuccess": "Transacción eliminada exitosamente",
     "errorDeletingTransaction": "Ocurrió un error al eliminar la transacción",
     "transactionUpdatedSuccess": "Transacción actualizada exitosamente",

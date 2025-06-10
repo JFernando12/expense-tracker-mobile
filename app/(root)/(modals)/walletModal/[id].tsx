@@ -135,7 +135,7 @@ const WalletUpdate = () => {
         },
       ]);
     } catch (error) {
-      console.error("Error updating account:", error);
+      console.error('Error updating wallet:', error);
       Alert.alert(t("common.error"), t("alerts.errorUpdatingWallet"));
     } finally {
       setIsLoading(false);
