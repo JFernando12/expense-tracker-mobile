@@ -62,13 +62,28 @@ const Profile = () => {
   };
 
   const handleLogout = async () => {
-    const result = await logout({ networkEnabled: isNetworkEnabled });
-    if (!result) {
-      Alert.alert(t('common.failed'), t('profile.logoutFailed'));
-      return;
-    }
-    await refetchUserLocal();
-    Alert.alert(t('common.success'), t('profile.logoutSuccess'));
+    Alert.alert(
+      'Logout Confirmation',
+      'Are you sure you want to log out?',
+      [
+        {
+          text: t('common.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          onPress: async () => {
+            const result = await logout({ networkEnabled: isNetworkEnabled });
+            if (!result) {
+              Alert.alert(t('common.failed'), t('profile.logoutFailed'));
+              return;
+            }
+            await refetchUserLocal();
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const handleLoginToSync = () => {
@@ -88,9 +103,29 @@ const Profile = () => {
     }
 
     try {
-      const value = syncMode === 'local' ? 'cloud' : 'local';
-      await updateSyncMode({ syncMode: value });
-      await refetchUserLocal();
+      const autoSyncMode = syncMode === 'cloud' ? true : false;
+      Alert.alert(
+        'Auto Sync Mode',
+        `You are about to ${
+          autoSyncMode ? 'deactivate' : 'activate'
+        } auto sync mode`,
+        [
+          {
+            text: t('common.cancel'),
+            style: 'cancel',
+          },
+          {
+            text: 'Confirm',
+            onPress: async () => {
+              await updateSyncMode({
+                syncMode: autoSyncMode ? 'local' : 'cloud',
+              });
+              await refetchUserLocal();
+            },
+          },
+        ],
+        { cancelable: true }
+      );
     } catch {
       Alert.alert(t('common.failed'), t('profile.cloudSyncRequiresPremium'));
     }

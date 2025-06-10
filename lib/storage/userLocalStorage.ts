@@ -70,15 +70,18 @@ class UserLocalStorage {
   }
 
   async logoutUserLocal(): Promise<void> {
-    const userLocal: StorageUser = {
+    const currentUser = await this.getUserLocalStorage();
+    const newUserLocal: StorageUser = {
+      ...currentUser,
       appMode: 'free',
       syncStatus: 'synced',
       isLoggedIn: false,
       subscriptionType: undefined,
       subscriptionExpiration: undefined,
-      id: undefined,
+      transactionId: undefined,
+      originalTransactionId: undefined,
     };
-    await this.saveUserLocal(userLocal);
+    await this.saveUserLocal(newUserLocal);
   }
 
   async getUserLocalStorage(): Promise<StorageUser | null> {

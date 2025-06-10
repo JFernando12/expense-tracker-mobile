@@ -98,6 +98,7 @@ const Statistics = () => {
     totalIncomes,
     totalExpenses,
   ]);
+
   const handleSegmentChange = (label: string) => {
     let period: '7days' | '30days' | 'total';
     switch (label) {
@@ -119,7 +120,7 @@ const Statistics = () => {
   return (
     <SafeAreaView className="bg-primary-100 h-full p-5 -pb-safe-offset-20">
       {/* Header */}
-      <Header title='statistics.title' />
+      <Header title="statistics.title" />
       {/* Segmented Control */}
       <View className="mt-3">
         <SegmentedControl

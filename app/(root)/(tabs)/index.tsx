@@ -1,22 +1,21 @@
 import Header from "@/components/Header";
-import TransactionList from "@/components/TransactionList";
-import icons from "@/constants/icons";
-import { useGlobalContext } from "@/lib/global-provider";
-import { useTranslation } from "@/lib/i18n/useTranslation";
-import { router } from "expo-router";
+import HomeSkeleton from '@/components/skeletons/HomeSkeleton';
+import TransactionList from '@/components/TransactionList';
+import icons from '@/constants/icons';
+import { useGlobalContext } from '@/lib/global-provider';
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import { router } from 'expo-router';
 import {
-  ActivityIndicator,
   Image,
   ImagePropsBase,
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Index() {
   const {
-    userLocalLoading,
     transactions,
     transactionsLoading,
     totalBalance,
@@ -25,22 +24,18 @@ export default function Index() {
     totalIncomesLoading,
     totalExpenses,
     totalExpensesLoading,
-    syncDataLoading,
   } = useGlobalContext();
 
   const { t } = useTranslation();
-
   if (
-    syncDataLoading ||
     transactionsLoading ||
-    userLocalLoading ||
     totalBalanceLoading ||
     totalIncomesLoading ||
     totalExpensesLoading
   ) {
     return (
-      <SafeAreaView className="bg-primary-100 h-full flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="white" />
+      <SafeAreaView className="bg-primary-100 h-full">
+        <HomeSkeleton />
       </SafeAreaView>
     );
   }
@@ -52,10 +47,10 @@ export default function Index() {
       {/* Balance Section */}
       <View className="bg-primary-300 p-6 rounded-3xl mt-3 shadow-lg">
         <Text className="text-neutral-200 text-lg mb-1">
-          {t("home.totalBalance")}
+          {t('home.totalBalance')}
         </Text>
         <Text className="text-white text-4xl font-bold mb-6">
-          ${totalBalance?.toFixed(2) || "0.00"}
+          ${totalBalance?.toFixed(2) || '0.00'}
         </Text>
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
@@ -67,9 +62,9 @@ export default function Index() {
               />
             </View>
             <View>
-              <Text className="text-neutral-200">{t("home.income")}</Text>
+              <Text className="text-neutral-200">{t('home.income')}</Text>
               <Text className="text-white text-lg font-bold">
-                ${totalIncomes?.toFixed(2) || "0.00"}
+                ${totalIncomes?.toFixed(2) || '0.00'}
               </Text>
             </View>
           </View>
@@ -82,9 +77,9 @@ export default function Index() {
               />
             </View>
             <View>
-              <Text className="text-neutral-200">{t("home.expenses")}</Text>
+              <Text className="text-neutral-200">{t('home.expenses')}</Text>
               <Text className="text-danger font-bold text-lg">
-                ${totalExpenses?.toFixed(2) || "0.00"}
+                ${totalExpenses?.toFixed(2) || '0.00'}
               </Text>
             </View>
           </View>
@@ -93,10 +88,10 @@ export default function Index() {
       {/* Today's Transactions Section */}
       <View className="flex-row items-center justify-between mt-3">
         <Text className="text-white text-2xl font-bold">
-          {t("home.recent")}
+          {t('home.recent')}
         </Text>
         <TouchableOpacity
-          onPress={() => router.push("/(root)/(modals)/searchModal")}
+          onPress={() => router.push('/(root)/(modals)/searchModal')}
           className="h-10 w-10 bg-primary-300 rounded-full items-center justify-center"
         >
           <Image
