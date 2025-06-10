@@ -1,4 +1,3 @@
-import ImageDebugPanel from '@/components/ImageDebugPanel';
 import SubscriptionStatus from '@/components/SubscriptionStatus';
 import icons from '@/constants/icons';
 import images from '@/constants/images';
@@ -282,12 +281,6 @@ const Profile = () => {
         </View>
         <View className="h-10" />
       </ScrollView>
-
-      {/* Debug Panel - Only visible in development */}
-      <ImageDebugPanel
-        visible={debugPanelVisible}
-        onClose={() => setDebugPanelVisible(false)}
-      />
     </SafeAreaView>
   );
 };

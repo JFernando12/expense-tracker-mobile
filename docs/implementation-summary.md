@@ -81,12 +81,6 @@ npx eas build --platform ios --profile production
 
 ### **New Utility Modules:**
 - `lib/utils/imageUtils.ts` - Core image handling utilities
-- `lib/utils/debugUtils.ts` - Debug and diagnostic tools
-- `lib/utils/testImageUtils.ts` - Test suite for validation
-
-### **Debug Interface:**
-- `components/ImageDebugPanel.tsx` - In-app debug panel
-- `app/(root)/(tabs)/profile.tsx` - Added debug panel access
 
 ### **Documentation:**
 - `docs/image-handling-fixes.md` - Comprehensive fix documentation

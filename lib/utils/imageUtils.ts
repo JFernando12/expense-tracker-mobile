@@ -1,6 +1,4 @@
 import * as FileSystem from 'expo-file-system';
-import { logImageDebug } from './debugUtils';
-
 export interface ImageSaveResult {
   success: boolean;
   uri?: string;
@@ -21,7 +19,6 @@ export const saveImageToDocuments = async (
     const documentDirectory = FileSystem.documentDirectory;
 
     if (!documentDirectory) {
-      await logImageDebug('Document directory not available');
       return {
         success: false,
         error: 'Document directory not available',
@@ -45,10 +42,6 @@ export const saveImageToDocuments = async (
     const fileInfo = await FileSystem.getInfoAsync(destUri);
 
     if (!fileInfo.exists) {
-      await logImageDebug(
-        'File verification failed - file does not exist',
-        destUri
-      );
       return {
         success: false,
         error: 'File was not saved properly',
@@ -57,16 +50,11 @@ export const saveImageToDocuments = async (
 
     // Additional verification: check if file has content
     if (fileInfo.size === 0) {
-      await logImageDebug('File verification failed - file is empty', destUri);
       return {
         success: false,
         error: 'Saved file is empty',
       };
     }
-
-    await logImageDebug(
-      `Image saved successfully: ${destUri} (${fileInfo.size} bytes)`
-    );
 
     return {
       success: true,
@@ -75,7 +63,6 @@ export const saveImageToDocuments = async (
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error occurred';
-    await logImageDebug(`Error saving image: ${errorMessage}`, sourceUri);
     return {
       success: false,
       error: errorMessage,
@@ -97,7 +84,6 @@ export const verifyImageExists = async (uri: string): Promise<boolean> => {
 
     return exists;
   } catch (error) {
-    await logImageDebug(`Error verifying image: ${uri} - ${error}`);
     return false;
   }
 };
