@@ -24,7 +24,9 @@ const Profile = () => {
     isNetworkEnabled,
     openSubscriptionModal,
     refetchSyncedData,
+    syncDataLoading,
   } = useGlobalContext();
+  
   const { t } = useTranslation();
   const syncMode = userLocal?.syncMode || "local";
   const appMode = userLocal?.appMode || "free";

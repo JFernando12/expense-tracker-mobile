@@ -88,6 +88,7 @@ interface GlobalContextType {
   categoryExpensesYearLoading: boolean;
   // Function to refetch sync data
   refetchSyncedData: () => Promise<void>;
+  syncDataLoading: boolean;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -283,13 +284,13 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
       refetchCategoryExpensesYear(),
     ]);
   };
-  
+
   const refetchSyncedData = async () => {
     await refetchSyncData();
-    await refetchResources();
-    await refetchStatistics();
     await updateLastSyncDate();
     await refetchUserLocal();
+    await refetchResources();
+    await refetchStatistics();
   };
 
   useEffect(() => {
@@ -342,6 +343,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         categoryExpensesYear,
         categoryExpensesYearLoading,
         refetchSyncedData,
+        syncDataLoading,
       }}
     >
       {children}
