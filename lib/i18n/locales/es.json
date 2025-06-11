@@ -41,7 +41,10 @@
     "syncConfirmMessage": "Esto subirá tus datos locales a la nube. Los datos locales se mantendrán disponibles. ¿Continuar?",
     "syncDataLoginPrompt": "Sincronizar datos",
     "autoSyncEnabled": "Auto Sincronización Activada",
-    "autoSyncDisabled": "Auto Sincronización Desactivada"
+    "autoSyncDisabled": "Auto Sincronización Desactivada",
+    "logoutConfirmTitle": "Confirmación de cierre de sesión",
+    "logoutConfirmMessage": "¿Estás seguro de que quieres cerrar sesión?",
+    "confirm": "Confirmar"
   },
   "statistics": {
     "title": "Estadísticas",
@@ -109,14 +112,14 @@
     "dontHaveAccount": "¿No tienes una cuenta?",
     "signUp": "Registrarse",
     "signIn": "Iniciar Sesión"
-  },
-  "auth": {
+  },  "auth": {
     "completeAllFields": "Por favor completa todos los campos",
     "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
     "invalidEmail": "Por favor ingresa una dirección de correo válida",
     "unexpectedError": "Ocurrió un error inesperado",
     "emailAndPasswordRequired": "Por favor ingresa tu correo y contraseña",
-    "termsAcceptanceRequired": "Debes aceptar los términos de uso para continuar"
+    "termsAcceptanceRequired": "Debes aceptar los términos de uso para continuar",
+    "loginFailed": "Error de inicio de sesión. Por favor verifica tus credenciales e inténtalo de nuevo"
   },
   "subscription": {
     "freeMode": "Modo Gratuito",
@@ -154,7 +157,12 @@
     "language": "Idioma",
     "clear": "Limpiar",
     "ok": "OK",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "never": "Nunca",
+    "justNow": "Ahora mismo",
+    "minutesAgo": "Hace {{count}} minuto{{s}}",
+    "hoursAgo": "Hace {{count}} hora{{s}}", 
+    "daysAgo": "Hace {{count}} día{{s}}"
   },
   "modals": {
     "profileModal": {
@@ -202,13 +210,24 @@
       "save": "Guardar",
       "delete": "Eliminar",
       "walletNotFound": "Cartera no encontrada"
-    },
-    "loginModal": {
+    },    "loginModal": {
+      "accessToAccount": "Acceso a tu cuenta",
       "cloudSyncTitle": "Sincronización en la nube",
+      "cloudSyncDescription": "Guarda tus gastos en la nube, accede desde cualquier dispositivo y nunca pierdas tu información.",
+      "createNewProfile": "Crear nuevo perfil",
+      "signIn": "Iniciar sesión",
+      "enterName": "Ingresa tu nombre",
+      "enterEmail": "Ingresa tu email",
+      "enterPassword": "Ingresa tu contraseña",
       "passwordRequirement": "La contraseña debe tener al menos 8 caracteres",
       "termsText": "Acepto los ",
       "termsLink": "términos de uso",
-      "termsService": " del servicio de sincronización Tracki"
+      "termsService": " del servicio de sincronización Tracki",
+      "signInButton": "Iniciar sesión",
+      "signUpButton": "Registrarse",
+      "termsOfUse": "Términos de uso",
+      "registrationFailed": "No se pudo registrar el usuario",
+      "registrationSuccess": "Usuario registrado correctamente"
     }
   },
   "validation": {

@@ -41,7 +41,10 @@
     "syncConfirmMessage": "This will upload your local data to the cloud. Local data will remain available. Continue?",
     "syncDataLoginPrompt": "Sync data",
     "autoSyncEnabled": "Auto Sync Enabled",
-    "autoSyncDisabled": "Auto Sync Disabled"
+    "autoSyncDisabled": "Auto Sync Disabled",
+    "logoutConfirmTitle": "Logout Confirmation",
+    "logoutConfirmMessage": "Are you sure you want to log out?",
+    "confirm": "Confirm"
   },
   "statistics": {
     "title": "Statistics",
@@ -109,14 +112,14 @@
     "dontHaveAccount": "Don't have an account?",
     "signUp": "Sign Up",
     "signIn": "Sign In"
-  },
-  "auth": {
+  },  "auth": {
     "completeAllFields": "Please complete all fields",
     "passwordMinLength": "Password must be at least 8 characters",
     "invalidEmail": "Please enter a valid email address",
     "unexpectedError": "An unexpected error occurred",
     "emailAndPasswordRequired": "Please enter your email and password",
-    "termsAcceptanceRequired": "You must accept the terms of use to continue"
+    "termsAcceptanceRequired": "You must accept the terms of use to continue",
+    "loginFailed": "Login failed. Please check your credentials and try again"
   },
   "subscription": {
     "freeMode": "Free Mode",
@@ -154,7 +157,12 @@
     "language": "Language",
     "clear": "Clear",
     "ok": "OK",
-    "close": "Close"
+    "close": "Close",
+    "never": "Never",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} minute{{s}} ago",
+    "hoursAgo": "{{count}} hour{{s}} ago",
+    "daysAgo": "{{count}} day{{s}} ago"
   },
   "modals": {
     "profileModal": {
@@ -202,13 +210,24 @@
       "save": "Save",
       "delete": "Delete",
       "walletNotFound": "Wallet not found"
-    },
-    "loginModal": {
+    },    "loginModal": {
+      "accessToAccount": "Access to your account",
       "cloudSyncTitle": "Cloud synchronization",
+      "cloudSyncDescription": "Save your expenses to the cloud, access from any device and never lose your information.",
+      "createNewProfile": "Create new Profile",
+      "signIn": "Sign-In",
+      "enterName": "Enter your name",
+      "enterEmail": "Enter your email",
+      "enterPassword": "Enter your password",
       "passwordRequirement": "Password must be at least 8 characters long",
       "termsText": "I accept the ",
       "termsLink": "terms of use",
-      "termsService": " of the Tracki synchronization service"
+      "termsService": " of the Tracki synchronization service",
+      "signInButton": "Sign In",
+      "signUpButton": "Sign Up",
+      "termsOfUse": "Terms of Use",
+      "registrationFailed": "Could not register user",
+      "registrationSuccess": "User registered successfully"
     }
   },
   "validation": {

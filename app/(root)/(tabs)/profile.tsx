@@ -1,10 +1,10 @@
-import { AccountSettings } from '@/components/profile';
-import icons from '@/constants/icons';
-import images from '@/constants/images';
-import { useGlobalContext } from '@/lib/global-provider';
-import { useTranslation } from '@/lib/i18n/useTranslation';
-import { logout } from '@/lib/services/user/user';
-import React from 'react';
+import { AccountSettings } from "@/components/profile";
+import icons from "@/constants/icons";
+import images from "@/constants/images";
+import { useGlobalContext } from "@/lib/global-provider";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { logout } from "@/lib/services/user/user";
+import React from "react";
 import {
   Alert,
   Image,
@@ -13,34 +13,33 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
   const { userLocal, refetchUserLocal, isNetworkEnabled } = useGlobalContext();
 
   const { t } = useTranslation();
   const initials = userLocal?.name
-    ?.split(' ')
+    ?.split(" ")
     .slice(0, 2)
     .map((word) => word.charAt(0).toUpperCase())
-    .join('');
-
+    .join("");
   const handleLogout = async () => {
     Alert.alert(
-      'Logout Confirmation',
-      'Are you sure you want to log out?',
+      t("profile.logoutConfirmTitle"),
+      t("profile.logoutConfirmMessage"),
       [
         {
-          text: t('common.cancel'),
-          style: 'cancel',
+          text: t("common.cancel"),
+          style: "cancel",
         },
         {
-          text: 'Confirm',
+          text: t("profile.confirm"),
           onPress: async () => {
             const result = await logout({ networkEnabled: isNetworkEnabled });
             if (!result) {
-              Alert.alert(t('common.failed'), t('profile.logoutFailed'));
+              Alert.alert(t("common.failed"), t("profile.logoutFailed"));
               return;
             }
             await refetchUserLocal();
@@ -69,7 +68,7 @@ const Profile = () => {
                 <Image
                   source={images.avatar as ImageSourcePropType}
                   className="size-16"
-                  tintColor={'#6b7280'}
+                  tintColor={"#6b7280"}
                 />
               )}
             </View>
@@ -77,10 +76,10 @@ const Profile = () => {
           {/* Profile Name */}
           <View className="items-center">
             <Text className="text-white text-2xl font-bold mb-1">
-              {userLocal?.isLoggedIn ? userLocal?.name : t('profile.localUser')}
+              {userLocal?.isLoggedIn ? userLocal?.name : t("profile.localUser")}
             </Text>
             <Text className="text-neutral-400 text-base">
-              {t('profile.tagline')}
+              {t("profile.tagline")}
             </Text>
           </View>
         </View>
@@ -95,7 +94,7 @@ const Profile = () => {
           {userLocal?.isLoggedIn && (
             <View className="mt-4">
               <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
-                {t('profile.accountActions')}
+                {t("profile.accountActions")}
               </Text>
               {/* Logout Button */}
               <TouchableOpacity
@@ -114,7 +113,7 @@ const Profile = () => {
                     </View>
                     <View className="flex-1">
                       <Text className="text-white text-lg font-medium mb-0.5">
-                        {t('profile.logout')}
+                        {t("profile.logout")}
                       </Text>
                     </View>
                   </View>

@@ -1,9 +1,9 @@
-import icons from '@/constants/icons';
-import { useGlobalContext } from '@/lib/global-provider';
-import { useTranslation } from '@/lib/i18n/useTranslation';
-import { updateSyncMode } from '@/lib/services/user/user';
-import { router } from 'expo-router';
-import React from 'react';
+import icons from "@/constants/icons";
+import { useGlobalContext } from "@/lib/global-provider";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { updateSyncMode } from "@/lib/services/user/user";
+import { router } from "expo-router";
+import React from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -12,23 +12,21 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
+} from "react-native";
 
 const DataSettings = () => {
   const {
     userLocal,
     refetchUserLocal,
-    isNetworkEnabled,
     openSubscriptionModal,
     refetchSyncedData,
     syncDataLoading,
   } = useGlobalContext();
-  const syncMode = userLocal?.syncMode || 'local';
-  const appMode = userLocal?.appMode || 'free';
+  const syncMode = userLocal?.syncMode || "local";
+  const appMode = userLocal?.appMode || "free";
   const { t } = useTranslation();
-
   const formatLastSyncDate = (date?: Date) => {
-    if (!date) return 'Never';
+    if (!date) return t("common.never");
 
     const now = new Date();
     const lastSync = new Date(date);
@@ -36,50 +34,59 @@ const DataSettings = () => {
       (now.getTime() - lastSync.getTime()) / (1000 * 60)
     );
 
-    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 1) return t("common.justNow");
     if (diffInMinutes < 60)
-      return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+      return t("common.minutesAgo", {
+        count: diffInMinutes,
+        s: diffInMinutes > 1 ? "s" : "",
+      });
 
     const diffInHours = Math.floor(diffInMinutes / 60);
     if (diffInHours < 24)
-      return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+      return t("common.hoursAgo", {
+        count: diffInHours,
+        s: diffInHours > 1 ? "s" : "",
+      });
 
     const diffInDays = Math.floor(diffInHours / 24);
     if (diffInDays < 7)
-      return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+      return t("common.daysAgo", {
+        count: diffInDays,
+        s: diffInDays > 1 ? "s" : "",
+      });
 
     return lastSync.toLocaleDateString();
   };
 
   const handleAutoSyncToggle = async () => {
     if (!userLocal?.isLoggedIn) {
-      router.push('/(root)/(modals)/loginModal');
+      router.push("/(root)/(modals)/loginModal");
       return;
     }
 
     // Cloud sync requires premium subscription
-    if (appMode !== 'premium') {
+    if (appMode !== "premium") {
       openSubscriptionModal();
       return;
     }
 
     try {
-      const autoSyncMode = syncMode === 'cloud' ? true : false;
+      const autoSyncMode = syncMode === "cloud" ? true : false;
       Alert.alert(
-        'Auto Sync Mode',
+        "Auto Sync Mode",
         `You are about to ${
-          autoSyncMode ? 'deactivate' : 'activate'
+          autoSyncMode ? "deactivate" : "activate"
         } auto sync mode`,
         [
           {
-            text: t('common.cancel'),
-            style: 'cancel',
+            text: t("common.cancel"),
+            style: "cancel",
           },
           {
-            text: 'Confirm',
+            text: "Confirm",
             onPress: async () => {
               await updateSyncMode({
-                syncMode: autoSyncMode ? 'local' : 'cloud',
+                syncMode: autoSyncMode ? "local" : "cloud",
               });
               await refetchUserLocal();
             },
@@ -88,17 +95,17 @@ const DataSettings = () => {
         { cancelable: true }
       );
     } catch {
-      Alert.alert(t('common.failed'), t('profile.cloudSyncRequiresPremium'));
+      Alert.alert(t("common.failed"), t("profile.cloudSyncRequiresPremium"));
     }
   };
 
   const handleSyncData = async () => {
     if (!userLocal?.isLoggedIn) {
-      router.push('/(root)/(modals)/loginModal');
+      router.push("/(root)/(modals)/loginModal");
       return;
     }
 
-    if (appMode !== 'premium') {
+    if (appMode !== "premium") {
       openSubscriptionModal();
       return;
     }
@@ -106,15 +113,15 @@ const DataSettings = () => {
     try {
       // Alert with confirmation or cancel
       Alert.alert(
-        t('profile.syncData'),
-        'You are about to sync your data with the cloud',
+        t("profile.syncData"),
+        "You are about to sync your data with the cloud",
         [
           {
-            text: t('common.cancel'),
-            style: 'cancel',
+            text: t("common.cancel"),
+            style: "cancel",
           },
           {
-            text: 'Confirm',
+            text: "Confirm",
             onPress: async () => {
               await refetchSyncedData();
             },
@@ -123,14 +130,14 @@ const DataSettings = () => {
         { cancelable: true }
       );
     } catch (error) {
-      Alert.alert(t('common.failed'), 'Failed to sync data');
+      Alert.alert(t("common.failed"), "Failed to sync data");
     }
   };
 
   return (
     <View className="mt-4">
       <Text className="text-neutral-500 text-sm font-medium uppercase tracking-widest mb-3">
-        {t('profile.dataSettings')}
+        {t("profile.dataSettings")}
       </Text>
       {/* Last Sync Info */}
       <View className="mb-3 px-4 py-3 bg-secondary-100/80 rounded-xl border border-secondary-100">
@@ -159,24 +166,24 @@ const DataSettings = () => {
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
               <Text className="text-white text-lg font-medium">
-                {t('profile.automaticCloudSync')}
+                {t("profile.automaticCloudSync")}
               </Text>
-              {appMode === 'free' && (
+              {appMode === "free" && (
                 <Text className="text-neutral-400 text-sm">
-                  {t('profile.premiumFeatureRequired')}
+                  {t("profile.premiumFeatureRequired")}
                 </Text>
               )}
             </View>
             <TouchableOpacity
               onPress={() => handleAutoSyncToggle()}
               className={`w-12 h-6 rounded-full p-0.5 ${
-                syncMode === 'cloud' ? 'bg-green-500' : 'bg-neutral-600'
+                syncMode === "cloud" ? "bg-green-500" : "bg-neutral-600"
               }`}
             >
               <View
                 className="w-5 h-5 rounded-full bg-white"
                 style={{
-                  transform: [{ translateX: syncMode === 'cloud' ? 24 : 0 }],
+                  transform: [{ translateX: syncMode === "cloud" ? 24 : 0 }],
                 }}
               />
             </TouchableOpacity>
@@ -194,16 +201,16 @@ const DataSettings = () => {
           >
             <View className="flex-1">
               <Text className="text-white text-lg font-medium">
-                {t('profile.syncData')}
+                {t("profile.syncData")}
               </Text>
               <Text className="text-neutral-400 text-sm">
                 {!userLocal?.isLoggedIn
-                  ? 'Login required to sync data'
-                  : appMode === 'free'
-                  ? 'Premium feature required'
+                  ? "Login required to sync data"
+                  : appMode === "free"
+                  ? "Premium feature required"
                   : syncDataLoading
-                  ? 'Syncing data...'
-                  : 'Get latest data from server'}
+                  ? "Syncing data..."
+                  : "Get latest data from server"}
               </Text>
             </View>
             <View className="bg-blue-500/20 size-10 rounded-full items-center justify-center">

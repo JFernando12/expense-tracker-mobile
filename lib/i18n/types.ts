@@ -33,10 +33,12 @@ export interface Translations {
     syncData: string;
     syncing: string;
     privacyPolicy: string;
-    deleteData: string;
-    logout: string;
+    deleteData: string;    logout: string;
     logoutFailed: string;
     logoutSuccess: string;
+    logoutConfirmTitle: string;
+    logoutConfirmMessage: string;
+    confirm: string;
     syncConfirmTitle: string;
     syncConfirmMessage: string;
     syncDataLoginPrompt: string;
@@ -49,11 +51,10 @@ export interface Translations {
     thirtyDays: string;
     total: string;
     expensesByCategory: string;
-  };
-  wallet: {
+  };  wallet: {
     title: string;
     totalBalance: string;
-    allWallets: string;
+    allAccounts: string;
     create: string;
   };
   transactions: {
@@ -108,14 +109,14 @@ export interface Translations {
     dontHaveAccount: string;
     signUp: string;
     signIn: string;
-  };
-  auth: {
+  };  auth: {
     completeAllFields: string;
     passwordMinLength: string;
     invalidEmail: string;
     unexpectedError: string;
     emailAndPasswordRequired: string;
     termsAcceptanceRequired: string;
+    loginFailed: string;
   };
   subscription: {
     freeMode: string;
@@ -154,6 +155,11 @@ export interface Translations {
     clear: string;
     ok: string;
     close: string;
+    never: string;
+    justNow: string;
+    minutesAgo: string;
+    hoursAgo: string;
+    daysAgo: string;
   };
   modals: {
     profileModal: {
@@ -201,13 +207,24 @@ export interface Translations {
       save: string;
       delete: string;
       walletNotFound: string;
-    };
-    loginModal: {
+    };    loginModal: {
+      accessToAccount: string;
       cloudSyncTitle: string;
+      cloudSyncDescription: string;
+      createNewProfile: string;
+      signIn: string;
+      enterName: string;
+      enterEmail: string;
+      enterPassword: string;
       passwordRequirement: string;
       termsText: string;
       termsLink: string;
       termsService: string;
+      signInButton: string;
+      signUpButton: string;
+      termsOfUse: string;
+      registrationFailed: string;
+      registrationSuccess: string;
     };
   };
   validation: {
@@ -295,6 +312,9 @@ export type TranslationKey =
   | 'profile.syncDataLoginPrompt'
   | 'profile.autoSyncEnabled'
   | 'profile.autoSyncDisabled'
+  | 'profile.logoutConfirmTitle'
+  | 'profile.logoutConfirmMessage'
+  | 'profile.confirm'
   // Statistics translations
   | 'statistics.title'
   | 'statistics.sevenDays'
@@ -350,14 +370,14 @@ export type TranslationKey =
   | 'forms.createAccount'
   | 'forms.alreadyHaveAccount'
   | 'forms.dontHaveAccount'
-  | 'forms.signUp'
-  | 'forms.signIn' // Auth translations
+  | 'forms.signUp'  | 'forms.signIn' // Auth translations
   | 'auth.completeAllFields'
   | 'auth.passwordMinLength'
   | 'auth.invalidEmail'
   | 'auth.unexpectedError'
   | 'auth.emailAndPasswordRequired'
   | 'auth.termsAcceptanceRequired'
+  | 'auth.loginFailed'
   // Subscription translations
   | 'subscription.freeMode'
   | 'subscription.monthlyPlan'
@@ -394,6 +414,11 @@ export type TranslationKey =
   | 'common.clear'
   | 'common.ok'
   | 'common.close'
+  | 'common.never'
+  | 'common.justNow'
+  | 'common.minutesAgo'
+  | 'common.hoursAgo'
+  | 'common.daysAgo'
   // Modal translations
   | 'modals.profileModal.title'
   | 'modals.profileModal.saving'
@@ -432,12 +457,23 @@ export type TranslationKey =
   | 'modals.walletModal.deleting'
   | 'modals.walletModal.save'
   | 'modals.walletModal.delete'
-  | 'modals.walletModal.walletNotFound'
+  | 'modals.walletModal.walletNotFound'  | 'modals.loginModal.accessToAccount'
   | 'modals.loginModal.cloudSyncTitle'
+  | 'modals.loginModal.cloudSyncDescription'
+  | 'modals.loginModal.createNewProfile'
+  | 'modals.loginModal.signIn'
+  | 'modals.loginModal.enterName'
+  | 'modals.loginModal.enterEmail'
+  | 'modals.loginModal.enterPassword'
   | 'modals.loginModal.passwordRequirement'
   | 'modals.loginModal.termsText'
   | 'modals.loginModal.termsLink'
   | 'modals.loginModal.termsService'
+  | 'modals.loginModal.signInButton'
+  | 'modals.loginModal.signUpButton'
+  | 'modals.loginModal.termsOfUse'
+  | 'modals.loginModal.registrationFailed'
+  | 'modals.loginModal.registrationSuccess'
   // Validation translations
   | 'validation.completeFields'
   | 'validation.selectWallet'
