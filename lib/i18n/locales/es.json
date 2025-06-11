@@ -12,7 +12,9 @@
     "income": "Ingresos",
     "expenses": "Gastos",
     "recent": "Recientes",
-    "transactions": "Transacciones"
+    "transactions": "Transacciones",
+    "noTransactions": "No hay transacciones aún",
+    "noTransactionsDescription": "Comienza creando tu primera transacción"
   },
   "profile": {
     "localUser": "Usuario Local",

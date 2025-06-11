@@ -12,7 +12,9 @@
     "income": "Income",
     "expenses": "Expenses",
     "recent": "Recent",
-    "transactions": "Transactions"
+    "transactions": "Transactions",
+    "noTransactions": "No transactions yet",
+    "noTransactionsDescription": "Start by creating your first transaction"
   },
   "profile": {
     "localUser": "Spendy - Finance Tracker",

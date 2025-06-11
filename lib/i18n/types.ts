@@ -13,6 +13,8 @@ export interface Translations {
     expenses: string;
     recent: string;
     transactions: string;
+    noTransactions: string;
+    noTransactionsDescription: string;
   };
   profile: {
     localUser: string;
@@ -265,7 +267,9 @@ export type TranslationKey =
   | 'home.income'
   | 'home.expenses'
   | 'home.recent'
-  | 'home.transactions' // Profile translations
+  | 'home.transactions'
+  | 'home.noTransactions'
+  | 'home.noTransactionsDescription' // Profile translations
   | 'profile.localUser'
   | 'profile.tagline'
   | 'profile.accountSettings'
