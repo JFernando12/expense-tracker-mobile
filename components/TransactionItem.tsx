@@ -1,5 +1,6 @@
 import { useCategory } from '@/constants/categories';
 import { useTranslation } from '@/lib/i18n/useTranslation';
+import { formatNumberWithCommas } from '@/lib/utils/numberUtils';
 import { Transaction, TransactionType } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -73,7 +74,7 @@ const TransactionItem = ({
           }
         >
           {type === TransactionType.INCOME ? '+' : '-'} $
-          {Number(amount).toFixed(2)}
+          {formatNumberWithCommas(Number(amount).toFixed(2))}
         </Text>
         <Text className="text-neutral-200 mt-1">{date}</Text>
       </View>

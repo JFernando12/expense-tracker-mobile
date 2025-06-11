@@ -1,4 +1,5 @@
 import icons from '@/constants/icons';
+import { formatNumberWithCommas } from '@/lib/utils/numberUtils';
 import { router } from 'expo-router';
 import {
   Image,
@@ -38,7 +39,7 @@ const WalletItem = ({
         <View>
           <Text className="text-white text-lg font-bold">{name}</Text>
           <Text className="text-neutral-200 text-sm font-semibold">
-            {currentBalance.toFixed(2)}
+            ${formatNumberWithCommas(currentBalance.toFixed(2))}
           </Text>
         </View>
       </View>

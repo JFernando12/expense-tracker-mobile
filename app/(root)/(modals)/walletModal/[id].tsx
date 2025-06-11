@@ -1,10 +1,14 @@
-import CustomField from "@/components/CustomField";
-import icons from "@/constants/icons";
-import { useGlobalContext } from "@/lib/global-provider";
-import { useTranslation } from "@/lib/i18n/useTranslation";
-import { deleteWallet, updateWallet } from "@/lib/services/fetchData/wallets";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import CustomField from '@/components/CustomField';
+import icons from '@/constants/icons';
+import { useGlobalContext } from '@/lib/global-provider';
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import { deleteWallet, updateWallet } from '@/lib/services/fetchData/wallets';
+import {
+  formatNumberWithCommas,
+  parseFormattedNumber,
+} from '@/lib/utils/numberUtils';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -14,14 +18,14 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 enum fieldTypes {
-  TEXT = "text",
-  NUMBER = "number",
-  DATE = "date",
-  SELECT = "select",
+  TEXT = 'text',
+  NUMBER = 'number',
+  DATE = 'date',
+  SELECT = 'select',
 }
 
 const WalletUpdate = () => {
@@ -29,9 +33,9 @@ const WalletUpdate = () => {
   const { refetchResources, wallets, isOnlineMode } = useGlobalContext();
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    initialBalance: "",
+    name: '',
+    description: '',
+    initialBalance: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -43,34 +47,36 @@ const WalletUpdate = () => {
       setFormData({
         name: walletToEdit.name,
         description: walletToEdit.description,
-        initialBalance: walletToEdit.initialBalance.toString(),
+        initialBalance: formatNumberWithCommas(
+          walletToEdit.initialBalance.toString()
+        ),
       });
     }
   }, [walletToEdit]);
   const fields = [
     {
-      label: t("modals.walletModal.nameLabel"),
-      title: t("modals.walletModal.nameLabel"),
+      label: t('modals.walletModal.nameLabel'),
+      title: t('modals.walletModal.nameLabel'),
       value: formData.name,
       type: fieldTypes.TEXT,
-      key: "name",
-      placeholder: t("modals.walletModal.namePlaceholder"),
+      key: 'name',
+      placeholder: t('modals.walletModal.namePlaceholder'),
     },
     {
-      label: t("modals.walletModal.descriptionLabel"),
-      title: t("modals.walletModal.descriptionLabel"),
+      label: t('modals.walletModal.descriptionLabel'),
+      title: t('modals.walletModal.descriptionLabel'),
       value: formData.description,
       type: fieldTypes.TEXT,
-      key: "description",
-      placeholder: t("modals.walletModal.descriptionPlaceholder"),
+      key: 'description',
+      placeholder: t('modals.walletModal.descriptionPlaceholder'),
     },
     {
-      label: t("modals.walletModal.initialBalanceLabel"),
-      title: t("modals.walletModal.initialBalanceLabel"),
+      label: t('modals.walletModal.initialBalanceLabel'),
+      title: t('modals.walletModal.initialBalanceLabel'),
       value: formData.initialBalance,
       type: fieldTypes.NUMBER,
-      key: "initialBalance",
-      placeholder: t("modals.walletModal.initialBalancePlaceholder"),
+      key: 'initialBalance',
+      placeholder: t('modals.walletModal.initialBalancePlaceholder'),
     },
   ];
 
@@ -82,32 +88,31 @@ const WalletUpdate = () => {
   };
   const handleUpdateWallet = async () => {
     if (!walletToEdit) {
-      Alert.alert(t("common.error"), t("modals.walletModal.walletNotFound"));
+      Alert.alert(t('common.error'), t('modals.walletModal.walletNotFound'));
       return;
     }
 
     // Validate form
     if (!formData.name.trim()) {
       Alert.alert(
-        t("validation.completeFields"),
-        t("validation.walletNameRequired")
+        t('validation.completeFields'),
+        t('validation.walletNameRequired')
       );
       return;
     }
 
     if (!formData.initialBalance.trim()) {
       Alert.alert(
-        t("validation.completeFields"),
-        t("validation.initialBalanceRequired")
+        t('validation.completeFields'),
+        t('validation.initialBalanceRequired')
       );
       return;
     }
-
-    const initialBalance = parseFloat(formData.initialBalance);
+    const initialBalance = parseFormattedNumber(formData.initialBalance);
     if (isNaN(initialBalance) || initialBalance < 0) {
       Alert.alert(
-        t("validation.completeFields"),
-        t("validation.initialBalanceValid")
+        t('validation.completeFields'),
+        t('validation.initialBalanceValid')
       );
       return;
     }
@@ -128,15 +133,15 @@ const WalletUpdate = () => {
 
       // Refetch resources to update the wallet list
       await refetchResources();
-      Alert.alert(t("common.success"), t("alerts.walletUpdatedSuccess"), [
+      Alert.alert(t('common.success'), t('alerts.walletUpdatedSuccess'), [
         {
-          text: t("common.ok"),
+          text: t('common.ok'),
           onPress: () => router.back(),
         },
       ]);
     } catch (error) {
       console.error('Error updating wallet:', error);
-      Alert.alert(t("common.error"), t("alerts.errorUpdatingWallet"));
+      Alert.alert(t('common.error'), t('alerts.errorUpdatingWallet'));
     } finally {
       setIsLoading(false);
     }
@@ -144,14 +149,14 @@ const WalletUpdate = () => {
   const handleDelete = async () => {
     if (!walletToEdit) return;
 
-    Alert.alert(t("alerts.deleteWallet"), t("alerts.deleteWalletConfirm"), [
+    Alert.alert(t('alerts.deleteWallet'), t('alerts.deleteWalletConfirm'), [
       {
-        text: t("common.cancel"),
-        style: "cancel",
+        text: t('common.cancel'),
+        style: 'cancel',
       },
       {
-        text: t("common.delete"),
-        style: "destructive",
+        text: t('common.delete'),
+        style: 'destructive',
         onPress: async () => {
           setIsDeleting(true);
           try {
@@ -160,8 +165,8 @@ const WalletUpdate = () => {
             router.back();
             Alert.alert(t('common.success'), t('alerts.walletDeletedSuccess'));
           } catch (error) {
-            console.error("Error deleting wallet:", error);
-            Alert.alert(t("common.error"), t("alerts.errorDeletingWallet"));
+            console.error('Error deleting wallet:', error);
+            Alert.alert(t('common.error'), t('alerts.errorDeletingWallet'));
           } finally {
             setIsDeleting(false);
           }
@@ -184,14 +189,14 @@ const WalletUpdate = () => {
           />
         </TouchableOpacity>
         <Text className="text-white text-2xl font-bold">
-          {t("modals.walletModal.editTitle")}
+          {t('modals.walletModal.editTitle')}
         </Text>
       </View>
 
       {!walletToEdit ? (
         <View className="flex-1 justify-center items-center">
           <Text className="text-white text-lg">
-            {t("modals.walletModal.walletNotFound")}
+            {t('modals.walletModal.walletNotFound')}
           </Text>
         </View>
       ) : (
@@ -213,7 +218,7 @@ const WalletUpdate = () => {
           </ScrollView>
           <TouchableOpacity
             className={`rounded-xl py-3 mt-5 ${
-              isLoading || isDeleting ? "bg-gray-600" : "bg-accent-200"
+              isLoading || isDeleting ? 'bg-gray-600' : 'bg-accent-200'
             }`}
             onPress={handleUpdateWallet}
             disabled={isLoading || isDeleting}
@@ -222,19 +227,19 @@ const WalletUpdate = () => {
               <View className="flex-row justify-center items-center">
                 <ActivityIndicator size="small" color="white" />
                 <Text className="text-white text-center text-lg font-bold ml-2">
-                  {t("modals.walletModal.saving")}
+                  {t('modals.walletModal.saving')}
                 </Text>
               </View>
             ) : (
               <Text className="text-white text-center text-lg font-bold">
-                {t("modals.walletModal.save")}
+                {t('modals.walletModal.save')}
               </Text>
             )}
           </TouchableOpacity>
           {/* Delete button */}
           <TouchableOpacity
             className={`rounded-xl py-3 mt-3 ${
-              isDeleting || isLoading ? "bg-gray-600" : "bg-red-600"
+              isDeleting || isLoading ? 'bg-gray-600' : 'bg-red-600'
             }`}
             onPress={handleDelete}
             disabled={isDeleting || isLoading}
@@ -243,12 +248,12 @@ const WalletUpdate = () => {
               <View className="flex-row justify-center items-center">
                 <ActivityIndicator size="small" color="white" />
                 <Text className="text-white text-center text-lg font-bold ml-2">
-                  {t("modals.walletModal.deleting")}
+                  {t('modals.walletModal.deleting')}
                 </Text>
               </View>
             ) : (
               <Text className="text-white text-center text-lg font-bold">
-                {t("modals.walletModal.delete")}
+                {t('modals.walletModal.delete')}
               </Text>
             )}
           </TouchableOpacity>

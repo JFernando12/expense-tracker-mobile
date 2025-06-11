@@ -1,9 +1,10 @@
-import Header from "@/components/Header";
+import Header from '@/components/Header';
 import HomeSkeleton from '@/components/skeletons/HomeSkeleton';
 import TransactionList from '@/components/TransactionList';
 import icons from '@/constants/icons';
 import { useGlobalContext } from '@/lib/global-provider';
 import { useTranslation } from '@/lib/i18n/useTranslation';
+import { formatNumberWithCommas } from '@/lib/utils/numberUtils';
 import { router } from 'expo-router';
 import {
   Image,
@@ -50,7 +51,10 @@ export default function Index() {
           {t('home.totalBalance')}
         </Text>
         <Text className="text-white text-4xl font-bold mb-6">
-          ${totalBalance?.toFixed(2) || '0.00'}
+          $
+          {totalBalance
+            ? formatNumberWithCommas(totalBalance.toFixed(2))
+            : '0.00'}
         </Text>
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
@@ -64,7 +68,10 @@ export default function Index() {
             <View>
               <Text className="text-neutral-200">{t('home.income')}</Text>
               <Text className="text-white text-lg font-bold">
-                ${totalIncomes?.toFixed(2) || '0.00'}
+                $
+                {totalIncomes
+                  ? formatNumberWithCommas(totalIncomes.toFixed(2))
+                  : '0.00'}
               </Text>
             </View>
           </View>
@@ -79,7 +86,10 @@ export default function Index() {
             <View>
               <Text className="text-neutral-200">{t('home.expenses')}</Text>
               <Text className="text-danger font-bold text-lg">
-                ${totalExpenses?.toFixed(2) || '0.00'}
+                $
+                {totalExpenses
+                  ? formatNumberWithCommas(totalExpenses.toFixed(2))
+                  : '0.00'}
               </Text>
             </View>
           </View>

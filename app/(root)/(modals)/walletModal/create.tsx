@@ -1,10 +1,11 @@
-import CustomField from "@/components/CustomField";
-import icons from "@/constants/icons";
-import { useGlobalContext } from "@/lib/global-provider";
-import { useTranslation } from "@/lib/i18n/useTranslation";
-import { createWallet } from "@/lib/services/fetchData/wallets";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import CustomField from '@/components/CustomField';
+import icons from '@/constants/icons';
+import { useGlobalContext } from '@/lib/global-provider';
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import { createWallet } from '@/lib/services/fetchData/wallets';
+import { parseFormattedNumber } from '@/lib/utils/numberUtils';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -14,26 +15,26 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 enum fieldTypes {
-  TEXT = "text",
-  NUMBER = "number",
-  DATE = "date",
-  SELECT = "select",
+  TEXT = 'text',
+  NUMBER = 'number',
+  DATE = 'date',
+  SELECT = 'select',
 }
 
 const WalletCreate = () => {
   const { refetchResources, isOnlineMode } = useGlobalContext();
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    initialBalance: "",
+    name: '',
+    description: '',
+    initialBalance: '',
   });
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const fields = [
     {
       label: t('modals.walletModal.nameLabel'),
@@ -67,30 +68,29 @@ const WalletCreate = () => {
       [key]: value,
     }));
   };
-  
+
   const handleCreateWallet = async () => {
     // Validate form
     if (!formData.name.trim()) {
       Alert.alert(
-        t("validation.completeFields"),
-        t("validation.walletNameRequired")
+        t('validation.completeFields'),
+        t('validation.walletNameRequired')
       );
       return;
     }
 
     if (!formData.initialBalance.trim()) {
       Alert.alert(
-        t("validation.completeFields"),
-        t("validation.initialBalanceRequired")
+        t('validation.completeFields'),
+        t('validation.initialBalanceRequired')
       );
       return;
     }
-
-    const initialBalance = parseFloat(formData.initialBalance);
+    const initialBalance = parseFormattedNumber(formData.initialBalance);
     if (isNaN(initialBalance) || initialBalance < 0) {
       Alert.alert(
-        t("validation.completeFields"),
-        t("validation.initialBalanceValid")
+        t('validation.completeFields'),
+        t('validation.initialBalanceValid')
       );
       return;
     }
@@ -109,18 +109,18 @@ const WalletCreate = () => {
 
       // Refetch resources to update the wallet list
       await refetchResources();
-      Alert.alert(t("common.success"), t("alerts.walletCreatedSuccess"), [
+      Alert.alert(t('common.success'), t('alerts.walletCreatedSuccess'), [
         {
-          text: t("common.ok"),
+          text: t('common.ok'),
           onPress: () => {
             router.back();
-            router.push("/(root)/(tabs)/wallet");
+            router.push('/(root)/(tabs)/wallet');
           },
         },
       ]);
     } catch (error) {
       console.error('Error creating wallet:', error);
-      Alert.alert(t("common.error"), t("alerts.errorCreatingWallet"));
+      Alert.alert(t('common.error'), t('alerts.errorCreatingWallet'));
     }
     setIsLoading(false);
   };
@@ -139,7 +139,7 @@ const WalletCreate = () => {
           />
         </TouchableOpacity>
         <Text className="text-white text-2xl font-bold">
-          {t("modals.walletModal.createTitle")}
+          {t('modals.walletModal.createTitle')}
         </Text>
       </View>
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
@@ -161,7 +161,7 @@ const WalletCreate = () => {
       </ScrollView>
       <TouchableOpacity
         className={`rounded-xl py-3 mt-5 ${
-          isLoading ? "bg-gray-600" : "bg-accent-200"
+          isLoading ? 'bg-gray-600' : 'bg-accent-200'
         }`}
         onPress={handleCreateWallet}
         disabled={isLoading}
@@ -170,12 +170,12 @@ const WalletCreate = () => {
           <View className="flex-row justify-center items-center">
             <ActivityIndicator size="small" color="white" />
             <Text className="text-white text-center text-lg font-bold ml-2">
-              {t("modals.walletModal.saving")}
+              {t('modals.walletModal.saving')}
             </Text>
           </View>
         ) : (
           <Text className="text-white text-center text-lg font-bold">
-            {t("modals.walletModal.save")}
+            {t('modals.walletModal.save')}
           </Text>
         )}
       </TouchableOpacity>

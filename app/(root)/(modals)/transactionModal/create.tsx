@@ -5,6 +5,7 @@ import { useGlobalContext } from '@/lib/global-provider';
 import { useTranslation } from '@/lib/i18n/useTranslation';
 import { createTransaction } from '@/lib/services/fetchData/transactions';
 import { deleteImage, saveImageToDocuments } from '@/lib/utils/imageUtils';
+import { parseFormattedNumber } from '@/lib/utils/numberUtils';
 import { TransactionType } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -91,8 +92,7 @@ const TransactionCreate = () => {
       );
       return false;
     }
-
-    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+    if (!formData.amount || parseFormattedNumber(formData.amount) <= 0) {
       Alert.alert(t('validation.completeFields'), t('validation.validAmount'));
       return false;
     }
@@ -212,7 +212,7 @@ const TransactionCreate = () => {
           walletId: formData.walletId,
           categoryId: formData.categoryId,
           description: formData.description,
-          amount: parseFloat(formData.amount),
+          amount: parseFormattedNumber(formData.amount),
           type: transactionType as TransactionType,
           date: formData.date.toISOString(),
           imageUrl: selectedImage,

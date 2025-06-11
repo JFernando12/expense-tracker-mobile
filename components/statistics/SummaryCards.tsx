@@ -1,5 +1,6 @@
-import icons from "@/constants/icons";
+import icons from '@/constants/icons';
 import { useTranslation } from '@/lib/i18n/useTranslation';
+import { formatNumberWithCommas } from '@/lib/utils/numberUtils';
 import React from 'react';
 import { Image, ImagePropsBase, Text, View } from 'react-native';
 
@@ -35,7 +36,10 @@ const SummaryCards = ({
         <View>
           <Text className="text-neutral-200 text-base">{t('home.income')}</Text>
           <Text className="text-white text-xl font-bold">
-            ${totalIncomes ? totalIncomes.toFixed(2) : '0.00'}
+            $
+            {totalIncomes
+              ? formatNumberWithCommas(totalIncomes.toFixed(2))
+              : '0.00'}
           </Text>
           <View className="flex-row items-center mt-1">
             <Text className="text-neutral-200 text-xs">{getPeriodText()}</Text>
@@ -55,7 +59,10 @@ const SummaryCards = ({
             {t('home.expenses')}
           </Text>
           <Text className="text-danger font-bold text-xl">
-            ${totalExpenses ? totalExpenses.toFixed(2) : '0.00'}
+            $
+            {totalExpenses
+              ? formatNumberWithCommas(totalExpenses.toFixed(2))
+              : '0.00'}
           </Text>
           <View className="flex-row items-center mt-1">
             <Text className="text-neutral-200 text-xs">{getPeriodText()}</Text>

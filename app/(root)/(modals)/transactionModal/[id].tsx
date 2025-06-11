@@ -11,6 +11,10 @@ import {
   saveImageToDocuments,
   verifyImageExists,
 } from '@/lib/utils/imageUtils';
+import {
+  formatNumberWithCommas,
+  parseFormattedNumber,
+} from '@/lib/utils/numberUtils';
 import { TransactionType } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -115,7 +119,7 @@ const TransactionUpdate = () => {
         walletId: transactionToEdit.walletId || '',
         categoryId: transactionToEdit.categoryId || '',
         description: transactionToEdit.description || '',
-        amount: transactionToEdit.amount.toString(),
+        amount: formatNumberWithCommas(transactionToEdit.amount.toString()),
         date: parseDate(transactionToEdit.date),
       });
       setTransactionType(
@@ -302,7 +306,7 @@ const TransactionUpdate = () => {
       );
       return false;
     }
-    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+    if (!formData.amount || parseFormattedNumber(formData.amount) <= 0) {
       Alert.alert(t('validation.completeFields'), t('validation.validAmount'));
       return false;
     }
@@ -332,7 +336,7 @@ const TransactionUpdate = () => {
             walletId: formData.walletId,
             categoryId: formData.categoryId,
             description: formData.description,
-            amount: parseFloat(formData.amount),
+            amount: parseFormattedNumber(formData.amount),
             type: transactionType as TransactionType,
             date: formData.date.toISOString(),
             imageUrl: selectedImage,
