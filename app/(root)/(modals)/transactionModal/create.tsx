@@ -6,6 +6,7 @@ import { useTranslation } from '@/lib/i18n/useTranslation';
 import { createTransaction } from '@/lib/services/fetchData/transactions';
 import { deleteImage, saveImageToDocuments } from '@/lib/utils/imageUtils';
 import { TransactionType } from '@/types/types';
+import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import * as ImagePicker from 'expo-image-picker';
@@ -17,6 +18,7 @@ import {
   Image,
   ImagePropsBase,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   Text,
@@ -65,6 +67,7 @@ const TransactionCreate = () => {
     date: new Date(),
   });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showImagePreview, setShowImagePreview] = useState(false);
   const { isOnlineMode, wallets, walletsLoading, refetchResources } =
     useGlobalContext();
 
@@ -176,8 +179,11 @@ const TransactionCreate = () => {
       );
     }
   };
-
   const showImagePicker = () => {
+    showImageSelectionOptions();
+  };
+
+  const showImageSelectionOptions = () => {
     Alert.alert(t('alerts.selectImage'), t('alerts.chooseOption'), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('alerts.takePhoto'), onPress: takePhoto },
@@ -395,12 +401,12 @@ const TransactionCreate = () => {
                 <Text className="text-neutral-200 text-sm mb-1">
                   {t('modals.transactionModal.ticketLabel')}
                 </Text>
-                <TouchableOpacity
-                  className="bg-primary-200 rounded-xl border border-primary-300 py-4 px-4 min-h-[120px] justify-center items-center"
-                  onPress={showImagePicker}
-                >
-                  {selectedImage ? (
-                    <View className="w-full items-center">
+                {selectedImage ? (
+                  <View className="bg-primary-200 rounded-xl border border-primary-300 p-4">
+                    <TouchableOpacity
+                      onPress={() => setShowImagePreview(true)}
+                      className="w-full items-center mb-3"
+                    >
                       <Image
                         source={{ uri: selectedImage }}
                         style={{
@@ -418,28 +424,45 @@ const TransactionCreate = () => {
                             error.nativeEvent.error
                           );
                           console.log('Failed image URI:', selectedImage);
-                          // Optionally remove the broken image
                           setSelectedImage(null);
                         }}
                       />
+                    </TouchableOpacity>
+                    <Text className="text-neutral-300 text-xs mb-3 text-center">
+                      Tap image to preview
+                    </Text>
+                    <View className="flex-row gap-2">
                       <TouchableOpacity
-                        className="absolute top-2 right-2 bg-red-600 rounded-full p-1"
+                        className="flex-1 bg-blue-600 rounded-lg py-2 px-3"
+                        onPress={showImageSelectionOptions}
+                      >
+                        <Text className="text-white text-center text-sm font-medium">
+                          Change Image
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        className="flex-1 bg-red-600 rounded-lg py-2 px-3"
                         onPress={removeImage}
                       >
-                        <Text className="text-white text-xs px-2">✕</Text>
+                        <Text className="text-white text-center text-sm font-medium">
+                          Remove Image
+                        </Text>
                       </TouchableOpacity>
                     </View>
-                  ) : (
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    className="bg-primary-200 rounded-xl border border-primary-300 py-4 px-4 min-h-[120px] justify-center items-center"
+                    onPress={showImagePicker}
+                  >
                     <View className="items-center">
-                      <Text className="text-neutral-200 text-base mb-2">
-                        📷
-                      </Text>
+                      <Ionicons name="camera-outline" size={20} color="#fff" />
                       <Text className="text-neutral-200 text-sm">
                         {t('modals.transactionModal.tapToAddImage')}
                       </Text>
                     </View>
-                  )}
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           </ScrollView>
@@ -465,6 +488,40 @@ const TransactionCreate = () => {
           </Text>
         )}
       </TouchableOpacity>
+
+      {/* Image Preview Modal */}
+      <Modal
+        visible={showImagePreview}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowImagePreview(false)}
+      >
+        <View className="flex-1 bg-black bg-opacity-90 justify-center items-center">
+          <TouchableOpacity
+            className="absolute top-20 right-3 z-10 bg-black bg-opacity-50 rounded-full p-3"
+            onPress={() => setShowImagePreview(false)}
+          >
+            <Text className="text-white text-xl font-bold">✕</Text>
+          </TouchableOpacity>
+          {selectedImage && (
+            <TouchableOpacity
+              className="flex-1 w-full justify-center items-center"
+              activeOpacity={1}
+              onPress={() => setShowImagePreview(false)}
+            >
+              <Image
+                source={{ uri: selectedImage }}
+                style={{
+                  width: '95%',
+                  height: '80%',
+                }}
+                resizeMode="contain"
+                className="rounded-lg"
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

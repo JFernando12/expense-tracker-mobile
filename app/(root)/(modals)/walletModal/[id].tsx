@@ -156,16 +156,9 @@ const WalletUpdate = () => {
           setIsDeleting(true);
           try {
             await deleteWallet({ isOnlineMode, walletId: walletToEdit.id });
-
-            Alert.alert(t("common.success"), t("alerts.walletDeletedSuccess"), [
-              {
-                text: t("common.ok"),
-                onPress: () => {
-                  refetchResources();
-                  router.back();
-                },
-              },
-            ]);
+            await refetchResources();
+            router.back();
+            Alert.alert(t('common.success'), t('alerts.walletDeletedSuccess'));
           } catch (error) {
             console.error("Error deleting wallet:", error);
             Alert.alert(t("common.error"), t("alerts.errorDeletingWallet"));

@@ -233,7 +233,7 @@
     "gallery": "Gallery",
     "cameraPermissionMessage": "Camera access permissions are needed.",
     "deleteWallet": "Delete Wallet",
-    "deleteWalletConfirm": "Are you sure you want to delete this wallet? This action cannot be undone. The account cannot be deleted if it has transactions.",
+    "deleteWalletConfirm": "Are you sure you want to delete this wallet? This action cannot be undone. The wallet cannot be deleted if it has transactions.",
     "walletDeletedSuccess": "Wallet deleted successfully",
     "errorDeletingWallet": "An error occurred while deleting the wallet",
     "walletUpdatedSuccess": "Wallet updated successfully",
