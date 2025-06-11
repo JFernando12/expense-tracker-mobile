@@ -53,7 +53,7 @@
   "wallet": {
     "title": "Mis Carteras",
     "totalBalance": "Balance Total",
-    "allWallets": "Todas las carteras",
+    "allAccounts": "Todas las carteras",
     "create": "Crear"
   },
   "transactions": {
