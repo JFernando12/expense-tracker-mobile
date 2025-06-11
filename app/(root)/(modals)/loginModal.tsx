@@ -8,18 +8,19 @@ import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Modal,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { WebView } from 'react-native-webview';
 
 const LoginModal = () => {
   const { isNetworkEnabled, refetchUserLocal } = useGlobalContext();
   const { t } = useTranslation();
   const { mode } = useLocalSearchParams();
-
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -27,6 +28,7 @@ const LoginModal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   // Set initial mode based on URL parameter
   useEffect(() => {
@@ -71,11 +73,13 @@ const LoginModal = () => {
     setIsLoading(true);
     // Basic validation
     if (!name.trim() || !email.trim() || !password.trim()) {
+      setIsLoading(false);
       Alert.alert(t('common.error'), t('auth.completeAllFields'));
       return;
     }
 
     if (password.length < 8) {
+      setIsLoading(false);
       Alert.alert(t('common.error'), t('auth.passwordMinLength'));
       return;
     }
@@ -83,11 +87,13 @@ const LoginModal = () => {
     // Email validation using regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      setIsLoading(false);
       Alert.alert(t('common.error'), t('auth.invalidEmail'));
       return;
     }
 
     if (!acceptedTerms) {
+      setIsLoading(false);
       Alert.alert(t('common.error'), t('auth.termsAcceptanceRequired'));
       return;
     }
@@ -106,14 +112,14 @@ const LoginModal = () => {
     });
 
     if (!result) {
-      Alert.alert(t('common.error'), 'No se pudo registrar el usuario');
       setIsLoading(false);
+      Alert.alert(t('common.error'), 'No se pudo registrar el usuario');
       return;
     }
 
     await refetchUserLocal();
-    Alert.alert(t('common.success'), 'Usuario registrado correctamente');
     setIsLoading(false);
+    Alert.alert(t('common.success'), 'Usuario registrado correctamente');
     router.back();
   };
 
@@ -239,8 +245,13 @@ const LoginModal = () => {
           </View>
           <Text className="text-neutral-400 text-sm flex-1">
             {`${'I accept the '}`}
-            <Text className="text-accent-200 underline">terms of use</Text> of
-            the Tracki synchronization service
+            <Text
+              className="text-accent-200 underline"
+              onPress={() => setShowTermsModal(true)}
+            >
+              terms of use
+            </Text>
+            {`${' of the Tracki synchronization service'}`}
           </Text>
         </TouchableOpacity>
       )}
@@ -265,6 +276,36 @@ const LoginModal = () => {
           </View>
         )}
       </TouchableOpacity>
+
+      {/* Terms and Conditions WebView Modal */}
+      <Modal
+        visible={showTermsModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <SafeAreaView className="flex-1 bg-white">
+          <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+            <Text className="text-lg font-bold">Terms of Use</Text>
+            <TouchableOpacity
+              onPress={() => setShowTermsModal(false)}
+              className="p-2"
+            >
+              <Ionicons name="close-outline" size={24} color="#000" />
+            </TouchableOpacity>
+          </View>
+          <WebView
+            source={{
+              uri: 'https://www.privacypolicies.com/live/9d0e6784-fcc0-4314-bd3d-f85b314cc9ff',
+            }}
+            startInLoadingState={true}
+            renderLoading={() => (
+              <View className="flex-1 justify-center items-center">
+                <ActivityIndicator size="large" color="#6B7280" />
+              </View>
+            )}
+          />
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 };

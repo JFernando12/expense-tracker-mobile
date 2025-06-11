@@ -44,7 +44,7 @@ export const getExpensesByCategory = async ({
 
   const totalExpenses = await getTotalExpenses({ period });
 
-  return result.map((item, index) => {
+  const expensesByCategory = result.map((item, index) => {
     const category = getCategoryById(item.categoryId, t);
     const categoryId = item.categoryId;
     const categoryName = category?.name || 'Unknown';
@@ -60,4 +60,9 @@ export const getExpensesByCategory = async ({
       percentage: parseFloat(percentage.toFixed(2)),
     };
   });
+
+  const expensesByCategorySorted = expensesByCategory.sort(
+    (a, b) => b.total - a.total
+  );
+  return expensesByCategorySorted;
 };

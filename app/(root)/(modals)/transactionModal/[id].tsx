@@ -344,16 +344,10 @@ const TransactionUpdate = () => {
           removeImage,
         },
       });
-      Alert.alert(t('common.success'), t('alerts.transactionUpdatedSuccess'), [
-        {
-          text: t('common.ok'),
-          onPress: () => {
-            refetchResources(); // Refresh wallets and categories
-            refetchTransactions(); // Refresh transactions
-            router.back();
-          },
-        },
-      ]);
+      await refetchResources(); // Refresh wallets and categories
+      await refetchTransactions(); // Refresh transactions
+      Alert.alert(t('common.success'), t('alerts.transactionUpdatedSuccess'));
+      router.back();
     } catch (error) {
       console.error('Error updating transaction:', error);
       Alert.alert(
