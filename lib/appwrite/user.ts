@@ -191,21 +191,25 @@ export const registerOnServer = async ({
     password,
     name,
   });
+  console.log('User ID from registerOnServer:', userId);
   if (!userId) return null;
 
-  const response = await databases.createDocument(
-    config.databaseId,
-    config.userCollectionId,
-    userId,
-    {
-      user_id: userId,
-      name,
-      email,
-    }
-  );
-  if (!response.$id) return null;
-
-  // Save user locally
-  await loginOnServer(email, password);
-  return userId;
+  try {
+    const response = await databases.createDocument(
+      config.databaseId,
+      config.userCollectionId,
+      userId,
+      {
+        user_id: userId,
+        name,
+        email,
+        app_mode: 'free',
+      }
+    );
+    if (!response.$id) return null;
+    return userId;
+  } catch (error) {
+    console.error('Error registering user on server:', error);
+    return null;
+  }
 };
