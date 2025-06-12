@@ -1,14 +1,14 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export type AppMode = 'free' | 'premium';
-export type SyncMode = 'local' | 'cloud';
+export type AppMode = "free" | "premium";
+export type SyncMode = "local" | "cloud";
 
 export interface UserLocal {
   id?: string;
   name?: string;
   email?: string;
-  appMode?: 'free' | 'premium';
-  subscriptionType?: 'monthly' | 'yearly';
+  appMode?: "free" | "premium";
+  subscriptionType?: "monthly" | "yearly";
   subscriptionExpiration?: Date;
   isLoggedIn?: boolean;
   syncMode?: SyncMode;
@@ -18,10 +18,10 @@ export interface UserLocal {
 }
 
 interface StorageUser extends UserLocal {
-  syncStatus: 'synced' | 'pending' | 'conflict';
+  syncStatus: "synced" | "pending" | "conflict";
 }
 
-const USER_LOCAL_KEY = 'user_subscription';
+const USER_LOCAL_KEY = "user_subscription";
 
 class UserLocalStorage {
   async init(): Promise<void> {
@@ -30,13 +30,13 @@ class UserLocalStorage {
       if (!storedSubscription) {
         // Initialize with default values if no subscription exists
         const defaultUser: StorageUser = {
-          appMode: 'free',
-          syncStatus: 'synced',
+          appMode: "free",
+          syncStatus: "synced",
         };
         await this.saveUserLocal(defaultUser);
       }
     } catch (error) {
-      console.error('Error initializing user local storage:', error);
+      console.error("Error initializing user local storage:", error);
     }
   }
 
@@ -53,8 +53,8 @@ class UserLocalStorage {
       id,
       name,
       email,
-      appMode: 'free',
-      syncStatus: 'synced',
+      appMode: "free",
+      syncStatus: "synced",
       isLoggedIn: true,
     };
     await this.saveUserLocal(userLocal);
@@ -63,25 +63,34 @@ class UserLocalStorage {
   async loginUserLocal(userLocal: UserLocal): Promise<void> {
     const subscription: StorageUser = {
       ...userLocal,
-      syncStatus: 'synced',
+      syncStatus: "synced",
       isLoggedIn: true,
     };
     await this.saveUserLocal(subscription);
   }
 
-  async logoutUserLocal(): Promise<void> {
-    const currentUser = await this.getUserLocalStorage();
-    const newUserLocal: StorageUser = {
-      ...currentUser,
-      appMode: 'free',
-      syncStatus: 'synced',
-      isLoggedIn: false,
-      subscriptionType: undefined,
-      subscriptionExpiration: undefined,
-      transactionId: undefined,
-      originalTransactionId: undefined,
-    };
-    await this.saveUserLocal(newUserLocal);
+  async logoutUserLocal(): Promise<boolean> {
+    try {
+      const currentUser = await this.getUserLocalStorage();
+      const newUserLocal: StorageUser = {
+        ...currentUser,
+        id: undefined,
+        name: undefined,
+        email: undefined,
+        appMode: "free",
+        syncStatus: "synced",
+        isLoggedIn: false,
+        subscriptionType: undefined,
+        subscriptionExpiration: undefined,
+        transactionId: undefined,
+        originalTransactionId: undefined,
+      };
+      await this.saveUserLocal(newUserLocal);
+      return true;
+    } catch (error) {
+      console.error("Error logging out local user:", error);
+      return false;
+    }
   }
 
   async getUserLocalStorage(): Promise<StorageUser | null> {
@@ -98,23 +107,23 @@ class UserLocalStorage {
   async getUserLocal(): Promise<UserLocal> {
     try {
       const storedSubscription = await AsyncStorage.getItem(USER_LOCAL_KEY);
-      if (!storedSubscription) return { appMode: 'free' };
+      if (!storedSubscription) return { appMode: "free" };
 
       const parsed: StorageUser = JSON.parse(storedSubscription);
       return parsed;
     } catch (error) {
-      console.error('Error retrieving subscription:', error);
-      return { appMode: 'free' };
+      console.error("Error retrieving subscription:", error);
+      return { appMode: "free" };
     }
   }
-  
+
   async upgradeToPremium({
     subscriptionType,
     subscriptionExpiration,
     transactionId,
     originalTransactionId,
   }: {
-    subscriptionType: 'monthly' | 'yearly';
+    subscriptionType: "monthly" | "yearly";
     subscriptionExpiration: Date;
     transactionId?: string;
     originalTransactionId?: string;
@@ -122,10 +131,10 @@ class UserLocalStorage {
     const subscription: StorageUser | null = await this.getUserLocalStorage();
     if (!subscription) return;
 
-    subscription.appMode = 'premium';
+    subscription.appMode = "premium";
     subscription.subscriptionType = subscriptionType;
     subscription.subscriptionExpiration = subscriptionExpiration;
-    subscription.syncStatus = 'pending'; // Set to pending until confirmed
+    subscription.syncStatus = "pending"; // Set to pending until confirmed
 
     // Add receipt information if provided
     if (transactionId) {
@@ -139,7 +148,7 @@ class UserLocalStorage {
   }
 
   async updateSyncStatus(
-    status: 'synced' | 'pending' | 'conflict'
+    status: "synced" | "pending" | "conflict"
   ): Promise<void> {
     const subscription = await this.getUserLocalStorage();
     if (!subscription) return;
@@ -179,7 +188,7 @@ class UserLocalStorage {
     if (subscriptionType) subscription.subscriptionType = subscriptionType;
     if (subscriptionExpiration)
       subscription.subscriptionExpiration = subscriptionExpiration;
-    subscription.syncStatus = 'pending';
+    subscription.syncStatus = "pending";
 
     await this.saveUserLocal(subscription);
     return true;

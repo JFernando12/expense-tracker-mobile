@@ -1,4 +1,5 @@
 import {
+  deleteAccountOnServer,
   loginOnServer,
   logoutOnServer,
   registerOnServer,
@@ -191,3 +192,24 @@ export const completeIAPPurchase = async ({
 export const updateLastSyncDate = async (): Promise<void> => {
   await userLocalStorage.updateLastSyncDate();
 };
+
+export const deleteAccount = async ({
+  networkEnabled,
+}: {
+  networkEnabled: boolean;
+}): Promise<boolean> => {
+  if (!networkEnabled) return false;
+
+  const user = await getUser();
+  const id = user.id;
+  if (!id) return false;
+
+  // Call server to delete account
+  const serverDeleteResult = await deleteAccountOnServer({ userId: id });
+  if (!serverDeleteResult) return false;
+
+  // Clear local storage
+  const localLogoutResult = await userLocalStorage.logoutUserLocal();
+  if (!localLogoutResult) return false;
+  return true;
+}
