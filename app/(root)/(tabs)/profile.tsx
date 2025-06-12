@@ -4,8 +4,9 @@ import images from "@/constants/images";
 import { useGlobalContext } from "@/lib/global-provider";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { deleteAccount, logout } from "@/lib/services/user/user";
-import React from "react";
+import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   ImageSourcePropType,
@@ -18,6 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
   const { userLocal, refetchUserLocal, isNetworkEnabled } = useGlobalContext();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { t } = useTranslation();
   const initials = userLocal?.name
@@ -62,14 +64,25 @@ const Profile = () => {
           text: t("common.delete"),
           style: "destructive",
           onPress: async () => {
-            const result = await deleteAccount({
-              networkEnabled: isNetworkEnabled,
-            });
-            if (!result) {
+            try {
+              setIsDeleting(true);
+              const result = await deleteAccount({
+                networkEnabled: isNetworkEnabled,
+              });
+              if (!result) {
+                Alert.alert(
+                  t("common.failed"),
+                  t("profile.deleteAccountFailed")
+                );
+                return;
+              }
+              await refetchUserLocal();
+            } catch (error) {
+              console.error("Error deleting account:", error);
               Alert.alert(t("common.failed"), t("profile.deleteAccountFailed"));
-              return;
+            } finally {
+              setIsDeleting(false);
             }
-            await refetchUserLocal();
           },
         },
       ],
@@ -158,19 +171,26 @@ const Profile = () => {
                 onPress={handleDeleteAccount}
                 className="bg-secondary-100 rounded-2xl p-4"
                 activeOpacity={0.7}
+                disabled={isDeleting}
               >
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center flex-1">
                     <View className="bg-red-600/20 size-10 rounded-full items-center justify-center mr-3">
-                      <Image
-                        source={icons.trashCan as ImageSourcePropType}
-                        tintColor="#dc2626"
-                        className="size-6"
-                      />
+                      {isDeleting ? (
+                        <ActivityIndicator size="small" color="#dc2626" />
+                      ) : (
+                        <Image
+                          source={icons.trashCan as ImageSourcePropType}
+                          tintColor="#dc2626"
+                          className="size-6"
+                        />
+                      )}
                     </View>
                     <View className="flex-1">
                       <Text className="text-red-500 text-lg font-medium mb-0.5">
-                        {t("profile.deleteAccount")}
+                        {isDeleting
+                          ? t("forms.deleting")
+                          : t("profile.deleteAccount")}
                       </Text>
                       <Text className="text-neutral-400 text-sm">
                         {t("profile.deleteAccountDescription")}
