@@ -40,11 +40,15 @@
     "syncConfirmTitle": "Sync Data",
     "syncConfirmMessage": "This will upload your local data to the cloud. Local data will remain available. Continue?",
     "syncDataLoginPrompt": "Sync data",
-    "autoSyncEnabled": "Auto Sync Enabled",
-    "autoSyncDisabled": "Auto Sync Disabled",
+    "autoSyncEnabled": "Auto Sync Enabled",    "autoSyncDisabled": "Auto Sync Disabled",
     "logoutConfirmTitle": "Logout Confirmation",
     "logoutConfirmMessage": "Are you sure you want to log out?",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "deleteAccount": "Delete Account",
+    "deleteAccountConfirmTitle": "Delete Account",
+    "deleteAccountConfirmMessage": "Are you sure you want to delete your account? This action cannot be undone.",
+    "deleteAccountFailed": "Failed to delete account. Please try again.",
+    "deleteAccountDescription": "Permanently delete your account"
   },
   "statistics": {
     "title": "Statistics",

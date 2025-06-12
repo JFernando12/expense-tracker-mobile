@@ -40,10 +40,14 @@ export interface Translations {
     logoutConfirmMessage: string;
     confirm: string;
     syncConfirmTitle: string;
-    syncConfirmMessage: string;
-    syncDataLoginPrompt: string;
+    syncConfirmMessage: string;    syncDataLoginPrompt: string;
     autoSyncEnabled: string;
     autoSyncDisabled: string;
+    deleteAccount: string;
+    deleteAccountConfirmTitle: string;
+    deleteAccountConfirmMessage: string;
+    deleteAccountFailed: string;
+    deleteAccountDescription: string;
   };
   statistics: {
     title: string;
@@ -311,10 +315,14 @@ export type TranslationKey =
   | 'profile.syncConfirmMessage'
   | 'profile.syncDataLoginPrompt'
   | 'profile.autoSyncEnabled'
-  | 'profile.autoSyncDisabled'
-  | 'profile.logoutConfirmTitle'
+  | 'profile.autoSyncDisabled'  | 'profile.logoutConfirmTitle'
   | 'profile.logoutConfirmMessage'
   | 'profile.confirm'
+  | 'profile.deleteAccount'
+  | 'profile.deleteAccountConfirmTitle'
+  | 'profile.deleteAccountConfirmMessage'
+  | 'profile.deleteAccountFailed'
+  | 'profile.deleteAccountDescription'
   // Statistics translations
   | 'statistics.title'
   | 'statistics.sevenDays'

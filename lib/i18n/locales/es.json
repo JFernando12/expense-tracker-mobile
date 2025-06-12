@@ -40,11 +40,15 @@
     "syncConfirmTitle": "Sincronizar Datos",
     "syncConfirmMessage": "Esto subirá tus datos locales a la nube. Los datos locales se mantendrán disponibles. ¿Continuar?",
     "syncDataLoginPrompt": "Sincronizar datos",
-    "autoSyncEnabled": "Auto Sincronización Activada",
-    "autoSyncDisabled": "Auto Sincronización Desactivada",
+    "autoSyncEnabled": "Auto Sincronización Activada",    "autoSyncDisabled": "Auto Sincronización Desactivada",
     "logoutConfirmTitle": "Confirmación de cierre de sesión",
     "logoutConfirmMessage": "¿Estás seguro de que quieres cerrar sesión?",
-    "confirm": "Confirmar"
+    "confirm": "Confirmar",
+    "deleteAccount": "Eliminar Cuenta",
+    "deleteAccountConfirmTitle": "Eliminar Cuenta",
+    "deleteAccountConfirmMessage": "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.",
+    "deleteAccountFailed": "No se pudo eliminar la cuenta. Por favor, inténtalo de nuevo.",
+    "deleteAccountDescription": "Eliminar permanentemente tu cuenta"
   },
   "statistics": {
     "title": "Estadísticas",
